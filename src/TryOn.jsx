@@ -12,10 +12,10 @@ const GLASS_OPTIONS = [
     brand: "Gucci", 
     model: "GG01840",
     sizes: [
-      { label: "S", width: 180, height: 65, bridge: 20, pxWidth: 210, pxHeight: 75 },
-      { label: "M", width: 190, height: 70, bridge: 23, pxWidth: 220, pxHeight: 80 },
-      { label: "L", width: 200, height: 75, bridge: 26, pxWidth: 230, pxHeight: 90 },
-      { label: "XL", width: 230, height: 85, bridge: 29, pxWidth: 250, pxHeight: 100 }
+      { label: "S", width: 128, height: 45, bridge: 16, pxWidth: 150, pxHeight: 53 },
+      { label: "M", width: 135, height: 48, bridge: 18, pxWidth: 158, pxHeight: 56 },
+      { label: "L", width: 142, height: 51, bridge: 20, pxWidth: 166, pxHeight: 60 },
+      { label: "XL", width: 150, height: 54, bridge: 22, pxWidth: 175, pxHeight: 63 }
     ],
     defaultSize: "M"
   },
@@ -110,11 +110,6 @@ const LANDMARKS = {
   NOSE_BRIDGE_TOP: 6,
 };
 
-// 🔄 DYNAMIC SCALING: reference face width (pixels) at which the selected size fits correctly
-// Adjust this value based on your camera resolution (640x480) and typical user distance.
-const REFERENCE_FACE_WIDTH = 140; 
-
-// ── Smoothing classes ──────────────────────────────────────────────
 class LandmarkSmoother {
   constructor(alpha = 0.7) {
     this.alpha = alpha;
@@ -135,21 +130,8 @@ class LandmarkSmoother {
   reset() { this.prev = null; }
 }
 
-class ValueSmoother {
-  constructor(alpha = 0.7) {
-    this.alpha = alpha;
-    this.value = null;
-  }
-  smooth(next) {
-    if (this.value === null) this.value = next;
-    else this.value = this.value + this.alpha * (next - this.value);
-    return this.value;
-  }
-  reset() { this.value = null; }
-}
-
 // ══════════════════════════════════════════════════════════════════
-// ── FACE GEOMETRY EXTRACTOR - NOW RETURNS FACE WIDTH ──
+// ── FACE GEOMETRY EXTRACTOR (only position & angle) ──
 // ══════════════════════════════════════════════════════════════════
 function extractFaceGeometry(lm, W, H) {
   const px = (idx) => ({ x: lm[idx].x * W, y: lm[idx].y * H });
@@ -166,9 +148,6 @@ function extractFaceGeometry(lm, W, H) {
   const leftBrowLower = avgPx(LANDMARKS.LEFT_EYEBROW_LOWER);
   const rightBrowLower = avgPx(LANDMARKS.RIGHT_EYEBROW_LOWER);
 
-  // Face width = distance between iris centers (pixels)
-  const faceWidth = Math.hypot(rightIris.x - leftIris.x, rightIris.y - leftIris.y);
-
   const angleIris = Math.atan2(rightIris.y - leftIris.y, rightIris.x - leftIris.x);
   const angleBrow = Math.atan2(rightBrowLower.y - leftBrowLower.y, rightBrowLower.x - leftBrowLower.x);
   const angle = angleIris * 0.6 + angleBrow * 0.4;
@@ -178,7 +157,7 @@ function extractFaceGeometry(lm, W, H) {
   const irisCenterY = (leftIris.y + rightIris.y) / 2;
   const centerY = browCenterY * 0.45 + irisCenterY * 0.55;
 
-  return { centerX, centerY, angle, faceWidth };
+  return { centerX, centerY, angle };
 }
 
 // ── Drawing function (unchanged) ───────────────────────────────────
@@ -226,7 +205,7 @@ const drawGlassesWithArms = (ctx, img, x, y, w, h, angle) => {
 };
 
 // ══════════════════════════════════════════════════════════════════
-// ── MAIN COMPONENT ──
+// ── MAIN COMPONENT (FIXED SIZE, NO DYNAMIC SCALING) ──
 // ══════════════════════════════════════════════════════════════════
 const TryOn = () => {
   const videoRef = useRef(null);
@@ -252,7 +231,6 @@ const TryOn = () => {
   
   const cameraReadyRef = useRef(false);
   const smootherRef = useRef(new LandmarkSmoother(0.7));
-  const widthSmootherRef = useRef(new ValueSmoother(0.7));
 
   const is3D = glasses.id === "__3D__";
   const currentSizeData = glasses.sizes.find(s => s.label === selectedSize) || glasses.sizes[1];
@@ -408,7 +386,6 @@ const TryOn = () => {
         
         if (!results.multiFaceLandmarks?.length) {
           smootherRef.current.reset();
-          widthSmootherRef.current.reset();
           return;
         }
         
@@ -421,19 +398,14 @@ const TryOn = () => {
           angle: geo.angle,
         });
         
-        // 🔄 DYNAMIC SCALING: compute smoothed face width and scale factor
-        const rawWidth = geo.faceWidth;
-        const smoothedWidth = widthSmootherRef.current.smooth(rawWidth);
-        // Clamp scale between 0.5x and 2.0x to avoid extreme sizes
-        const scale = Math.min(2.0, Math.max(0.5, smoothedWidth / REFERENCE_FACE_WIDTH));
-        
         if (is3DRef.current) {
           const model = glassModel3dRef.current;
           if (model && rendererRef.current && sceneRef.current && cameraRef.current) {
             model.position.x = smoothed.cx - W / 2;
             model.position.y = -(smoothed.cy - H / 2);
-            const baseScale = 0.28 * (fixedSizeRef.current.width / 162);
-            model.scale.setScalar(baseScale * scale);
+            // FIXED SCALE: based on selected size, never changes with distance
+            const fixedScale = 0.28 * (fixedSizeRef.current.width / 162);
+            model.scale.setScalar(fixedScale);
             model.rotation.z = -smoothed.angle;
             rendererRef.current.render(sceneRef.current, cameraRef.current);
           }
@@ -442,25 +414,21 @@ const TryOn = () => {
           if (!img.complete || !img.src) return;
           const adj = adjRef.current[glassesRef.current.id] || DEFAULT_ADJ;
           
-          // 🔄 DYNAMIC SCALING: apply scale to base size and offsets
-          const baseW = fixedSizeRef.current.width;
-          const baseH = fixedSizeRef.current.height;
-          const dynW = baseW * scale * adj.scaleW;
-          const dynH = baseH * scale * adj.scaleH;
-          const dynOffX = adj.offsetX * scale;
-          const dynOffY = adj.offsetY * scale;
-          
+          // FIXED PIXEL SIZE — no scaling based on face distance
+          const fixedSize = fixedSizeRef.current;
+          const w = fixedSize.width * adj.scaleW;
+          const h = fixedSize.height * adj.scaleH;
           const finalAngle = smoothed.angle + (adj.rotate * Math.PI / 180);
-          const fx = smoothed.cx + dynOffX;
-          const fy = smoothed.cy + dynOffY;
+          const fx = smoothed.cx + adj.offsetX;
+          const fy = smoothed.cy + adj.offsetY;
           
           if (showArmsRef.current) {
-            drawGlassesWithArms(ctx, img, fx, fy, dynW, dynH, finalAngle);
+            drawGlassesWithArms(ctx, img, fx, fy, w, h, finalAngle);
           } else {
             ctx.save();
             ctx.translate(fx, fy);
             ctx.rotate(finalAngle);
-            ctx.drawImage(img, -dynW / 2, -dynH / 2, dynW, dynH);
+            ctx.drawImage(img, -w / 2, -h / 2, w, h);
             ctx.restore();
           }
         }
@@ -691,7 +659,10 @@ const TryOn = () => {
                       <span>Bridge: <strong style={{ color: "#c9a84c" }}>{currentSizeData.bridge}mm</strong></span>
                     </div>
                     <div style={{ marginTop: "8px", fontSize: "10px", textAlign: "center", color: "#c9a84c", fontWeight: 500 }}>
-                      🔄 DYNAMIC SCALING — Glasses resize with your face distance
+                      🔒 FIXED SIZE — Does NOT change with distance
+                    </div>
+                    <div style={{ marginTop: "4px", fontSize: "9px", textAlign: "center", color: "rgba(255,255,255,0.3)" }}>
+                      Screen size: {currentSizeData.pxWidth}×{currentSizeData.pxHeight}px (constant)
                     </div>
                   </div>
                 )}

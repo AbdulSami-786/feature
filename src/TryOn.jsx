@@ -7,7 +7,7 @@ const DEFAULT_ADJ = { scaleW: 1, scaleH: 1, offsetX: 0, offsetY: 8, rotate: 0 };
 const AVIATOR_ADJ = { scaleW: 1, scaleH: 1.18, offsetX: 0, offsetY: 18, rotate: 0 };
 const ROUND_ADJ   = { scaleW: 1, scaleH: 0.85, offsetX: 0, offsetY: 6, rotate: 0 };
 
-// ── ENHANCED PRODUCT DATA (with colors, product link) ─────────────
+// ── ENHANCED PRODUCT DATA ─────────────────────────────
 const GLASS_OPTIONS = [
   {
     id: "classic",
@@ -84,7 +84,7 @@ const GLASS_OPTIONS = [
     emoji: "✨",
     is3d: true,
     productLink: "https://example.com/3d",
-    colors: [], // 3D model uses a single GLB; color selection disabled
+    colors: [],
     sizes: [
       { label: "S", scale: 0.85 },
       { label: "M", scale: 1.0 },
@@ -95,7 +95,7 @@ const GLASS_OPTIONS = [
 ];
 
 // ══════════════════════════════════════════════════════════════════
-// ── ENHANCED FACE LANDMARK INDICES (MediaPipe 468 + 10 iris)  ──
+// ── FACE LANDMARK INDICES ──
 // ══════════════════════════════════════════════════════════════════
 const LANDMARKS = {
   LEFT_IRIS_CENTER:  468,
@@ -201,7 +201,7 @@ function extractFaceGeometry(lm, W, H) {
   return { centerX, centerY, angle, glassesWidth, glassesHeight, depthScale };
 }
 
-// ── REALISTIC GLASSES WITH SIDE ARMS (unchanged) ──
+// ── REALISTIC GLASSES WITH SIDE ARMS ──
 const drawGlassesWithRealisticArms = (ctx, img, x, y, w, h, angle) => {
   ctx.save();
   ctx.translate(x, y);
@@ -307,10 +307,13 @@ const TryOn = () => {
   const cameraRef = useRef(null);
   const glassModel3dRef = useRef(null);
   const modelWidthRef = useRef(1);
+  const faceMeshRef = useRef(null);
+  const cameraInstanceRef = useRef(null);
+  const animationFrameRef = useRef(null);
 
   // State for selected product, color, size
   const [selectedProduct, setSelectedProduct] = useState(GLASS_OPTIONS[0]);
-  const [selectedColor, setSelectedColor] = useState(selectedProduct.colors[0]?.name || "");
+  const [selectedColor, setSelectedColor] = useState(GLASS_OPTIONS[0].colors[0]?.name || "");
   const [selectedSizeKey, setSelectedSizeKey] = useState("M");
   const [brightness, setBrightness] = useState(100);
   const [contrast, setContrast] = useState(100);
@@ -318,7 +321,6 @@ const TryOn = () => {
   const [glbLoading, setGlbLoading] = useState(false);
   const [showArms, setShowArms] = useState(true);
   const [cameraReady, setCameraReady] = useState(false);
-  const cameraReadyRef = useRef(false);
 
   const is3D = selectedProduct.is3d === true;
   const currentImage = is3D ? null : selectedProduct.colors.find(c => c.name === selectedColor)?.image || selectedProduct.colors[0]?.image;
@@ -331,7 +333,7 @@ const TryOn = () => {
 
   const smootherRef = useRef(new LandmarkSmoother(0.45));
 
-  // Adjustments state (keyed by product id + color? We keep by product id for simplicity)
+  // Adjustments state
   const [adjustments, setAdjustments] = useState(() =>
     Object.fromEntries(
       GLASS_OPTIONS.filter(g => !g.is3d).map(g => {
@@ -342,6 +344,7 @@ const TryOn = () => {
     )
   );
 
+  // Refs for live values
   const brightnessRef = useRef(brightness);
   const contrastRef = useRef(contrast);
   const saturateRef = useRef(saturate);
@@ -352,6 +355,7 @@ const TryOn = () => {
   const currentImageRef = useRef(currentImage);
   const getSizeScaleRef = useRef(getSizeScale);
 
+  // Update refs when state changes
   useEffect(() => { brightnessRef.current = brightness; }, [brightness]);
   useEffect(() => { contrastRef.current = contrast; }, [contrast]);
   useEffect(() => { saturateRef.current = saturate; }, [saturate]);
@@ -377,7 +381,7 @@ const TryOn = () => {
     }
   };
 
-  // 3D scene init (unchanged)
+  // 3D scene init
   useEffect(() => {
     if (!is3D) {
       if (rendererRef.current) {
@@ -425,91 +429,148 @@ const TryOn = () => {
       (err) => { console.error("GLB error:", err); setGlbLoading(false); }
     );
     return () => {
-      renderer.dispose();
+      if (rendererRef.current) {
+        rendererRef.current.dispose();
+      }
       rendererRef.current = sceneRef.current = cameraRef.current = glassModel3dRef.current = null;
     };
   }, [is3D]);
 
-  // FaceMesh and main loop (with size multiplier applied)
+  // FaceMesh and main loop - FIXED VERSION
   useEffect(() => {
-    const faceMesh = new window.FaceMesh({
-      locateFile: f => `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${f}`,
-    });
-    faceMesh.setOptions({ maxNumFaces: 1, refineLandmarks: true, minDetectionConfidence: 0.5, minTrackingConfidence: 0.5 });
-    faceMesh.onResults(onResults);
-    const camera = new window.Camera(videoRef.current, {
-      onFrame: async () => {
-        if (!cameraReadyRef.current) {
-          cameraReadyRef.current = true;
-          setCameraReady(true);
+    let isMounted = true;
+    
+    const initFaceMesh = async () => {
+      try {
+        // Wait for FaceMesh to be available
+        if (!window.FaceMesh) {
+          console.error("FaceMesh not loaded");
+          return;
         }
-        await faceMesh.send({ image: videoRef.current });
-      },
-      width: 640, height: 480,
-    });
-    camera.start();
 
-    function onResults(results) {
-      const canvas = canvasRef.current;
-      const ctx = canvas.getContext("2d");
-      const W = canvas.width, H = canvas.height;
-      ctx.clearRect(0, 0, W, H);
-      ctx.filter = `brightness(${brightnessRef.current}%) contrast(${contrastRef.current}%) saturate(${saturateRef.current}%)`;
-      ctx.drawImage(results.image, 0, 0, W, H);
-      ctx.filter = "none";
-      const _is3D = is3DRef.current;
-      if (_is3D && rendererRef.current && sceneRef.current && cameraRef.current) {
-        rendererRef.current.render(sceneRef.current, cameraRef.current);
-      }
-      if (!results.multiFaceLandmarks?.length) {
-        smootherRef.current.reset();
-        return;
-      }
-      const lm = results.multiFaceLandmarks[0];
-      const geo = extractFaceGeometry(lm, W, H);
-      const smoothed = smootherRef.current.smooth({
-        cx: geo.centerX, cy: geo.centerY, gw: geo.glassesWidth, gh: geo.glassesHeight,
-        angle: geo.angle, ds: geo.depthScale,
-      });
-      
-      const sizeScale = getSizeScaleRef.current();
-      
-      if (_is3D) {
-        const model = glassModel3dRef.current;
-        const r = rendererRef.current, s = sceneRef.current, c = cameraRef.current;
-        if (model && r && s && c) {
-          model.position.x = smoothed.cx - W / 2;
-          model.position.y = -(smoothed.cy - H / 2);
-          let scale3D = (smoothed.gw * smoothed.ds) / modelWidthRef.current;
-          scale3D *= sizeScale;
-          model.scale.setScalar(scale3D);
-          model.rotation.z = -smoothed.angle;
-          r.render(s, c);
+        const faceMesh = new window.FaceMesh({
+          locateFile: f => `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${f}`,
+        });
+        
+        faceMesh.setOptions({ 
+          maxNumFaces: 1, 
+          refineLandmarks: true, 
+          minDetectionConfidence: 0.5, 
+          minTrackingConfidence: 0.5 
+        });
+        
+        faceMeshRef.current = faceMesh;
+
+        // Set up results handler
+        faceMesh.onResults((results) => {
+          if (!isMounted) return;
+          
+          const canvas = canvasRef.current;
+          if (!canvas) return;
+          
+          const ctx = canvas.getContext("2d");
+          const W = canvas.width, H = canvas.height;
+          ctx.clearRect(0, 0, W, H);
+          ctx.filter = `brightness(${brightnessRef.current}%) contrast(${contrastRef.current}%) saturate(${saturateRef.current}%)`;
+          ctx.drawImage(results.image, 0, 0, W, H);
+          ctx.filter = "none";
+          
+          const _is3D = is3DRef.current;
+          if (_is3D && rendererRef.current && sceneRef.current && cameraRef.current) {
+            rendererRef.current.render(sceneRef.current, cameraRef.current);
+          }
+          
+          if (!results.multiFaceLandmarks?.length) {
+            smootherRef.current.reset();
+            return;
+          }
+          
+          const lm = results.multiFaceLandmarks[0];
+          const geo = extractFaceGeometry(lm, W, H);
+          const smoothed = smootherRef.current.smooth({
+            cx: geo.centerX, cy: geo.centerY, gw: geo.glassesWidth, gh: geo.glassesHeight,
+            angle: geo.angle, ds: geo.depthScale,
+          });
+          
+          const sizeScale = getSizeScaleRef.current();
+          
+          if (_is3D) {
+            const model = glassModel3dRef.current;
+            const r = rendererRef.current, s = sceneRef.current, c = cameraRef.current;
+            if (model && r && s && c) {
+              model.position.x = smoothed.cx - W / 2;
+              model.position.y = -(smoothed.cy - H / 2);
+              let scale3D = (smoothed.gw * smoothed.ds) / modelWidthRef.current;
+              scale3D *= sizeScale;
+              model.scale.setScalar(scale3D);
+              model.rotation.z = -smoothed.angle;
+              r.render(s, c);
+            }
+          } else {
+            const img = imgRef.current;
+            if (!img.complete || !img.src) return;
+            const adj = adjRef.current[selectedProductRef.current.id] || DEFAULT_ADJ;
+            let w = smoothed.gw * adj.scaleW * smoothed.ds;
+            let h = smoothed.gh * adj.scaleH * smoothed.ds;
+            w *= sizeScale;
+            h *= sizeScale;
+            const finalAngle = smoothed.angle + (adj.rotate * Math.PI / 180);
+            const fx = smoothed.cx + adj.offsetX;
+            const fy = smoothed.cy + adj.offsetY;
+            if (showArmsRef.current) {
+              drawGlassesWithRealisticArms(ctx, img, fx, fy, w, h, finalAngle);
+            } else {
+              ctx.save();
+              ctx.translate(fx, fy);
+              ctx.rotate(finalAngle);
+              ctx.drawImage(img, -w / 2, -h / 2, w, h);
+              ctx.restore();
+            }
+          }
+        });
+
+        // Initialize camera
+        if (videoRef.current) {
+          const camera = new window.Camera(videoRef.current, {
+            onFrame: async () => {
+              if (faceMeshRef.current && videoRef.current) {
+                await faceMeshRef.current.send({ image: videoRef.current });
+              }
+            },
+            width: 640, 
+            height: 480,
+          });
+          
+          cameraInstanceRef.current = camera;
+          await camera.start();
+          
+          if (isMounted) {
+            setCameraReady(true);
+          }
         }
-      } else {
-        const img = imgRef.current;
-        if (!img.complete || !img.src) return;
-        const adj = adjRef.current[selectedProductRef.current.id] || DEFAULT_ADJ;
-        let w = smoothed.gw * adj.scaleW * smoothed.ds;
-        let h = smoothed.gh * adj.scaleH * smoothed.ds;
-        w *= sizeScale;
-        h *= sizeScale;
-        const finalAngle = smoothed.angle + (adj.rotate * Math.PI / 180);
-        const fx = smoothed.cx + adj.offsetX;
-        const fy = smoothed.cy + adj.offsetY;
-        if (showArmsRef.current) {
-          drawGlassesWithRealisticArms(ctx, img, fx, fy, w, h, finalAngle);
-        } else {
-          ctx.save();
-          ctx.translate(fx, fy);
-          ctx.rotate(finalAngle);
-          ctx.drawImage(img, -w / 2, -h / 2, w, h);
-          ctx.restore();
-        }
+      } catch (error) {
+        console.error("Error initializing FaceMesh:", error);
       }
-    }
-    return () => { if (faceMesh) faceMesh.close(); };
-  }, []);
+    };
+
+    // Small delay to ensure video element is ready
+    const timeoutId = setTimeout(() => {
+      if (videoRef.current) {
+        initFaceMesh();
+      }
+    }, 100);
+
+    return () => {
+      isMounted = false;
+      clearTimeout(timeoutId);
+      if (cameraInstanceRef.current) {
+        cameraInstanceRef.current.stop();
+      }
+      if (faceMeshRef.current) {
+        faceMeshRef.current.close();
+      }
+    };
+  }, []); // Empty dependency array - only run once on mount
 
   // Load image when currentImage changes
   useEffect(() => {
@@ -528,7 +589,7 @@ const TryOn = () => {
     link.click();
   }, []);
 
-  // Responsive UI helpers
+  // Responsive UI helper
   const isMobile = window.innerWidth <= 768;
   
   return (
@@ -701,6 +762,7 @@ const TryOn = () => {
                   animation: "spinRing 0.9s linear infinite"
                 }} />
                 <div style={{ textAlign: "center", fontSize: "10px", fontWeight: 700, letterSpacing: "2px", color: "#c9a84c" }}>INITIALIZING CAMERA</div>
+                <div style={{ textAlign: "center", fontSize: "9px", color: "rgba(240,236,225,0.5)" }}>Please allow camera access...</div>
               </div>
             )}
             <video ref={videoRef} style={{ display: "none" }} autoPlay playsInline muted />
@@ -748,7 +810,7 @@ const TryOn = () => {
             </div>
           </div>
 
-          {/* Color selection (only if not 3D and has colors) */}
+          {/* Color selection */}
           {!is3D && selectedProduct.colors?.length > 0 && (
             <div>
               <div style={{ fontSize: "10px", letterSpacing: "2.5px", color: "#c9a84c", marginBottom: "10px", fontWeight: 600, display: "flex", alignItems: "center", gap: "8px" }}>
@@ -832,7 +894,7 @@ const TryOn = () => {
             </div>
           )}
 
-          {/* Arms toggle (2D only) */}
+          {/* Arms toggle */}
           {!is3D && (
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "4px 0" }}>
               <span style={{ fontSize: "11px", fontWeight: 500, color: "rgba(240,236,225,0.8)" }}>🦾 REALISTIC ARMS</span>
@@ -845,7 +907,7 @@ const TryOn = () => {
             </div>
           )}
 
-          {/* Manual adjustments (2D only) */}
+          {/* Manual adjustments */}
           {!is3D && (
             <div style={{ background: "rgba(0,0,0,0.4)", borderRadius: "24px", padding: "14px", border: "0.5px solid rgba(201,168,76,0.2)" }}>
               <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "14px", alignItems: "center" }}>

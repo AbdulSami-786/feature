@@ -12,10 +12,10 @@ const GLASS_OPTIONS = [
     brand: "Gucci", 
     model: "GG01840",
     sizes: [
-      { label: "S", width: 128, height: 45, bridge: 16 },
-      { label: "M", width: 135, height: 48, bridge: 18 },
-      { label: "L", width: 142, height: 51, bridge: 20 },
-      { label: "XL", width: 150, height: 54, bridge: 22 }
+      { label: "S", width: 128, height: 45, bridge: 16, pxWidth: 150, pxHeight: 53 },
+      { label: "M", width: 135, height: 48, bridge: 18, pxWidth: 158, pxHeight: 56 },
+      { label: "L", width: 142, height: 51, bridge: 20, pxWidth: 166, pxHeight: 60 },
+      { label: "XL", width: 150, height: 54, bridge: 22, pxWidth: 175, pxHeight: 63 }
     ],
     defaultSize: "M"
   },
@@ -27,10 +27,10 @@ const GLASS_OPTIONS = [
     brand: "Ray-Ban", 
     model: "RB3025",
     sizes: [
-      { label: "S", width: 130, height: 48, bridge: 14 },
-      { label: "M", width: 138, height: 52, bridge: 16 },
-      { label: "L", width: 146, height: 56, bridge: 18 },
-      { label: "XL", width: 155, height: 60, bridge: 20 }
+      { label: "S", width: 130, height: 48, bridge: 14, pxWidth: 152, pxHeight: 56 },
+      { label: "M", width: 138, height: 52, bridge: 16, pxWidth: 162, pxHeight: 61 },
+      { label: "L", width: 146, height: 56, bridge: 18, pxWidth: 171, pxHeight: 66 },
+      { label: "XL", width: 155, height: 60, bridge: 20, pxWidth: 182, pxHeight: 70 }
     ],
     defaultSize: "M"
   },
@@ -42,10 +42,10 @@ const GLASS_OPTIONS = [
     brand: "Oakley", 
     model: "SPORT-01",
     sizes: [
-      { label: "S", width: 125, height: 44, bridge: 15 },
-      { label: "M", width: 132, height: 47, bridge: 17 },
-      { label: "L", width: 140, height: 50, bridge: 19 },
-      { label: "XL", width: 148, height: 53, bridge: 21 }
+      { label: "S", width: 125, height: 44, bridge: 15, pxWidth: 147, pxHeight: 52 },
+      { label: "M", width: 132, height: 47, bridge: 17, pxWidth: 155, pxHeight: 55 },
+      { label: "L", width: 140, height: 50, bridge: 19, pxWidth: 164, pxHeight: 59 },
+      { label: "XL", width: 148, height: 53, bridge: 21, pxWidth: 173, pxHeight: 62 }
     ],
     defaultSize: "M"
   },
@@ -57,10 +57,10 @@ const GLASS_OPTIONS = [
     brand: "Gucci", 
     model: "GG02300",
     sizes: [
-      { label: "S", width: 120, height: 42, bridge: 17 },
-      { label: "M", width: 128, height: 45, bridge: 19 },
-      { label: "L", width: 136, height: 48, bridge: 21 },
-      { label: "XL", width: 145, height: 52, bridge: 23 }
+      { label: "S", width: 120, height: 42, bridge: 17, pxWidth: 141, pxHeight: 49 },
+      { label: "M", width: 128, height: 45, bridge: 19, pxWidth: 150, pxHeight: 53 },
+      { label: "L", width: 136, height: 48, bridge: 21, pxWidth: 160, pxHeight: 56 },
+      { label: "XL", width: 145, height: 52, bridge: 23, pxWidth: 170, pxHeight: 61 }
     ],
     defaultSize: "M"
   },
@@ -73,10 +73,10 @@ const GLASS_OPTIONS = [
     brand: "VR", 
     model: "3D Pro",
     sizes: [
-      { label: "S", width: 130, height: 46, bridge: 16 },
-      { label: "M", width: 138, height: 49, bridge: 18 },
-      { label: "L", width: 146, height: 52, bridge: 20 },
-      { label: "XL", width: 155, height: 56, bridge: 22 }
+      { label: "S", width: 130, height: 46, bridge: 16, pxWidth: 152, pxHeight: 54 },
+      { label: "M", width: 138, height: 49, bridge: 18, pxWidth: 162, pxHeight: 57 },
+      { label: "L", width: 146, height: 52, bridge: 20, pxWidth: 171, pxHeight: 61 },
+      { label: "XL", width: 155, height: 56, bridge: 22, pxWidth: 182, pxHeight: 66 }
     ],
     defaultSize: "M"
   },
@@ -131,7 +131,7 @@ class LandmarkSmoother {
 }
 
 // ══════════════════════════════════════════════════════════════════
-// ── FACE GEOMETRY EXTRACTOR - GETS FACE POSITION ONLY (NO SIZE) ──
+// ── FACE GEOMETRY EXTRACTOR - GETS FACE POSITION ONLY ──
 // ══════════════════════════════════════════════════════════════════
 function extractFaceGeometry(lm, W, H) {
   const px = (idx) => ({ x: lm[idx].x * W, y: lm[idx].y * H });
@@ -148,7 +148,7 @@ function extractFaceGeometry(lm, W, H) {
   const leftBrowLower = avgPx(LANDMARKS.LEFT_EYEBROW_LOWER);
   const rightBrowLower = avgPx(LANDMARKS.RIGHT_EYEBROW_LOWER);
 
-  // Rotation angle only - no size scaling
+  // Rotation angle
   const angleIris = Math.atan2(rightIris.y - leftIris.y, rightIris.x - leftIris.x);
   const angleBrow = Math.atan2(rightBrowLower.y - leftBrowLower.y, rightBrowLower.x - leftBrowLower.x);
   const angle = angleIris * 0.6 + angleBrow * 0.4;
@@ -159,9 +159,7 @@ function extractFaceGeometry(lm, W, H) {
   const irisCenterY = (leftIris.y + rightIris.y) / 2;
   const centerY = browCenterY * 0.45 + irisCenterY * 0.55;
 
-  return {
-    centerX, centerY, angle,
-  };
+  return { centerX, centerY, angle };
 }
 
 const drawGlassesWithArms = (ctx, img, x, y, w, h, angle) => {
@@ -261,27 +259,12 @@ const TryOn = () => {
 
   const curAdj = adjustments[glasses.id] || DEFAULT_ADJ;
 
-  // COMPLETELY FIXED SIZE - Does NOT change with zoom, distance, or face size
-  // These are constant pixel dimensions that never change
+  // FIXED PIXEL SIZE - NEVER CHANGES, regardless of zoom or distance
   const getFixedGlassesSize = useCallback(() => {
-    // Base fixed size for M (optimal for 640x480 camera view)
-    const baseFixedWidth = 165;
-    const baseFixedHeight = 60;
-    
-    // Scale based on selected size only (S, M, L, XL)
-    const baseWidthMm = 135;
-    const selectedWidthMm = currentSizeData?.width || 135;
-    const selectedHeightMm = currentSizeData?.height || 48;
-    const baseHeightMm = 48;
-    
-    // Size multiplier based on actual product dimensions
-    const widthMultiplier = selectedWidthMm / baseWidthMm;
-    const heightMultiplier = selectedHeightMm / baseHeightMm;
-    
-    return {
-      width: baseFixedWidth * widthMultiplier,
-      height: baseFixedHeight * heightMultiplier
-    };
+    // Use predefined pixel sizes for each frame size
+    const pxWidth = currentSizeData?.pxWidth || 158;
+    const pxHeight = currentSizeData?.pxHeight || 56;
+    return { width: pxWidth, height: pxHeight };
   }, [currentSizeData]);
 
   // 3D Scene
@@ -415,13 +398,11 @@ const TryOn = () => {
         if (is3DRef.current) {
           const model = glassModel3dRef.current;
           if (model && rendererRef.current && sceneRef.current && cameraRef.current) {
-            // Only update position, NOT scale (fixed size)
+            // Only update position - scale is FIXED
             model.position.x = smoothed.cx - W / 2;
             model.position.y = -(smoothed.cy - H / 2);
-            // Fixed scale based on selected size only - NEVER changes with distance
-            const sizeData = currentSizeData;
-            const baseScale = 0.28;
-            const fixedScale = baseScale * (sizeData?.width / 135);
+            // FIXED scale based on selected size only
+            const fixedScale = 0.28 * (currentSizeData?.width / 135);
             model.scale.setScalar(fixedScale);
             model.rotation.z = -smoothed.angle;
             rendererRef.current.render(sceneRef.current, cameraRef.current);
@@ -431,14 +412,14 @@ const TryOn = () => {
           if (!img.complete || !img.src) return;
           const adj = adjRef.current[glassesRef.current.id] || DEFAULT_ADJ;
           
-          // COMPLETELY FIXED SIZE - does NOT change with zoom, distance, or depth
+          // FIXED SIZE - never changes with zoom or distance
           const fixedSize = getFixedGlassesSize();
           
-          // Apply user adjustments to fixed size
+          // Apply user adjustments
           const w = fixedSize.width * adj.scaleW;
           const h = fixedSize.height * adj.scaleH;
           const finalAngle = smoothed.angle + (adj.rotate * Math.PI / 180);
-          // Position tracks the face, size stays constant
+          // Position tracks the face
           const fx = smoothed.cx + adj.offsetX;
           const fy = smoothed.cy + adj.offsetY;
           
@@ -649,12 +630,14 @@ const TryOn = () => {
                   color: "rgba(255,255,255,0.5)",
                 }}>
                   <div style={{ display: "flex", justifyContent: "space-between" }}>
-                    <span>Lens Width: <strong style={{ color: "#c9a84c" }}>{currentSizeData.width}mm</strong></span>
-                    <span>Lens Height: <strong style={{ color: "#c9a84c" }}>{currentSizeData.height}mm</strong></span>
+                    <span>Lens: <strong style={{ color: "#c9a84c" }}>{currentSizeData.width}×{currentSizeData.height}mm</strong></span>
                     <span>Bridge: <strong style={{ color: "#c9a84c" }}>{currentSizeData.bridge}mm</strong></span>
                   </div>
-                  <div style={{ marginTop: "8px", fontSize: "10px", textAlign: "center", color: "#c9a84c" }}>
-                    ✓ Frame size is FIXED - does NOT change when you move closer/further
+                  <div style={{ marginTop: "8px", fontSize: "10px", textAlign: "center", color: "#c9a84c", fontWeight: 500 }}>
+                    🔒 FIXED SIZE - Does NOT change when you zoom in/out
+                  </div>
+                  <div style={{ marginTop: "4px", fontSize: "9px", textAlign: "center", color: "rgba(255,255,255,0.3)" }}>
+                    Screen size: {currentSizeData.pxWidth}×{currentSizeData.pxHeight}px (constant)
                   </div>
                 </div>
               )}

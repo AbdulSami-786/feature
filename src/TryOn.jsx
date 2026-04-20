@@ -528,7 +528,14 @@ const TryOn = () => {
               border: "1px solid rgba(255,255,255,0.08)",
               overflow: "hidden",
             }}>
-              <div style={{ position: "relative", width: "100%", aspectRatio: "4/3", background: "#000" }}>
+              {/* FIXED-SIZE CONTAINER: Prevents zoom scaling of the frame area */}
+              <div style={{ 
+                position: "relative", 
+                width: "640px", 
+                height: "480px", 
+                background: "#000",
+                margin: "0 auto"
+              }}>
                 {!cameraReady && (
                   <div style={{
                     position: "absolute",
@@ -550,13 +557,13 @@ const TryOn = () => {
                   ref={canvasRef} 
                   width={640} 
                   height={480} 
-                  style={{ width: "100%", height: "100%", objectFit: "cover" }} 
+                  style={{ width: "640px", height: "480px", objectFit: "cover" }} 
                 />
                 <canvas 
                   ref={threeCanvasRef} 
                   width={640} 
                   height={480} 
-                  style={{ position: "absolute", inset: 0, width: "100%", height: "100%", pointerEvents: "none", opacity: is3D ? 1 : 0 }} 
+                  style={{ position: "absolute", inset: 0, width: "640px", height: "480px", pointerEvents: "none", opacity: is3D ? 1 : 0 }} 
                 />
                 {glbLoading && (
                   <div style={{ position: "absolute", bottom: "16px", right: "16px", background: "rgba(0,0,0,0.7)", padding: "6px 12px", borderRadius: "20px", fontSize: "11px" }}>

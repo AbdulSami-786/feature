@@ -64,12 +64,10 @@ const COLOR_OPTIONS = [
   { name: "Matte Black", value: "#2d2d2d", code: "004" },
 ];
 
-// Manual adjustments
 const DEFAULT_ADJ = { scaleW: 1, scaleH: 1, offsetX: 0, offsetY: 0, rotate: 0 };
 const AVIATOR_ADJ = { scaleW: 1, scaleH: 1.18, offsetX: 0, offsetY: 12, rotate: 0 };
 const ROUND_ADJ   = { scaleW: 1, scaleH: 0.85, offsetX: 0, offsetY: 0, rotate: 0 };
 
-// Landmark indices
 const LANDMARKS = {
   LEFT_IRIS_CENTER: 468,
   RIGHT_IRIS_CENTER: 473,
@@ -81,7 +79,6 @@ const LANDMARKS = {
   RIGHT_EYEBROW_LOWER: [300, 293, 334, 296, 336],
 };
 
-// Smoothing for face position/angle
 class LandmarkSmoother {
   constructor(alpha = 0.7) {
     this.alpha = alpha;
@@ -102,7 +99,6 @@ class LandmarkSmoother {
   reset() { this.prev = null; }
 }
 
-// Extract face position and angle only (NO width calculation)
 function extractFaceGeometry(lm, W, H) {
   const px = (idx) => ({ x: lm[idx].x * W, y: lm[idx].y * H });
   const avgPx = (indices) => {
@@ -130,7 +126,6 @@ function extractFaceGeometry(lm, W, H) {
   return { centerX, centerY, angle };
 }
 
-// Draw glasses with arms
 const drawGlassesWithArms = (ctx, img, x, y, w, h, angle) => {
   ctx.save();
   ctx.translate(x, y);
@@ -174,7 +169,7 @@ const drawGlassesWithArms = (ctx, img, x, y, w, h, angle) => {
   ctx.restore();
 };
 
-// ── MAIN COMPONENT (PERMANENTLY FIXED SIZE - NO SCALING) ────────────
+// ── MAIN COMPONENT WITH FORCED FIXED SIZE ───────────────────────────
 const TryOn = () => {
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
@@ -218,7 +213,12 @@ const TryOn = () => {
   const is3DRef = useRef(false);
   const adjRef = useRef(adjustments);
   const showArmsRef = useRef(showArms);
-  const fixedSizeRef = useRef({ width: currentSizeData.pxWidth, height: currentSizeData.pxHeight });
+  
+  // FORCE FIXED SIZE - HARDCODED
+  const FORCED_WIDTH = 158;  // M size default
+  const FORCED_HEIGHT = 56;  // M size default
+  
+  const fixedSizeRef = useRef({ width: FORCED_WIDTH, height: FORCED_HEIGHT });
 
   useEffect(() => { brightnessRef.current = brightness; }, [brightness]);
   useEffect(() => { contrastRef.current = contrast; }, [contrast]);
@@ -228,16 +228,18 @@ const TryOn = () => {
   useEffect(() => { adjRef.current = adjustments; }, [adjustments]);
   useEffect(() => { showArmsRef.current = showArms; }, [showArms]);
 
+  // Update forced size when size changes
   useEffect(() => {
     fixedSizeRef.current = {
       width: currentSizeData.pxWidth,
       height: currentSizeData.pxHeight,
     };
+    console.log("SIZE CHANGED TO:", fixedSizeRef.current);
   }, [currentSizeData]);
 
   const curAdj = adjustments[glasses.id] || DEFAULT_ADJ;
 
-  // 3D scene (fixed scale)
+  // 3D scene
   useEffect(() => {
     if (!is3D) {
       if (rendererRef.current) {
@@ -370,8 +372,8 @@ const TryOn = () => {
           if (model && rendererRef.current && sceneRef.current && cameraRef.current) {
             model.position.x = smoothed.cx - W / 2;
             model.position.y = -(smoothed.cy - H / 2);
-            // FIXED SCALE - never changes
-            const fixedScale = 0.28 * (fixedSizeRef.current.width / 162);
+            // FIXED SCALE
+            const fixedScale = 0.28;
             model.scale.setScalar(fixedScale);
             model.rotation.z = -smoothed.angle;
             rendererRef.current.render(sceneRef.current, cameraRef.current);
@@ -381,12 +383,15 @@ const TryOn = () => {
           if (!img.complete || !img.src) return;
           const adj = adjRef.current[glassesRef.current.id] || DEFAULT_ADJ;
           
-          // FIXED SIZE - ABSOLUTE PIXEL VALUES, NO SCALING
+          // FORCED FIXED SIZE - NO DYNAMIC SCALING WHATSOEVER
           const w = fixedSizeRef.current.width * adj.scaleW;
           const h = fixedSizeRef.current.height * adj.scaleH;
           const finalAngle = smoothed.angle + (adj.rotate * Math.PI / 180);
           const fx = smoothed.cx + adj.offsetX;
           const fy = smoothed.cy + adj.offsetY;
+          
+          // DEBUG LOG - CHECK IF SIZE IS CHANGING
+          console.log(`[FIXED] Width: ${w}px, Height: ${h}px`);
           
           if (showArmsRef.current) {
             drawGlassesWithArms(ctx, img, fx, fy, w, h, finalAngle);
@@ -443,7 +448,7 @@ const TryOn = () => {
             </button>
           </div>
 
-          {/* Two Column Layout */}
+          {/* Two Column Layout - Same as before */}
           <div style={{ display: "flex", flexWrap: "wrap", gap: "24px" }}>
             {/* Camera Column */}
             <div style={{ flex: "2", minWidth: "300px" }}>
@@ -461,7 +466,6 @@ const TryOn = () => {
                   {glbLoading && <div style={{ position: "absolute", bottom: "16px", right: "16px", background: "rgba(0,0,0,0.7)", padding: "6px 12px", borderRadius: "20px", fontSize: "11px" }}>Loading 3D...</div>}
                 </div>
                 
-                {/* Product Info Bar */}
                 <div style={{ padding: "16px 20px", borderTop: "1px solid rgba(255,255,255,0.06)" }}>
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "12px" }}>
                     <div>

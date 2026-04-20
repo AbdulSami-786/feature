@@ -7,18 +7,10 @@ const DEFAULT_ADJ = { scaleW: 1, scaleH: 1, offsetX: 0, offsetY: 8, rotate: 0 };
 const AVIATOR_ADJ = { scaleW: 1, scaleH: 1.18, offsetX: 0, offsetY: 18, rotate: 0 };
 const ROUND_ADJ   = { scaleW: 1, scaleH: 0.85, offsetX: 0, offsetY: 6, rotate: 0 };
 
-// ── ENHANCED PRODUCT DATA ─────────────────────────────
+// Each frame now includes size options
 const GLASS_OPTIONS = [
   {
-    id: "classic",
-    name: "Classic",
-    price: "PKR 4,500",
-    emoji: "👓",
-    productLink: "https://example.com/classic",
-    colors: [
-      { name: "Black", image: "/glass1_black.png" },
-      { name: "White", image: "/glass1_white.png" }
-    ],
+    id: "/glass1.png", name: "Classic", price: "PKR 4,500", emoji: "👓",
     sizes: [
       { label: "S", scale: 0.85 },
       { label: "M", scale: 1.0 },
@@ -27,15 +19,7 @@ const GLASS_OPTIONS = [
     ]
   },
   {
-    id: "aviator",
-    name: "Aviator",
-    price: "PKR 5,200",
-    emoji: "🕶️",
-    productLink: "https://example.com/aviator",
-    colors: [
-      { name: "Black", image: "/glass2_black.png" },
-      { name: "White", image: "/glass2_white.png" }
-    ],
+    id: "/glass2.png", name: "Aviator", price: "PKR 5,200", emoji: "🕶️",
     sizes: [
       { label: "S", scale: 0.85 },
       { label: "M", scale: 1.0 },
@@ -44,15 +28,7 @@ const GLASS_OPTIONS = [
     ]
   },
   {
-    id: "sport",
-    name: "Sport",
-    price: "PKR 3,800",
-    emoji: "🥽",
-    productLink: "https://example.com/sport",
-    colors: [
-      { name: "Black", image: "/glass3_black.png" },
-      { name: "White", image: "/glass3_white.png" }
-    ],
+    id: "/glass3.png", name: "Sport", price: "PKR 3,800", emoji: "🥽",
     sizes: [
       { label: "S", scale: 0.85 },
       { label: "M", scale: 1.0 },
@@ -61,15 +37,7 @@ const GLASS_OPTIONS = [
     ]
   },
   {
-    id: "round",
-    name: "Round",
-    price: "PKR 4,900",
-    emoji: "🪬",
-    productLink: "https://example.com/round",
-    colors: [
-      { name: "Black", image: "/glass4_black.png" },
-      { name: "White", image: "/glass4_white.png" }
-    ],
+    id: "/glass4.png", name: "Round", price: "PKR 4,900", emoji: "🪬",
     sizes: [
       { label: "S", scale: 0.85 },
       { label: "M", scale: 1.0 },
@@ -78,24 +46,18 @@ const GLASS_OPTIONS = [
     ]
   },
   {
-    id: "3d",
-    name: "3D Frame",
-    price: "PKR 6,500",
-    emoji: "✨",
-    is3d: true,
-    productLink: "https://example.com/3d",
-    colors: [],
+    id: "__3D__", name: "3D Frame", price: "PKR 6,500", emoji: "✨", is3d: true,
     sizes: [
       { label: "S", scale: 0.85 },
       { label: "M", scale: 1.0 },
       { label: "L", scale: 1.15 },
       { label: "XL", scale: 1.3 }
     ]
-  }
+  },
 ];
 
 // ══════════════════════════════════════════════════════════════════
-// ── FACE LANDMARK INDICES ──
+// ── ENHANCED FACE LANDMARK INDICES (MediaPipe 468 + 10 iris)  ──
 // ══════════════════════════════════════════════════════════════════
 const LANDMARKS = {
   LEFT_IRIS_CENTER:  468,
@@ -201,7 +163,7 @@ function extractFaceGeometry(lm, W, H) {
   return { centerX, centerY, angle, glassesWidth, glassesHeight, depthScale };
 }
 
-// ── REALISTIC GLASSES WITH SIDE ARMS ──
+// ── REALISTIC GLASSES WITH SIDE ARMS (unchanged) ──
 const drawGlassesWithRealisticArms = (ctx, img, x, y, w, h, angle) => {
   ctx.save();
   ctx.translate(x, y);
@@ -307,106 +269,72 @@ const TryOn = () => {
   const cameraRef = useRef(null);
   const glassModel3dRef = useRef(null);
   const modelWidthRef = useRef(1);
-  const faceMeshRef = useRef(null);
-  const streamRef = useRef(null);
 
-  // State for selected product, color, size
-  const [selectedProduct, setSelectedProduct] = useState(GLASS_OPTIONS[0]);
-  const [selectedColor, setSelectedColor] = useState(GLASS_OPTIONS[0].colors[0]?.name || "");
-  const [selectedSizeKey, setSelectedSizeKey] = useState("M");
+  const [glasses, setGlasses] = useState("/glass1.png");
   const [brightness, setBrightness] = useState(100);
   const [contrast, setContrast] = useState(100);
   const [saturate, setSaturate] = useState(100);
   const [glbLoading, setGlbLoading] = useState(false);
   const [showArms, setShowArms] = useState(true);
   const [cameraReady, setCameraReady] = useState(false);
+  const cameraReadyRef = useRef(false);
 
-  const is3D = selectedProduct.is3d === true;
-  const currentImage = is3D ? null : selectedProduct.colors.find(c => c.name === selectedColor)?.image || selectedProduct.colors[0]?.image;
+  // --- Size selection state ---
+  const [selectedSizeKey, setSelectedSizeKey] = useState("M"); // "S", "M", "L", "XL"
 
-  // Helper: get size scale multiplier
-  const getSizeScale = useCallback(() => {
-    const sizeObj = selectedProduct.sizes?.find(s => s.label === selectedSizeKey);
+  // Helper: get scale multiplier for current glass and selected size
+  const getCurrentSizeScale = useCallback(() => {
+    const currentGlass = GLASS_OPTIONS.find(g => g.id === glasses);
+    if (!currentGlass || !currentGlass.sizes) return 1.0;
+    const sizeObj = currentGlass.sizes.find(s => s.label === selectedSizeKey);
     return sizeObj ? sizeObj.scale : 1.0;
-  }, [selectedProduct, selectedSizeKey]);
+  }, [glasses, selectedSizeKey]);
 
   const smootherRef = useRef(new LandmarkSmoother(0.45));
 
-  // Adjustments state
   const [adjustments, setAdjustments] = useState(() =>
     Object.fromEntries(
       GLASS_OPTIONS.filter(g => !g.is3d).map(g => {
-        if (g.id === "aviator") return [g.id, { ...AVIATOR_ADJ }];
-        if (g.id === "round") return [g.id, { ...ROUND_ADJ }];
+        if (g.id === "/glass2.png") return [g.id, { ...AVIATOR_ADJ }];
+        if (g.id === "/glass4.png") return [g.id, { ...ROUND_ADJ }];
         return [g.id, { ...DEFAULT_ADJ }];
       })
     )
   );
 
-  // Refs for live values
   const brightnessRef = useRef(brightness);
   const contrastRef = useRef(contrast);
   const saturateRef = useRef(saturate);
-  const selectedProductRef = useRef(selectedProduct);
-  const is3DRef = useRef(is3D);
+  const glassesRef = useRef(glasses);
+  const is3DRef = useRef(false);
   const adjRef = useRef(adjustments);
   const showArmsRef = useRef(showArms);
-  const currentImageRef = useRef(currentImage);
-  const getSizeScaleRef = useRef(getSizeScale);
 
-  // Update refs when state changes
   useEffect(() => { brightnessRef.current = brightness; }, [brightness]);
   useEffect(() => { contrastRef.current = contrast; }, [contrast]);
   useEffect(() => { saturateRef.current = saturate; }, [saturate]);
-  useEffect(() => { selectedProductRef.current = selectedProduct; }, [selectedProduct]);
-  useEffect(() => { is3DRef.current = is3D; }, [is3D]);
+  useEffect(() => { glassesRef.current = glasses; }, [glasses]);
+  useEffect(() => { is3DRef.current = glasses === "__3D__"; }, [glasses]);
   useEffect(() => { adjRef.current = adjustments; }, [adjustments]);
   useEffect(() => { showArmsRef.current = showArms; }, [showArms]);
-  useEffect(() => { currentImageRef.current = currentImage; }, [currentImage]);
-  useEffect(() => { getSizeScaleRef.current = getSizeScale; }, [getSizeScale]);
 
-  const curAdj = adjustments[selectedProduct.id] || DEFAULT_ADJ;
+  const is3D = glasses === "__3D__";
+  const curAdj = adjustments[glasses] || DEFAULT_ADJ;
 
   const setAdj = (key, val) =>
-    setAdjustments(prev => ({ ...prev, [selectedProduct.id]: { ...prev[selectedProduct.id], [key]: val } }));
+    setAdjustments(prev => ({ ...prev, [glasses]: { ...prev[glasses], [key]: val } }));
 
   const resetAdj = () => {
-    if (selectedProduct.id === "aviator") {
-      setAdjustments(prev => ({ ...prev, [selectedProduct.id]: { ...AVIATOR_ADJ } }));
-    } else if (selectedProduct.id === "round") {
-      setAdjustments(prev => ({ ...prev, [selectedProduct.id]: { ...ROUND_ADJ } }));
+    if (glasses === "/glass2.png") {
+      setAdjustments(prev => ({ ...prev, [glasses]: { ...AVIATOR_ADJ } }));
+    } else if (glasses === "/glass4.png") {
+      setAdjustments(prev => ({ ...prev, [glasses]: { ...ROUND_ADJ } }));
     } else {
-      setAdjustments(prev => ({ ...prev, [selectedProduct.id]: { ...DEFAULT_ADJ } }));
+      setAdjustments(prev => ({ ...prev, [glasses]: { ...DEFAULT_ADJ } }));
     }
   };
 
-  // Initialize camera directly with getUserMedia
-  useEffect(() => {
-    const startCamera = async () => {
-      try {
-        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-        streamRef.current = stream;
-        
-        if (videoRef.current) {
-          videoRef.current.srcObject = stream;
-          videoRef.current.play();
-          setCameraReady(true);
-        }
-      } catch (err) {
-        console.error("Camera error:", err);
-      }
-    };
-
-    startCamera();
-
-    return () => {
-      if (streamRef.current) {
-        streamRef.current.getTracks().forEach(track => track.stop());
-      }
-    };
-  }, []);
-
-  // 3D scene init
+  // 3D scene init (unchanged)
   useEffect(() => {
     if (!is3D) {
       if (rendererRef.current) {
@@ -454,71 +382,46 @@ const TryOn = () => {
       (err) => { console.error("GLB error:", err); setGlbLoading(false); }
     );
     return () => {
-      if (rendererRef.current) {
-        rendererRef.current.dispose();
-      }
+      renderer.dispose();
       rendererRef.current = sceneRef.current = cameraRef.current = glassModel3dRef.current = null;
     };
   }, [is3D]);
 
-  // FaceMesh and main loop
+  // FaceMesh and main loop (with size multiplier applied)
   useEffect(() => {
-    if (!cameraReady) return;
-
-    let animationId;
-    let faceMesh;
-
-    const initFaceMesh = async () => {
-      try {
-        faceMesh = new window.FaceMesh({
-          locateFile: f => `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${f}`,
-        });
-        
-        faceMesh.setOptions({ 
-          maxNumFaces: 1, 
-          refineLandmarks: true, 
-          minDetectionConfidence: 0.5, 
-          minTrackingConfidence: 0.5 
-        });
-        
-        faceMesh.onResults(onResults);
-        faceMeshRef.current = faceMesh;
-
-        // Start processing loop
-        const processFrame = async () => {
-          if (videoRef.current && videoRef.current.readyState >= 2) {
-            await faceMesh.send({ image: videoRef.current });
-          }
-          animationId = requestAnimationFrame(processFrame);
-        };
-        
-        processFrame();
-      } catch (error) {
-        console.error("FaceMesh error:", error);
-      }
-    };
+    const faceMesh = new window.FaceMesh({
+      locateFile: f => `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${f}`,
+    });
+    faceMesh.setOptions({ maxNumFaces: 1, refineLandmarks: true, minDetectionConfidence: 0.5, minTrackingConfidence: 0.5 });
+    faceMesh.onResults(onResults);
+    const camera = new window.Camera(videoRef.current, {
+      onFrame: async () => {
+        if (!cameraReadyRef.current) {
+          cameraReadyRef.current = true;
+          setCameraReady(true);
+        }
+        await faceMesh.send({ image: videoRef.current });
+      },
+      width: 640, height: 480,
+    });
+    camera.start();
 
     function onResults(results) {
       const canvas = canvasRef.current;
-      if (!canvas) return;
-      
       const ctx = canvas.getContext("2d");
       const W = canvas.width, H = canvas.height;
       ctx.clearRect(0, 0, W, H);
       ctx.filter = `brightness(${brightnessRef.current}%) contrast(${contrastRef.current}%) saturate(${saturateRef.current}%)`;
       ctx.drawImage(results.image, 0, 0, W, H);
       ctx.filter = "none";
-      
       const _is3D = is3DRef.current;
       if (_is3D && rendererRef.current && sceneRef.current && cameraRef.current) {
         rendererRef.current.render(sceneRef.current, cameraRef.current);
       }
-      
       if (!results.multiFaceLandmarks?.length) {
         smootherRef.current.reset();
         return;
       }
-      
       const lm = results.multiFaceLandmarks[0];
       const geo = extractFaceGeometry(lm, W, H);
       const smoothed = smootherRef.current.smooth({
@@ -526,7 +429,13 @@ const TryOn = () => {
         angle: geo.angle, ds: geo.depthScale,
       });
       
-      const sizeScale = getSizeScaleRef.current();
+      // --- Obtain current size multiplier ---
+      const currentGlassObj = GLASS_OPTIONS.find(g => g.id === glassesRef.current);
+      let sizeScale = 1.0;
+      if (currentGlassObj && currentGlassObj.sizes) {
+        const sizeObj = currentGlassObj.sizes.find(s => s.label === selectedSizeKey);
+        if (sizeObj) sizeScale = sizeObj.scale;
+      }
       
       if (_is3D) {
         const model = glassModel3dRef.current;
@@ -535,7 +444,7 @@ const TryOn = () => {
           model.position.x = smoothed.cx - W / 2;
           model.position.y = -(smoothed.cy - H / 2);
           let scale3D = (smoothed.gw * smoothed.ds) / modelWidthRef.current;
-          scale3D *= sizeScale;
+          scale3D *= sizeScale;  // apply size multiplier
           model.scale.setScalar(scale3D);
           model.rotation.z = -smoothed.angle;
           r.render(s, c);
@@ -543,10 +452,10 @@ const TryOn = () => {
       } else {
         const img = imgRef.current;
         if (!img.complete || !img.src) return;
-        const adj = adjRef.current[selectedProductRef.current.id] || DEFAULT_ADJ;
+        const adj = adjRef.current[glassesRef.current] || DEFAULT_ADJ;
         let w = smoothed.gw * adj.scaleW * smoothed.ds;
         let h = smoothed.gh * adj.scaleH * smoothed.ds;
-        w *= sizeScale;
+        w *= sizeScale;   // apply size multiplier
         h *= sizeScale;
         const finalAngle = smoothed.angle + (adj.rotate * Math.PI / 180);
         const fx = smoothed.cx + adj.offsetX;
@@ -562,37 +471,15 @@ const TryOn = () => {
         }
       }
     }
+    return () => { if (faceMesh) faceMesh.close(); };
+  }, [selectedSizeKey]); // re-run effect when size changes (ensures smoother closure captures latest size)
 
-    if (window.FaceMesh) {
-      initFaceMesh();
-    } else {
-      // Wait for FaceMesh to load
-      const checkInterval = setInterval(() => {
-        if (window.FaceMesh) {
-          clearInterval(checkInterval);
-          initFaceMesh();
-        }
-      }, 100);
-      return () => clearInterval(checkInterval);
-    }
-
-    return () => {
-      if (animationId) {
-        cancelAnimationFrame(animationId);
-      }
-      if (faceMeshRef.current) {
-        faceMeshRef.current.close();
-      }
-    };
-  }, [cameraReady]);
-
-  // Load image when currentImage changes
   useEffect(() => {
-    if (!is3D && currentImage) {
-      imgRef.current.src = currentImage;
+    if (!is3D && imgRef.current) {
+      imgRef.current.src = glasses;
       imgRef.current.crossOrigin = "Anonymous";
     }
-  }, [currentImage, is3D]);
+  }, [glasses, is3D]);
 
   const capturePhoto = useCallback(() => {
     const canvas = canvasRef.current;
@@ -603,9 +490,9 @@ const TryOn = () => {
     link.click();
   }, []);
 
-  // Responsive UI helper
-  const isMobile = window.innerWidth <= 768;
-  
+  // UI (unchanged except added size selector)
+  const currentFrameSizes = GLASS_OPTIONS.find(g => g.id === glasses)?.sizes || [];
+
   return (
     <div style={{ 
       fontFamily: "'Space Grotesk', 'Inter', sans-serif", 
@@ -617,32 +504,31 @@ const TryOn = () => {
       position: "relative",
       overflowX: "hidden"
     }}>
-      {/* Animated background elements */}
       <div style={{
         position: "fixed",
         inset: 0,
-        backgroundImage: `radial-gradient(circle at 25% 40%, rgba(201,168,76,0.08) 0%, transparent 50%), repeating-linear-gradient(45deg, rgba(201,168,76,0.02) 0px, rgba(201,168,76,0.02) 2px, transparent 2px, transparent 8px)`,
+        backgroundImage: `linear-gradient(rgba(201,168,76,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(201,168,76,0.03) 1px, transparent 1px)`,
+        backgroundSize: "40px 40px",
         pointerEvents: "none",
         zIndex: 0
       }} />
       <div style={{ position: "fixed", top: "-20%", right: "-10%", width: "60vw", height: "60vw", background: "radial-gradient(circle, rgba(201,168,76,0.12), transparent 70%)", borderRadius: "50%", pointerEvents: "none", zIndex: 0 }} />
       <div style={{ position: "fixed", bottom: "-20%", left: "-10%", width: "60vw", height: "60vw", background: "radial-gradient(circle, rgba(100,180,255,0.08), transparent 70%)", borderRadius: "50%", pointerEvents: "none", zIndex: 0 }} />
 
-      {/* Header */}
       <div style={{ 
         display: "flex", 
         alignItems: "center", 
         justifyContent: "space-between", 
-        padding: "16px 20px", 
+        padding: "18px 24px", 
         borderBottom: "1px solid rgba(201,168,76,0.3)",
-        backdropFilter: "blur(16px)",
-        background: "rgba(0,0,0,0.6)",
+        backdropFilter: "blur(12px)",
+        background: "rgba(0,0,0,0.5)",
         zIndex: 2,
         position: "relative"
       }}>
         <div style={{ 
           fontFamily: "'Space Grotesk', monospace", 
-          fontSize: isMobile ? "20px" : "26px", 
+          fontSize: "24px", 
           fontWeight: 600, 
           letterSpacing: "-0.02em", 
           background: "linear-gradient(135deg, #f0e8d0 0%, #c9a84c 100%)",
@@ -653,14 +539,15 @@ const TryOn = () => {
           VR<span style={{ color: "#c9a84c", background: "none", WebkitTextFillColor: "#c9a84c" }}>.</span>OPTICS
         </div>
         <div style={{ 
-          fontSize: "9px", 
+          fontSize: "10px", 
           letterSpacing: "2px", 
           background: "rgba(201,168,76,0.15)",
           border: "1px solid rgba(201,168,76,0.5)",
-          padding: "5px 12px", 
+          padding: "6px 16px", 
           borderRadius: "40px",
           backdropFilter: "blur(4px)",
-          fontWeight: 500
+          fontWeight: 500,
+          boxShadow: "0 0 12px rgba(201,168,76,0.2)"
         }}>
           {is3D ? "⚡ 3D MODE" : "🔮 LIVE"}
         </div>
@@ -668,74 +555,74 @@ const TryOn = () => {
 
       <div style={{ 
         display: "flex", 
-        flexDirection: isMobile ? "column" : "row",
+        flexDirection: "column", 
         gap: "20px", 
         flex: 1, 
-        padding: "16px", 
+        padding: "16px 16px 24px 16px", 
         overflowY: "auto",
         zIndex: 2,
         position: "relative"
       }}>
-        {/* Camera viewer */}
         <div style={{ 
           background: "rgba(8, 8, 12, 0.7)",
           backdropFilter: "blur(20px)",
           borderRadius: "32px", 
           padding: "12px", 
           border: "1px solid rgba(201,168,76,0.25)",
-          boxShadow: "0 25px 40px -12px rgba(0,0,0,0.8), inset 0 1px 0 rgba(255,255,255,0.05)",
-          flex: isMobile ? "auto" : 2,
+          boxShadow: "0 25px 40px -12px rgba(0,0,0,0.8), inset 0 1px 0 rgba(255,255,255,0.05)"
         }}>
           <div style={{ position: "relative", width: "100%", aspectRatio: "4/3", maxWidth: "100%", margin: "0 auto" }}>
             {[...Array(4)].map((_, i) => (
               <div key={i} style={{
                 position: "absolute",
-                width: "16px",
-                height: "16px",
+                width: "20px",
+                height: "20px",
                 borderColor: "#c9a84c",
                 borderStyle: "solid",
                 zIndex: 10,
-                top: i < 2 ? "8px" : "auto",
-                bottom: i >= 2 ? "8px" : "auto",
-                left: i % 2 === 0 ? "8px" : "auto",
-                right: i % 2 === 1 ? "8px" : "auto",
+                top: i < 2 ? "12px" : "auto",
+                bottom: i >= 2 ? "12px" : "auto",
+                left: i % 2 === 0 ? "12px" : "auto",
+                right: i % 2 === 1 ? "12px" : "auto",
                 borderWidth: i === 0 ? "2px 0 0 2px" : i === 1 ? "2px 2px 0 0" : i === 2 ? "0 0 2px 2px" : "0 2px 2px 0",
                 opacity: 0.7
               }} />
             ))}
             <div style={{ 
               position: "absolute", 
-              top: "12px", 
-              right: "12px", 
+              top: "16px", 
+              right: "16px", 
               display: "flex", 
               alignItems: "center", 
-              gap: "6px", 
-              fontSize: "9px", 
+              gap: "8px", 
+              fontSize: "10px", 
               fontWeight: 600,
               letterSpacing: "1px", 
               color: "#c9a84c", 
               zIndex: 10, 
               background: "rgba(0,0,0,0.6)", 
-              padding: "4px 10px", 
+              padding: "5px 14px", 
               borderRadius: "40px",
-              backdropFilter: "blur(8px)"
+              backdropFilter: "blur(8px)",
+              border: "0.5px solid rgba(201,168,76,0.5)"
             }}>
-              <div style={{ width: "6px", height: "6px", borderRadius: "50%", background: "#c9a84c", boxShadow: "0 0 8px #c9a84c", animation: "pulse 1.2s ease-in-out infinite" }} />
+              <div style={{ width: "8px", height: "8px", borderRadius: "50%", background: "#c9a84c", boxShadow: "0 0 8px #c9a84c", animation: "pulse 1.2s ease-in-out infinite" }} />
               {is3D ? "3D ACTIVE" : "FACE TRACKING"}
             </div>
             <div style={{ 
               position: "absolute", 
-              bottom: "12px", 
-              left: "12px", 
+              bottom: "16px", 
+              left: "16px", 
               display: "flex", 
-              gap: "6px", 
+              gap: "8px", 
               flexWrap: "wrap", 
               zIndex: 10 
             }}>
-              <span style={{ fontSize: "8px", background: "rgba(0,0,0,0.6)", backdropFilter: "blur(4px)", border: "0.5px solid rgba(201,168,76,0.3)", padding: "3px 10px", borderRadius: "30px" }}>💡 {brightness}%</span>
-              <span style={{ fontSize: "8px", background: "rgba(0,0,0,0.6)", backdropFilter: "blur(4px)", border: "0.5px solid rgba(201,168,76,0.3)", padding: "3px 10px", borderRadius: "30px" }}>🎨 {contrast}%</span>
-              <span style={{ fontSize: "8px", background: "rgba(0,0,0,0.6)", backdropFilter: "blur(4px)", border: "0.5px solid rgba(201,168,76,0.3)", padding: "3px 10px", borderRadius: "30px" }}>🌈 {saturate}%</span>
-              {showArms && !is3D && <span style={{ fontSize: "8px", background: "rgba(201,168,76,0.2)", borderColor: "#c9a84c", color: "#c9a84c", padding: "3px 10px", borderRadius: "30px" }}>🦾 ARMS ON</span>}
+              <span style={{ fontSize: "9px", fontWeight: 500, background: "rgba(0,0,0,0.6)", backdropFilter: "blur(4px)", border: "0.5px solid rgba(201,168,76,0.3)", padding: "4px 12px", borderRadius: "30px", letterSpacing: "0.5px" }}>💡 {brightness}%</span>
+              <span style={{ fontSize: "9px", fontWeight: 500, background: "rgba(0,0,0,0.6)", backdropFilter: "blur(4px)", border: "0.5px solid rgba(201,168,76,0.3)", padding: "4px 12px", borderRadius: "30px" }}>🎨 {contrast}%</span>
+              <span style={{ fontSize: "9px", fontWeight: 500, background: "rgba(0,0,0,0.6)", backdropFilter: "blur(4px)", border: "0.5px solid rgba(201,168,76,0.3)", padding: "4px 12px", borderRadius: "30px" }}>🌈 {saturate}%</span>
+              {showArms && !is3D && <span style={{ fontSize: "9px", background: "rgba(201,168,76,0.2)", borderColor: "#c9a84c", color: "#c9a84c", padding: "4px 12px", borderRadius: "30px" }}>🦾 ARMS ON</span>}
+              {is3D && <span style={{ fontSize: "9px", color: "#64b4ff", background: "rgba(100,180,255,0.15)", border: "0.5px solid rgba(100,180,255,0.5)", padding: "4px 12px", borderRadius: "30px" }}>✨ GLB 3D</span>}
             </div>
             {glbLoading && (
               <div style={{ 
@@ -743,15 +630,45 @@ const TryOn = () => {
                 top: "50%", 
                 left: "50%", 
                 transform: "translate(-50%,-50%)", 
-                fontSize: "10px", 
+                fontSize: "11px", 
                 fontWeight: 600,
+                letterSpacing: "2px", 
                 background: "rgba(0,0,0,0.8)", 
-                padding: "6px 16px", 
+                padding: "8px 20px", 
                 borderRadius: "40px", 
                 zIndex: 20, 
-                border: "1px solid #c9a84c"
+                border: "1px solid #c9a84c",
+                backdropFilter: "blur(8px)"
               }}>
                 ⚡ LOADING 3D...
+              </div>
+            )}
+            {!cameraReady && (
+              <div style={{
+                position: "absolute",
+                inset: 0,
+                borderRadius: "24px",
+                background: "rgba(5, 5, 8, 0.97)",
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: "20px",
+                zIndex: 30,
+              }}>
+                <div style={{
+                  width: "64px",
+                  height: "64px",
+                  borderRadius: "50%",
+                  border: "3px solid rgba(201,168,76,0.15)",
+                  borderTop: "3px solid #c9a84c",
+                  animation: "spinRing 0.9s linear infinite",
+                  boxShadow: "0 0 18px rgba(201,168,76,0.35)"
+                }} />
+                <div style={{ textAlign: "center" }}>
+                  <div style={{ fontSize: "11px", fontWeight: 700, letterSpacing: "3px", color: "#c9a84c", marginBottom: "6px" }}>INITIALIZING CAMERA</div>
+                  <div style={{ fontSize: "10px", color: "rgba(240,236,225,0.4)", letterSpacing: "1px" }}>Please allow camera access…</div>
+                </div>
               </div>
             )}
             <video ref={videoRef} style={{ display: "none" }} autoPlay playsInline muted />
@@ -760,102 +677,64 @@ const TryOn = () => {
           </div>
         </div>
 
-        {/* Controls panel */}
         <div style={{ 
           background: "rgba(12, 12, 18, 0.7)",
           backdropFilter: "blur(24px)",
           borderRadius: "32px", 
-          padding: "18px", 
+          padding: "20px 18px", 
           display: "flex", 
           flexDirection: "column", 
-          gap: "20px", 
+          gap: "24px", 
           border: "1px solid rgba(201,168,76,0.2)",
-          boxShadow: "0 8px 32px rgba(0,0,0,0.3)",
-          flex: isMobile ? "auto" : 1.2,
+          boxShadow: "0 8px 32px rgba(0,0,0,0.3)"
         }}>
-          {/* Frame selection */}
           <div>
-            <div style={{ fontSize: "10px", letterSpacing: "2.5px", color: "#c9a84c", marginBottom: "12px", fontWeight: 600, display: "flex", alignItems: "center", gap: "8px" }}>
+            <div style={{ fontSize: "10px", letterSpacing: "2.5px", color: "#c9a84c", marginBottom: "14px", fontWeight: 600, display: "flex", alignItems: "center", gap: "8px" }}>
               <span style={{ width: "20px", height: "2px", background: "#c9a84c" }}></span>
               SELECT FRAME
             </div>
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(100px, 1fr))", gap: "10px" }}>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: "12px" }}>
               {GLASS_OPTIONS.map(g => (
-                <div key={g.id} onClick={() => {
-                  setSelectedProduct(g);
-                  if (g.colors.length) setSelectedColor(g.colors[0].name);
-                  setSelectedSizeKey("M");
-                }} style={{
-                  background: selectedProduct.id === g.id ? (g.is3d ? "linear-gradient(135deg, #0f1828, #0a0f1a)" : "linear-gradient(135deg, #1e1a10, #14110a)") : "rgba(20,20,28,0.6)",
-                  border: `1px solid ${selectedProduct.id === g.id ? (g.is3d ? "#64b4ff" : "#c9a84c") : "rgba(201,168,76,0.2)"}`,
-                  borderRadius: "20px", padding: "12px 4px", display: "flex", flexDirection: "column", alignItems: "center", gap: "4px", cursor: "pointer", transition: "all 0.2s", transform: selectedProduct.id === g.id ? "scale(1.02)" : "scale(1)", position: "relative"
+                <div key={g.id} onClick={() => setGlasses(g.id)} style={{
+                  background: glasses === g.id ? (g.is3d ? "linear-gradient(135deg, #0f1828, #0a0f1a)" : "linear-gradient(135deg, #1e1a10, #14110a)") : "rgba(20,20,28,0.6)",
+                  border: `1px solid ${glasses === g.id ? (g.is3d ? "#64b4ff" : "#c9a84c") : "rgba(201,168,76,0.2)"}`,
+                  borderRadius: "20px", padding: "14px 6px", display: "flex", flexDirection: "column", alignItems: "center", gap: "6px", cursor: "pointer", transition: "all 0.2s cubic-bezier(0.2, 0.9, 0.4, 1.1)", transform: glasses === g.id ? "scale(1.02)" : "scale(1)", boxShadow: glasses === g.id ? `0 0 15px ${g.is3d ? "rgba(100,180,255,0.3)" : "rgba(201,168,76,0.2)"}` : "none", position: "relative"
                 }}>
-                  {g.is3d && <span style={{ position: "absolute", top: "6px", right: "6px", fontSize: "7px", fontWeight: 700, color: "#64b4ff", background: "rgba(100,180,255,0.2)", padding: "2px 6px", borderRadius: "20px" }}>3D</span>}
-                  <div style={{ fontSize: "28px" }}>{g.emoji}</div>
-                  <div style={{ fontSize: "11px", fontWeight: 500 }}>{g.name}</div>
-                  <div style={{ fontSize: "11px", color: g.is3d ? "#64b4ff" : "#c9a84c", fontWeight: 700 }}>{g.price}</div>
+                  {g.is3d && <span style={{ position: "absolute", top: "8px", right: "8px", fontSize: "8px", fontWeight: 700, color: "#64b4ff", background: "rgba(100,180,255,0.2)", padding: "2px 8px", borderRadius: "20px", border: "0.5px solid rgba(100,180,255,0.5)" }}>3D</span>}
+                  <div style={{ fontSize: "32px", filter: "drop-shadow(0 2px 4px rgba(0,0,0,0.3))" }}>{g.emoji}</div>
+                  <div style={{ fontSize: "12px", fontWeight: 500, color: "rgba(240,236,225,0.9)" }}>{g.name}</div>
+                  <div style={{ fontSize: "13px", color: g.is3d ? "#64b4ff" : "#c9a84c", fontWeight: 700 }}>{g.price}</div>
                 </div>
               ))}
             </div>
           </div>
 
-          {/* Color selection */}
-          {!is3D && selectedProduct.colors?.length > 0 && (
+          {/* --- New Size Selector UI --- */}
+          {currentFrameSizes.length > 0 && (
             <div>
-              <div style={{ fontSize: "10px", letterSpacing: "2.5px", color: "#c9a84c", marginBottom: "10px", fontWeight: 600, display: "flex", alignItems: "center", gap: "8px" }}>
-                <span style={{ width: "20px", height: "2px", background: "#c9a84c" }}></span>
-                COLOR
-              </div>
-              <div style={{ display: "flex", gap: "12px" }}>
-                {selectedProduct.colors.map(color => (
-                  <button
-                    key={color.name}
-                    onClick={() => setSelectedColor(color.name)}
-                    style={{
-                      flex: 1,
-                      background: selectedColor === color.name ? "linear-gradient(135deg, #c9a84c, #b38f3a)" : "rgba(20,20,28,0.8)",
-                      border: `1px solid ${selectedColor === color.name ? "#c9a84c" : "rgba(201,168,76,0.3)"}`,
-                      color: selectedColor === color.name ? "#0c0c0e" : "#f0ede8",
-                      fontSize: "12px",
-                      fontWeight: 600,
-                      padding: "8px 0",
-                      borderRadius: "40px",
-                      cursor: "pointer",
-                      transition: "all 0.2s",
-                      textTransform: "uppercase"
-                    }}
-                  >
-                    {color.name}
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Size selection */}
-          {selectedProduct.sizes?.length > 0 && (
-            <div>
-              <div style={{ fontSize: "10px", letterSpacing: "2.5px", color: "#c9a84c", marginBottom: "10px", fontWeight: 600, display: "flex", alignItems: "center", gap: "8px" }}>
+              <div style={{ fontSize: "10px", letterSpacing: "2.5px", color: "#c9a84c", marginBottom: "12px", fontWeight: 600, display: "flex", alignItems: "center", gap: "8px" }}>
                 <span style={{ width: "20px", height: "2px", background: "#c9a84c" }}></span>
                 FRAME SIZE
               </div>
-              <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
-                {selectedProduct.sizes.map(size => (
+              <div style={{ display: "flex", gap: "12px", justifyContent: "space-between" }}>
+                {currentFrameSizes.map(size => (
                   <button
                     key={size.label}
                     onClick={() => setSelectedSizeKey(size.label)}
                     style={{
-                      flex: "1 0 auto",
-                      minWidth: "60px",
+                      flex: 1,
                       background: selectedSizeKey === size.label ? "linear-gradient(135deg, #c9a84c, #b38f3a)" : "rgba(20,20,28,0.8)",
                       border: `1px solid ${selectedSizeKey === size.label ? "#c9a84c" : "rgba(201,168,76,0.3)"}`,
                       color: selectedSizeKey === size.label ? "#0c0c0e" : "#f0ede8",
                       fontSize: "12px",
                       fontWeight: 700,
-                      padding: "8px 0",
+                      padding: "10px 0",
                       borderRadius: "40px",
                       cursor: "pointer",
-                      transition: "all 0.2s"
+                      transition: "all 0.2s ease",
+                      letterSpacing: "1px",
+                      textShadow: selectedSizeKey === size.label ? "none" : "0 0 4px rgba(0,0,0,0.5)",
+                      boxShadow: selectedSizeKey === size.label ? "0 0 12px rgba(201,168,76,0.4)" : "none"
                     }}
                   >
                     {size.label}
@@ -865,43 +744,23 @@ const TryOn = () => {
             </div>
           )}
 
-          {/* Product link */}
-          {selectedProduct.productLink && (
-            <div style={{ marginTop: "4px" }}>
-              <a href={selectedProduct.productLink} target="_blank" rel="noopener noreferrer" style={{
-                display: "inline-flex",
-                alignItems: "center",
-                gap: "8px",
-                fontSize: "11px",
-                color: "#c9a84c",
-                textDecoration: "none",
-                borderBottom: "1px dashed rgba(201,168,76,0.5)",
-                paddingBottom: "2px"
-              }}>
-                🔗 VIEW PRODUCT →
-              </a>
-            </div>
-          )}
-
-          {/* Arms toggle */}
           {!is3D && (
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "4px 0" }}>
-              <span style={{ fontSize: "11px", fontWeight: 500, color: "rgba(240,236,225,0.8)" }}>🦾 REALISTIC ARMS</span>
-              <label style={{ position: "relative", display: "inline-block", width: "44px", height: "22px" }}>
+              <span style={{ fontSize: "12px", fontWeight: 500, color: "rgba(240,236,225,0.8)", letterSpacing: "0.5px" }}>🦾 REALISTIC ARMS (BEHIND EARS)</span>
+              <label style={{ position: "relative", display: "inline-block", width: "48px", height: "24px" }}>
                 <input type="checkbox" checked={showArms} onChange={(e) => setShowArms(e.target.checked)} style={{ opacity: 0, width: 0, height: 0 }} />
-                <span style={{ position: "absolute", cursor: "pointer", top: 0, left: 0, right: 0, bottom: 0, backgroundColor: "#2a2a2f", transition: ".3s", borderRadius: "22px", border: "0.5px solid rgba(201,168,76,0.4)" }}>
-                  <span style={{ position: "absolute", height: "16px", width: "16px", left: "3px", bottom: "2px", backgroundColor: "#c9a84c", transition: ".3s", borderRadius: "50%", transform: showArms ? "translateX(22px)" : "none", boxShadow: "0 0 6px #c9a84c" }} />
+                <span style={{ position: "absolute", cursor: "pointer", top: 0, left: 0, right: 0, bottom: 0, backgroundColor: "#2a2a2f", transition: ".3s", borderRadius: "24px", border: "0.5px solid rgba(201,168,76,0.4)" }}>
+                  <span style={{ position: "absolute", height: "18px", width: "18px", left: "3px", bottom: "2px", backgroundColor: "#c9a84c", transition: ".3s", borderRadius: "50%", transform: showArms ? "translateX(24px)" : "none", boxShadow: "0 0 6px #c9a84c" }} />
                 </span>
               </label>
             </div>
           )}
 
-          {/* Manual adjustments */}
           {!is3D && (
-            <div style={{ background: "rgba(0,0,0,0.4)", borderRadius: "24px", padding: "14px", border: "0.5px solid rgba(201,168,76,0.2)" }}>
-              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "14px", alignItems: "center" }}>
-                <span style={{ fontSize: "9px", letterSpacing: "2px", color: "#c9a84c", fontWeight: 600 }}>⚙️ FRAME ADJUST</span>
-                <button onClick={resetAdj} style={{ fontSize: "8px", fontWeight: 500, color: "#c9a84c", background: "rgba(201,168,76,0.1)", border: "0.5px solid rgba(201,168,76,0.4)", padding: "3px 12px", borderRadius: "30px", cursor: "pointer" }}>⟳ RESET</button>
+            <div style={{ background: "rgba(0,0,0,0.4)", borderRadius: "24px", padding: "16px", border: "0.5px solid rgba(201,168,76,0.2)" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "16px", alignItems: "center" }}>
+                <span style={{ fontSize: "10px", letterSpacing: "2px", color: "#c9a84c", fontWeight: 600 }}>⚙️ FRAME ADJUST</span>
+                <button onClick={resetAdj} style={{ fontSize: "9px", fontWeight: 500, color: "#c9a84c", background: "rgba(201,168,76,0.1)", border: "0.5px solid rgba(201,168,76,0.4)", padding: "4px 14px", borderRadius: "30px", cursor: "pointer" }}>⟳ RESET</button>
               </div>
               {[
                 { label: "WIDTH", key: "scaleW", min: 0.3, max: 3, step: 0.05, fmt: v => `${v.toFixed(2)}×` },
@@ -910,20 +769,19 @@ const TryOn = () => {
                 { label: "MOVE U/D", key: "offsetY", min: -150, max: 150, step: 1, fmt: v => `${v > 0 ? "+" : ""}${v}px` },
                 { label: "ROTATION", key: "rotate", min: -30, max: 30, step: 0.5, fmt: v => `${v > 0 ? "+" : ""}${v.toFixed(1)}°` },
               ].map(({ label, key, min, max, step, fmt }) => (
-                <div key={key} style={{ marginBottom: "12px" }}>
-                  <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "6px" }}>
-                    <span style={{ fontSize: "10px", color: "rgba(240,236,225,0.6)" }}>{label}</span>
-                    <span style={{ fontSize: "10px", color: "#c9a84c", fontWeight: 600 }}>{fmt(curAdj[key])}</span>
+                <div key={key} style={{ marginBottom: "14px" }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "8px" }}>
+                    <span style={{ fontSize: "11px", color: "rgba(240,236,225,0.6)" }}>{label}</span>
+                    <span style={{ fontSize: "11px", color: "#c9a84c", fontWeight: 600 }}>{fmt(curAdj[key])}</span>
                   </div>
-                  <input type="range" min={min} max={max} step={step} value={curAdj[key]} onChange={e => setAdj(key, Number(e.target.value))} style={{ width: "100%", height: "3px", background: "rgba(201,168,76,0.2)", borderRadius: "4px" }} />
+                  <input type="range" min={min} max={max} step={step} value={curAdj[key]} onChange={e => setAdj(key, Number(e.target.value))} style={{ width: "100%", height: "4px", background: "rgba(201,168,76,0.2)", borderRadius: "4px" }} />
                 </div>
               ))}
             </div>
           )}
 
-          {/* Scene filters */}
           <div>
-            <div style={{ fontSize: "10px", letterSpacing: "2px", color: "#c9a84c", marginBottom: "12px", fontWeight: 600, display: "flex", alignItems: "center", gap: "8px" }}>
+            <div style={{ fontSize: "10px", letterSpacing: "2px", color: "#c9a84c", marginBottom: "14px", fontWeight: 600, display: "flex", alignItems: "center", gap: "8px" }}>
               <span style={{ width: "20px", height: "2px", background: "#c9a84c" }}></span>
               SCENE FILTERS
             </div>
@@ -932,17 +790,17 @@ const TryOn = () => {
               { label: "CONTRAST", val: contrast, set: setContrast, icon: "🎚️" },
               { label: "SATURATION", val: saturate, set: setSaturate, icon: "🎨" },
             ].map(({ label, val, set, icon }) => (
-              <div key={label} style={{ marginBottom: "12px" }}>
-                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "6px" }}>
-                  <span style={{ fontSize: "10px", color: "rgba(240,236,225,0.6)" }}>{icon} {label}</span>
-                  <span style={{ fontSize: "10px", color: "#c9a84c", fontWeight: 600 }}>{val}%</span>
+              <div key={label} style={{ marginBottom: "14px" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "8px" }}>
+                  <span style={{ fontSize: "11px", color: "rgba(240,236,225,0.6)" }}>{icon} {label}</span>
+                  <span style={{ fontSize: "11px", color: "#c9a84c", fontWeight: 600 }}>{val}%</span>
                 </div>
-                <input type="range" min="0" max="200" step="1" value={val} onChange={e => set(Number(e.target.value))} style={{ width: "100%", height: "3px", background: "rgba(201,168,76,0.2)", borderRadius: "4px" }} />
+                <input type="range" min="0" max="200" step="1" value={val} onChange={e => set(Number(e.target.value))} style={{ width: "100%", height: "4px", background: "rgba(201,168,76,0.2)", borderRadius: "4px" }} />
               </div>
             ))}
           </div>
 
-          <button onClick={capturePhoto} style={{ width: "100%", background: "linear-gradient(135deg, rgba(201,168,76,0.15), rgba(201,168,76,0.05))", border: "1px solid rgba(201,168,76,0.5)", color: "#c9a84c", fontSize: "11px", letterSpacing: "2px", padding: "12px", borderRadius: "60px", cursor: "pointer", fontWeight: 700, transition: "all 0.2s" }}>📸 CAPTURE LOOK</button>
+          <button onClick={capturePhoto} style={{ width: "100%", background: "linear-gradient(135deg, rgba(201,168,76,0.15), rgba(201,168,76,0.05))", border: "1px solid rgba(201,168,76,0.5)", color: "#c9a84c", fontSize: "12px", letterSpacing: "2px", padding: "14px", borderRadius: "60px", cursor: "pointer", fontWeight: 700, transition: "all 0.2s", backdropFilter: "blur(4px)" }} onMouseEnter={e => e.currentTarget.style.background = "linear-gradient(135deg, rgba(201,168,76,0.25), rgba(201,168,76,0.1))"} onMouseLeave={e => e.currentTarget.style.background = "linear-gradient(135deg, rgba(201,168,76,0.15), rgba(201,168,76,0.05))"}>📸 CAPTURE LOOK</button>
         </div>
       </div>
 
@@ -951,15 +809,12 @@ const TryOn = () => {
         @keyframes spinRing { to { transform: rotate(360deg); } }
         input[type="range"] { -webkit-appearance: none; background: transparent; }
         input[type="range"]:focus { outline: none; }
-        input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 14px; height: 14px; border-radius: 50%; background: #c9a84c; cursor: pointer; border: 2px solid #0c0c0e; box-shadow: 0 0 6px #c9a84c; }
-        input[type="range"]::-moz-range-thumb { width: 14px; height: 14px; border-radius: 50%; background: #c9a84c; cursor: pointer; border: 2px solid #0c0c0e; }
+        input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 16px; height: 16px; border-radius: 50%; background: #c9a84c; cursor: pointer; border: 2px solid #0c0c0e; box-shadow: 0 0 8px #c9a84c; }
+        input[type="range"]::-moz-range-thumb { width: 16px; height: 16px; border-radius: 50%; background: #c9a84c; cursor: pointer; border: 2px solid #0c0c0e; }
         button:hover { background: rgba(201,168,76,0.2); box-shadow: 0 0 12px rgba(201,168,76,0.3); }
         ::-webkit-scrollbar { width: 4px; }
         ::-webkit-scrollbar-track { background: rgba(20,20,28,0.5); border-radius: 4px; }
         ::-webkit-scrollbar-thumb { background: #c9a84c; border-radius: 4px; }
-        @media (max-width: 768px) {
-          div { transition: all 0.2s ease; }
-        }
       `}</style>
     </div>
   );

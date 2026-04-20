@@ -308,8 +308,7 @@ const TryOn = () => {
   const glassModel3dRef = useRef(null);
   const modelWidthRef = useRef(1);
   const faceMeshRef = useRef(null);
-  const cameraInstanceRef = useRef(null);
-  const animationFrameRef = useRef(null);
+  const streamRef = useRef(null);
 
   // State for selected product, color, size
   const [selectedProduct, setSelectedProduct] = useState(GLASS_OPTIONS[0]);
@@ -381,6 +380,32 @@ const TryOn = () => {
     }
   };
 
+  // Initialize camera directly with getUserMedia
+  useEffect(() => {
+    const startCamera = async () => {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+        streamRef.current = stream;
+        
+        if (videoRef.current) {
+          videoRef.current.srcObject = stream;
+          videoRef.current.play();
+          setCameraReady(true);
+        }
+      } catch (err) {
+        console.error("Camera error:", err);
+      }
+    };
+
+    startCamera();
+
+    return () => {
+      if (streamRef.current) {
+        streamRef.current.getTracks().forEach(track => track.stop());
+      }
+    };
+  }, []);
+
   // 3D scene init
   useEffect(() => {
     if (!is3D) {
@@ -436,19 +461,16 @@ const TryOn = () => {
     };
   }, [is3D]);
 
-  // FaceMesh and main loop - FIXED VERSION
+  // FaceMesh and main loop
   useEffect(() => {
-    let isMounted = true;
-    
+    if (!cameraReady) return;
+
+    let animationId;
+    let faceMesh;
+
     const initFaceMesh = async () => {
       try {
-        // Wait for FaceMesh to be available
-        if (!window.FaceMesh) {
-          console.error("FaceMesh not loaded");
-          return;
-        }
-
-        const faceMesh = new window.FaceMesh({
+        faceMesh = new window.FaceMesh({
           locateFile: f => `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${f}`,
         });
         
@@ -459,118 +481,110 @@ const TryOn = () => {
           minTrackingConfidence: 0.5 
         });
         
+        faceMesh.onResults(onResults);
         faceMeshRef.current = faceMesh;
 
-        // Set up results handler
-        faceMesh.onResults((results) => {
-          if (!isMounted) return;
-          
-          const canvas = canvasRef.current;
-          if (!canvas) return;
-          
-          const ctx = canvas.getContext("2d");
-          const W = canvas.width, H = canvas.height;
-          ctx.clearRect(0, 0, W, H);
-          ctx.filter = `brightness(${brightnessRef.current}%) contrast(${contrastRef.current}%) saturate(${saturateRef.current}%)`;
-          ctx.drawImage(results.image, 0, 0, W, H);
-          ctx.filter = "none";
-          
-          const _is3D = is3DRef.current;
-          if (_is3D && rendererRef.current && sceneRef.current && cameraRef.current) {
-            rendererRef.current.render(sceneRef.current, cameraRef.current);
+        // Start processing loop
+        const processFrame = async () => {
+          if (videoRef.current && videoRef.current.readyState >= 2) {
+            await faceMesh.send({ image: videoRef.current });
           }
-          
-          if (!results.multiFaceLandmarks?.length) {
-            smootherRef.current.reset();
-            return;
-          }
-          
-          const lm = results.multiFaceLandmarks[0];
-          const geo = extractFaceGeometry(lm, W, H);
-          const smoothed = smootherRef.current.smooth({
-            cx: geo.centerX, cy: geo.centerY, gw: geo.glassesWidth, gh: geo.glassesHeight,
-            angle: geo.angle, ds: geo.depthScale,
-          });
-          
-          const sizeScale = getSizeScaleRef.current();
-          
-          if (_is3D) {
-            const model = glassModel3dRef.current;
-            const r = rendererRef.current, s = sceneRef.current, c = cameraRef.current;
-            if (model && r && s && c) {
-              model.position.x = smoothed.cx - W / 2;
-              model.position.y = -(smoothed.cy - H / 2);
-              let scale3D = (smoothed.gw * smoothed.ds) / modelWidthRef.current;
-              scale3D *= sizeScale;
-              model.scale.setScalar(scale3D);
-              model.rotation.z = -smoothed.angle;
-              r.render(s, c);
-            }
-          } else {
-            const img = imgRef.current;
-            if (!img.complete || !img.src) return;
-            const adj = adjRef.current[selectedProductRef.current.id] || DEFAULT_ADJ;
-            let w = smoothed.gw * adj.scaleW * smoothed.ds;
-            let h = smoothed.gh * adj.scaleH * smoothed.ds;
-            w *= sizeScale;
-            h *= sizeScale;
-            const finalAngle = smoothed.angle + (adj.rotate * Math.PI / 180);
-            const fx = smoothed.cx + adj.offsetX;
-            const fy = smoothed.cy + adj.offsetY;
-            if (showArmsRef.current) {
-              drawGlassesWithRealisticArms(ctx, img, fx, fy, w, h, finalAngle);
-            } else {
-              ctx.save();
-              ctx.translate(fx, fy);
-              ctx.rotate(finalAngle);
-              ctx.drawImage(img, -w / 2, -h / 2, w, h);
-              ctx.restore();
-            }
-          }
-        });
-
-        // Initialize camera
-        if (videoRef.current) {
-          const camera = new window.Camera(videoRef.current, {
-            onFrame: async () => {
-              if (faceMeshRef.current && videoRef.current) {
-                await faceMeshRef.current.send({ image: videoRef.current });
-              }
-            },
-            width: 640, 
-            height: 480,
-          });
-          
-          cameraInstanceRef.current = camera;
-          await camera.start();
-          
-          if (isMounted) {
-            setCameraReady(true);
-          }
-        }
+          animationId = requestAnimationFrame(processFrame);
+        };
+        
+        processFrame();
       } catch (error) {
-        console.error("Error initializing FaceMesh:", error);
+        console.error("FaceMesh error:", error);
       }
     };
 
-    // Small delay to ensure video element is ready
-    const timeoutId = setTimeout(() => {
-      if (videoRef.current) {
-        initFaceMesh();
+    function onResults(results) {
+      const canvas = canvasRef.current;
+      if (!canvas) return;
+      
+      const ctx = canvas.getContext("2d");
+      const W = canvas.width, H = canvas.height;
+      ctx.clearRect(0, 0, W, H);
+      ctx.filter = `brightness(${brightnessRef.current}%) contrast(${contrastRef.current}%) saturate(${saturateRef.current}%)`;
+      ctx.drawImage(results.image, 0, 0, W, H);
+      ctx.filter = "none";
+      
+      const _is3D = is3DRef.current;
+      if (_is3D && rendererRef.current && sceneRef.current && cameraRef.current) {
+        rendererRef.current.render(sceneRef.current, cameraRef.current);
       }
-    }, 100);
+      
+      if (!results.multiFaceLandmarks?.length) {
+        smootherRef.current.reset();
+        return;
+      }
+      
+      const lm = results.multiFaceLandmarks[0];
+      const geo = extractFaceGeometry(lm, W, H);
+      const smoothed = smootherRef.current.smooth({
+        cx: geo.centerX, cy: geo.centerY, gw: geo.glassesWidth, gh: geo.glassesHeight,
+        angle: geo.angle, ds: geo.depthScale,
+      });
+      
+      const sizeScale = getSizeScaleRef.current();
+      
+      if (_is3D) {
+        const model = glassModel3dRef.current;
+        const r = rendererRef.current, s = sceneRef.current, c = cameraRef.current;
+        if (model && r && s && c) {
+          model.position.x = smoothed.cx - W / 2;
+          model.position.y = -(smoothed.cy - H / 2);
+          let scale3D = (smoothed.gw * smoothed.ds) / modelWidthRef.current;
+          scale3D *= sizeScale;
+          model.scale.setScalar(scale3D);
+          model.rotation.z = -smoothed.angle;
+          r.render(s, c);
+        }
+      } else {
+        const img = imgRef.current;
+        if (!img.complete || !img.src) return;
+        const adj = adjRef.current[selectedProductRef.current.id] || DEFAULT_ADJ;
+        let w = smoothed.gw * adj.scaleW * smoothed.ds;
+        let h = smoothed.gh * adj.scaleH * smoothed.ds;
+        w *= sizeScale;
+        h *= sizeScale;
+        const finalAngle = smoothed.angle + (adj.rotate * Math.PI / 180);
+        const fx = smoothed.cx + adj.offsetX;
+        const fy = smoothed.cy + adj.offsetY;
+        if (showArmsRef.current) {
+          drawGlassesWithRealisticArms(ctx, img, fx, fy, w, h, finalAngle);
+        } else {
+          ctx.save();
+          ctx.translate(fx, fy);
+          ctx.rotate(finalAngle);
+          ctx.drawImage(img, -w / 2, -h / 2, w, h);
+          ctx.restore();
+        }
+      }
+    }
+
+    if (window.FaceMesh) {
+      initFaceMesh();
+    } else {
+      // Wait for FaceMesh to load
+      const checkInterval = setInterval(() => {
+        if (window.FaceMesh) {
+          clearInterval(checkInterval);
+          initFaceMesh();
+        }
+      }, 100);
+      return () => clearInterval(checkInterval);
+    }
 
     return () => {
-      isMounted = false;
-      clearTimeout(timeoutId);
-      if (cameraInstanceRef.current) {
-        cameraInstanceRef.current.stop();
+      if (animationId) {
+        cancelAnimationFrame(animationId);
       }
       if (faceMeshRef.current) {
         faceMeshRef.current.close();
       }
     };
-  }, []); // Empty dependency array - only run once on mount
+  }, [cameraReady]);
 
   // Load image when currentImage changes
   useEffect(() => {
@@ -738,31 +752,6 @@ const TryOn = () => {
                 border: "1px solid #c9a84c"
               }}>
                 ⚡ LOADING 3D...
-              </div>
-            )}
-            {!cameraReady && (
-              <div style={{
-                position: "absolute",
-                inset: 0,
-                borderRadius: "24px",
-                background: "rgba(5, 5, 8, 0.97)",
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                justifyContent: "center",
-                gap: "16px",
-                zIndex: 30,
-              }}>
-                <div style={{
-                  width: "48px",
-                  height: "48px",
-                  borderRadius: "50%",
-                  border: "3px solid rgba(201,168,76,0.15)",
-                  borderTop: "3px solid #c9a84c",
-                  animation: "spinRing 0.9s linear infinite"
-                }} />
-                <div style={{ textAlign: "center", fontSize: "10px", fontWeight: 700, letterSpacing: "2px", color: "#c9a84c" }}>INITIALIZING CAMERA</div>
-                <div style={{ textAlign: "center", fontSize: "9px", color: "rgba(240,236,225,0.5)" }}>Please allow camera access...</div>
               </div>
             )}
             <video ref={videoRef} style={{ display: "none" }} autoPlay playsInline muted />

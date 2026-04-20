@@ -15,7 +15,7 @@ const GLASS_OPTIONS = [
       { label: "S", width: 130, height: 48, bridge: 16 },
       { label: "M", width: 135, height: 48, bridge: 18 },
       { label: "L", width: 142, height: 51, bridge: 20 },
-      { label: "XL", width: 170, height: 80, bridge: 27 }
+      { label: "XL", width: 170, height: 100, bridge: 27 }
     ],
     defaultSize: "M"
   },

@@ -12,10 +12,10 @@ const GLASS_OPTIONS = [
     brand: "Gucci", 
     model: "GG01840",
     sizes: [
-      { label: "S", width: 160, height: 65, bridge: 16 },
-      { label: "M", width: 180, height: 75, bridge: 18 },
-      { label: "L", width: 200, height: 85, bridge: 20 },
-      { label: "XL", width: 230, height: 100, bridge: 29 }
+      { label: "S", width: 128, height: 45, bridge: 16 },
+      { label: "M", width: 135, height: 48, bridge: 18 },
+      { label: "L", width: 142, height: 51, bridge: 20 },
+      { label: "XL", width: 150, height: 54, bridge: 22 }
     ],
     defaultSize: "M"
   },
@@ -108,10 +108,6 @@ const LANDMARKS = {
   LEFT_EYEBROW_LOWER: [70, 63, 105, 66, 107],
   RIGHT_EYEBROW_LOWER: [300, 293, 334, 296, 336],
   NOSE_BRIDGE_TOP: 6,
-  NOSE_LEFT_PAD: 124,
-  NOSE_RIGHT_PAD: 353,
-  TEMPLE_LEFT: 127,
-  TEMPLE_RIGHT: 356,
 };
 
 class LandmarkSmoother {
@@ -147,45 +143,25 @@ function extractFaceGeometry(lm, W, H) {
       z: pts.reduce((s, p) => s + p.z, 0) / pts.length,
     };
   };
-  const dist = (a, b) => Math.sqrt((a.x - b.x) ** 2 + (a.y - b.y) ** 2);
 
   const leftIris = px(LANDMARKS.LEFT_IRIS_CENTER);
   const rightIris = px(LANDMARKS.RIGHT_IRIS_CENTER);
-  const leftEyeOut = px(LANDMARKS.LEFT_EYE_OUTER);
-  const rightEyeOut = px(LANDMARKS.RIGHT_EYE_OUTER);
   const leftBrowLower = avgPx(LANDMARKS.LEFT_EYEBROW_LOWER);
   const rightBrowLower = avgPx(LANDMARKS.RIGHT_EYEBROW_LOWER);
-  const noseBridgeTop = px(LANDMARKS.NOSE_BRIDGE_TOP);
-
-  // Eye span for positioning reference only
-  const eyeSpan = dist(leftEyeOut, rightEyeOut);
-  const leftBrowEyeGap = dist(leftBrowLower, leftIris);
-  const rightBrowEyeGap = dist(rightBrowLower, rightIris);
-  const avgBrowEyeGap = (leftBrowEyeGap + rightBrowEyeGap) / 2;
 
   // Rotation angle
   const angleIris = Math.atan2(rightIris.y - leftIris.y, rightIris.x - leftIris.x);
-  const angleEyeCorners = Math.atan2(rightEyeOut.y - leftEyeOut.y, rightEyeOut.x - leftEyeOut.x);
   const angleBrow = Math.atan2(rightBrowLower.y - leftBrowLower.y, rightBrowLower.x - leftBrowLower.x);
-  const angle = angleEyeCorners * 0.5 + angleBrow * 0.3 + angleIris * 0.2;
+  const angle = angleIris * 0.6 + angleBrow * 0.4;
 
-  // Center position between eyes
+  // Center position between eyes (this is what tracks the face)
   const centerX = (leftIris.x + rightIris.x) / 2;
   const browCenterY = (leftBrowLower.y + rightBrowLower.y) / 2;
   const irisCenterY = (leftIris.y + rightIris.y) / 2;
-  const centerY = browCenterY * 0.4 + irisCenterY * 0.6;
-
-  // Depth scaling
-  const avgZ = (leftIris.z + rightIris.z + noseBridgeTop.z) / 3;
-  const depthScale = 1 + (-avgZ * 0.8);
-
-  // Reference size based on face - this is just a reference, not changing the actual product size
-  const referenceWidth = eyeSpan * 1.5;
-  const referenceHeight = avgBrowEyeGap * 2.5;
+  const centerY = browCenterY * 0.45 + irisCenterY * 0.55;
 
   return {
-    centerX, centerY, angle, depthScale,
-    referenceWidth, referenceHeight,
+    centerX, centerY, angle,
   };
 }
 
@@ -286,21 +262,36 @@ const TryOn = () => {
   useEffect(() => { showArmsRef.current = showArms; }, [showArms]);
   useEffect(() => { 
     sizeRef.current = currentSizeData;
-    console.log("Size changed to:", selectedSize, "Width:", currentSizeData?.width, "Height:", currentSizeData?.height);
   }, [selectedSize, currentSizeData]);
 
   const curAdj = adjustments[glasses.id] || DEFAULT_ADJ;
 
-  // Convert actual mm size to pixels on screen based on face distance
-  // This ensures the glasses display at their true physical size
-  const getGlassesPixelSize = useCallback((actualWidthMm, actualHeightMm, depthScale) => {
-    // At average face distance (500mm), 1mm ≈ 0.8 pixels at 640x480 resolution
-    // This gives realistic sizing where glasses don't scale with different face sizes
-    const mmToPx = 0.85;
-    const widthPx = actualWidthMm * mmToPx * depthScale;
-    const heightPx = actualHeightMm * mmToPx * depthScale;
-    return { width: widthPx, height: heightPx };
-  }, []);
+  // FIXED SIZE - Does NOT change with zoom or face distance
+  // These are the actual pixel dimensions that remain constant
+  const FIXED_GLASSES_WIDTH_PX = 180;
+  const FIXED_GLASSES_HEIGHT_PX = 65;
+
+  // Get the fixed pixel size based on selected size (different sizes have different fixed dimensions)
+  const getFixedGlassesSize = useCallback(() => {
+    // Base size is M (135mm width)
+    const baseWidthMm = 135;
+    const baseHeightMm = 48;
+    const selectedWidthMm = currentSizeData?.width || 135;
+    const selectedHeightMm = currentSizeData?.height || 48;
+    
+    // Scale factor based on actual product dimensions
+    const widthScale = selectedWidthMm / baseWidthMm;
+    const heightScale = selectedHeightMm / baseHeightMm;
+    
+    // Fixed base pixel size (optimized for 640x480 camera view)
+    const baseFixedWidth = 160;
+    const baseFixedHeight = 58;
+    
+    return {
+      width: baseFixedWidth * widthScale,
+      height: baseFixedHeight * heightScale
+    };
+  }, [currentSizeData]);
 
   // 3D Scene
   useEffect(() => {
@@ -427,7 +418,7 @@ const TryOn = () => {
         
         const smoothed = smootherRef.current.smooth({
           cx: geo.centerX, cy: geo.centerY,
-          angle: geo.angle, ds: geo.depthScale,
+          angle: geo.angle,
         });
         
         if (is3DRef.current) {
@@ -435,9 +426,10 @@ const TryOn = () => {
           if (model && rendererRef.current && sceneRef.current && cameraRef.current) {
             model.position.x = smoothed.cx - W / 2;
             model.position.y = -(smoothed.cy - H / 2);
+            // Fixed scale for 3D model based on selected size
             const sizeData = sizeRef.current;
-            const actualWidth = sizeData?.width || 135;
-            const scale3D = (actualWidth * 0.85 * smoothed.ds) / modelWidthRef.current;
+            const baseScale = 0.28;
+            const scale3D = baseScale * (sizeData?.width / 135);
             model.scale.setScalar(scale3D);
             model.rotation.z = -smoothed.angle;
             rendererRef.current.render(sceneRef.current, cameraRef.current);
@@ -446,18 +438,13 @@ const TryOn = () => {
           const img = imgRef.current;
           if (!img.complete || !img.src) return;
           const adj = adjRef.current[glassesRef.current.id] || DEFAULT_ADJ;
-          const sizeData = sizeRef.current;
           
-          // Get actual physical dimensions from selected size (in mm)
-          const actualWidthMm = sizeData?.width || 135;
-          const actualHeightMm = sizeData?.height || 48;
+          // FIXED SIZE - does NOT change with zoom or face distance
+          const fixedSize = getFixedGlassesSize();
           
-          // Convert to pixel size based on face distance - NOT scaling with face size
-          const { width: baseW, height: baseH } = getGlassesPixelSize(actualWidthMm, actualHeightMm, smoothed.ds);
-          
-          // Apply user adjustments
-          const w = baseW * adj.scaleW;
-          const h = baseH * adj.scaleH;
+          // Apply user adjustments to fixed size
+          const w = fixedSize.width * adj.scaleW;
+          const h = fixedSize.height * adj.scaleH;
           const finalAngle = smoothed.angle + (adj.rotate * Math.PI / 180);
           const fx = smoothed.cx + adj.offsetX;
           const fy = smoothed.cy + adj.offsetY;
@@ -483,7 +470,7 @@ const TryOn = () => {
       };
     };
     loadMediaPipe();
-  }, [getGlassesPixelSize]);
+  }, [getFixedGlassesSize]);
 
   useEffect(() => {
     if (!is3D && imgRef.current) {
@@ -630,14 +617,13 @@ const TryOn = () => {
             flexDirection: "column",
             gap: "28px",
           }}>
-            {/* Size Selection - FIXED ACTUAL SIZES */}
+            {/* Size Selection - Fixed sizes that don't scale with face */}
             <div>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
                 <span style={{ fontSize: "13px", fontWeight: 600, letterSpacing: "1px", color: "rgba(255,255,255,0.6)" }}>SIZE</span>
                 <span style={{ fontSize: "11px", color: "rgba(255,255,255,0.4)" }}>Actual product dimensions</span>
               </div>
               
-              {/* Size options with actual dimensions */}
               <div style={{ display: "flex", gap: "12px", flexWrap: "wrap" }}>
                 {glasses.sizes.map(size => (
                   <button
@@ -660,7 +646,6 @@ const TryOn = () => {
                 ))}
               </div>
               
-              {/* Size details */}
               {currentSizeData && (
                 <div style={{ 
                   marginTop: "12px", 
@@ -676,7 +661,7 @@ const TryOn = () => {
                     <span>Bridge: <strong style={{ color: "#c9a84c" }}>{currentSizeData.bridge}mm</strong></span>
                   </div>
                   <div style={{ marginTop: "8px", fontSize: "10px", textAlign: "center", color: "rgba(255,255,255,0.3)" }}>
-                    These are the actual physical dimensions of the frame
+                    Frame size is fixed and does not change when you move closer/further
                   </div>
                 </div>
               )}

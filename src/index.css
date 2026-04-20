@@ -1,1 +1,12 @@
 @import "tailwindcss";
+.zoom-resistant-container {
+  zoom: reset;
+  -moz-transform: scale(1);
+  -webkit-transform: scale(1);
+  transform: scale(1);
+}
+
+canvas {
+  zoom: 1;
+  image-rendering: crisp-edges;
+}

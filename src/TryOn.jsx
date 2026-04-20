@@ -465,372 +465,415 @@ const TryOn = () => {
   }, []);
 
   return (
-    <div style={{ 
-      fontFamily: "'Inter', 'Space Grotesk', sans-serif", 
-      background: "#0a0a0c", 
-      color: "#ffffff", 
-      minHeight: "100vh", 
-      display: "flex", 
-      flexDirection: "column",
-    }}>
+    <>
+      {/* Meta viewport tag to prevent zoom scaling of fixed elements */}
+      <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover" />
+      
       <div style={{ 
+        fontFamily: "'Inter', 'Space Grotesk', sans-serif", 
+        background: "#0a0a0c", 
+        color: "#ffffff", 
+        minHeight: "100vh", 
         display: "flex", 
         flexDirection: "column",
-        maxWidth: "1400px",
-        margin: "0 auto",
-        width: "100%",
-        padding: "20px 24px",
-        gap: "24px",
       }}>
-        {/* Header */}
         <div style={{ 
           display: "flex", 
-          alignItems: "center", 
-          justifyContent: "space-between",
-          flexWrap: "wrap",
-          gap: "16px",
-          borderBottom: "1px solid rgba(255,255,255,0.08)",
-          paddingBottom: "20px",
+          flexDirection: "column",
+          maxWidth: "1400px",
+          margin: "0 auto",
+          width: "100%",
+          padding: "20px 24px",
+          gap: "24px",
         }}>
-          <div>
-            <h1 style={{ fontSize: "28px", fontWeight: 600, letterSpacing: "-0.02em", margin: 0 }}>
-              VR<span style={{ color: "#c9a84c" }}>.</span>OPTICS
-            </h1>
-            <p style={{ fontSize: "13px", color: "rgba(255,255,255,0.5)", margin: "4px 0 0 0" }}>Virtual Try-On Experience</p>
-          </div>
-          <button 
-            onClick={() => setIsFavorite(!isFavorite)}
-            style={{
-              background: "rgba(255,255,255,0.05)",
-              border: "1px solid rgba(255,255,255,0.1)",
-              borderRadius: "40px",
-              padding: "10px 20px",
-              color: isFavorite ? "#c9a84c" : "rgba(255,255,255,0.7)",
-              fontSize: "14px",
-              fontWeight: 500,
-              cursor: "pointer",
-              display: "flex",
-              alignItems: "center",
-              gap: "8px",
-            }}
-          >
-            <span>{isFavorite ? "❤️" : "🤍"}</span> Add to Favorite Products
-          </button>
-        </div>
-
-        {/* Two Column Layout */}
-        <div style={{ display: "flex", flexWrap: "wrap", gap: "24px" }}>
-          {/* Camera Column */}
-          <div style={{ flex: "2", minWidth: "300px" }}>
-            <div style={{ 
-              background: "rgba(255,255,255,0.02)",
-              borderRadius: "28px",
-              border: "1px solid rgba(255,255,255,0.08)",
-              overflow: "hidden",
-            }}>
-              {/* FIXED-SIZE CONTAINER: Prevents zoom scaling of the frame area */}
-              <div style={{ 
-                position: "relative", 
-                width: "640px", 
-                height: "480px", 
-                background: "#000",
-                margin: "0 auto"
-              }}>
-                {!cameraReady && (
-                  <div style={{
-                    position: "absolute",
-                    inset: 0,
-                    background: "#0a0a0c",
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    zIndex: 20,
-                    gap: "16px",
-                  }}>
-                    <div style={{ width: "48px", height: "48px", borderRadius: "50%", border: "2px solid rgba(201,168,76,0.3)", borderTop: "2px solid #c9a84c", animation: "spin 1s linear infinite" }} />
-                    <p style={{ color: "rgba(255,255,255,0.6)", fontSize: "13px" }}>Initializing camera...</p>
-                  </div>
-                )}
-                <video ref={videoRef} style={{ display: "none" }} autoPlay playsInline muted />
-                <canvas 
-                  ref={canvasRef} 
-                  width={640} 
-                  height={480} 
-                  style={{ width: "640px", height: "480px", objectFit: "cover" }} 
-                />
-                <canvas 
-                  ref={threeCanvasRef} 
-                  width={640} 
-                  height={480} 
-                  style={{ position: "absolute", inset: 0, width: "640px", height: "480px", pointerEvents: "none", opacity: is3D ? 1 : 0 }} 
-                />
-                {glbLoading && (
-                  <div style={{ position: "absolute", bottom: "16px", right: "16px", background: "rgba(0,0,0,0.7)", padding: "6px 12px", borderRadius: "20px", fontSize: "11px" }}>
-                    Loading 3D...
-                  </div>
-                )}
-              </div>
-              
-              {/* Product Info Bar */}
-              <div style={{ padding: "16px 20px", borderTop: "1px solid rgba(255,255,255,0.06)" }}>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "12px" }}>
-                  <div>
-                    <div style={{ fontSize: "12px", color: "rgba(255,255,255,0.4)", letterSpacing: "1px" }}>PRODUCT NAME</div>
-                    <div style={{ fontSize: "18px", fontWeight: 600 }}>{glasses.brand} {glasses.model}</div>
-                  </div>
-                  <div style={{ textAlign: "right" }}>
-                    <div style={{ fontSize: "12px", color: "rgba(255,255,255,0.4)" }}>PRICE</div>
-                    <div style={{ fontSize: "20px", fontWeight: 700, color: "#c9a84c" }}>{glasses.price}</div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Controls Column */}
+          {/* Header */}
           <div style={{ 
-            flex: "1.2",
-            minWidth: "280px",
-            background: "rgba(255,255,255,0.02)",
-            borderRadius: "28px",
-            border: "1px solid rgba(255,255,255,0.08)",
-            padding: "24px",
-            display: "flex",
-            flexDirection: "column",
-            gap: "28px",
+            display: "flex", 
+            alignItems: "center", 
+            justifyContent: "space-between",
+            flexWrap: "wrap",
+            gap: "16px",
+            borderBottom: "1px solid rgba(255,255,255,0.08)",
+            paddingBottom: "20px",
           }}>
-            {/* Size Selection */}
             <div>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
-                <span style={{ fontSize: "13px", fontWeight: 600, letterSpacing: "1px", color: "rgba(255,255,255,0.6)" }}>SIZE</span>
-                <span style={{ fontSize: "11px", color: "rgba(255,255,255,0.4)" }}>Actual product dimensions</span>
-              </div>
-              
-              <div style={{ display: "flex", gap: "12px", flexWrap: "wrap" }}>
-                {glasses.sizes.map(size => (
-                  <button
-                    key={size.label}
-                    onClick={() => setSelectedSize(size.label)}
-                    style={{
-                      minWidth: "70px",
-                      padding: "12px 8px",
-                      borderRadius: "20px",
-                      background: selectedSize === size.label ? "#c9a84c" : "rgba(255,255,255,0.05)",
-                      border: selectedSize === size.label ? "none" : "1px solid rgba(255,255,255,0.1)",
-                      color: selectedSize === size.label ? "#000" : "rgba(255,255,255,0.7)",
-                      cursor: "pointer",
-                      textAlign: "center",
-                    }}
-                  >
-                    <div style={{ fontSize: "16px", fontWeight: 600 }}>{size.label}</div>
-                    <div style={{ fontSize: "9px", opacity: 0.8 }}>{size.width}×{size.height}mm</div>
-                  </button>
-                ))}
-              </div>
-              
-              {currentSizeData && (
-                <div style={{ 
-                  marginTop: "12px", 
-                  padding: "12px", 
-                  background: "rgba(255,255,255,0.03)", 
-                  borderRadius: "16px", 
-                  fontSize: "11px", 
-                  color: "rgba(255,255,255,0.5)",
-                }}>
-                  <div style={{ display: "flex", justifyContent: "space-between" }}>
-                    <span>Lens: <strong style={{ color: "#c9a84c" }}>{currentSizeData.width}×{currentSizeData.height}mm</strong></span>
-                    <span>Bridge: <strong style={{ color: "#c9a84c" }}>{currentSizeData.bridge}mm</strong></span>
-                  </div>
-                  <div style={{ marginTop: "8px", fontSize: "10px", textAlign: "center", color: "#c9a84c", fontWeight: 500 }}>
-                    🔒 FIXED SIZE — Does NOT change when you zoom in/out
-                  </div>
-                  <div style={{ marginTop: "4px", fontSize: "9px", textAlign: "center", color: "rgba(255,255,255,0.3)" }}>
-                    Screen size: {currentSizeData.pxWidth}×{currentSizeData.pxHeight}px (constant)
-                  </div>
-                </div>
-              )}
+              <h1 style={{ fontSize: "28px", fontWeight: 600, letterSpacing: "-0.02em", margin: 0 }}>
+                VR<span style={{ color: "#c9a84c" }}>.</span>OPTICS
+              </h1>
+              <p style={{ fontSize: "13px", color: "rgba(255,255,255,0.5)", margin: "4px 0 0 0" }}>Virtual Try-On Experience</p>
             </div>
+            <button 
+              onClick={() => setIsFavorite(!isFavorite)}
+              style={{
+                background: "rgba(255,255,255,0.05)",
+                border: "1px solid rgba(255,255,255,0.1)",
+                borderRadius: "40px",
+                padding: "10px 20px",
+                color: isFavorite ? "#c9a84c" : "rgba(255,255,255,0.7)",
+                fontSize: "14px",
+                fontWeight: 500,
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                gap: "8px",
+              }}
+            >
+              <span>{isFavorite ? "❤️" : "🤍"}</span> Add to Favorite Products
+            </button>
+          </div>
 
-            {/* Color Selection */}
-            <div>
-              <div style={{ fontSize: "13px", fontWeight: 600, letterSpacing: "1px", color: "rgba(255,255,255,0.6)", marginBottom: "16px" }}>COLOR</div>
-              <div style={{ display: "flex", gap: "16px", flexWrap: "wrap" }}>
-                {COLOR_OPTIONS.map(color => (
-                  <button
-                    key={color.name}
-                    onClick={() => setSelectedColor(color)}
-                    style={{
+          {/* Two Column Layout */}
+          <div style={{ display: "flex", flexWrap: "wrap", gap: "24px" }}>
+            {/* Camera Column */}
+            <div style={{ flex: "2", minWidth: "300px" }}>
+              <div style={{ 
+                background: "rgba(255,255,255,0.02)",
+                borderRadius: "28px",
+                border: "1px solid rgba(255,255,255,0.08)",
+                overflow: "hidden",
+              }}>
+                {/* FIXED-SIZE CONTAINER: Prevents zoom scaling of the frame area */}
+                {/* Using CSS transform: scale(1) to counteract browser zoom */}
+                <div 
+                  className="zoom-resistant-container"
+                  style={{ 
+                    position: "relative", 
+                    width: "640px", 
+                    height: "480px", 
+                    background: "#000",
+                    margin: "0 auto",
+                    transformOrigin: "top left",
+                  }}
+                >
+                  {!cameraReady && (
+                    <div style={{
+                      position: "absolute",
+                      inset: 0,
+                      background: "#0a0a0c",
                       display: "flex",
                       flexDirection: "column",
                       alignItems: "center",
-                      gap: "8px",
-                      background: "none",
-                      border: "none",
+                      justifyContent: "center",
+                      zIndex: 20,
+                      gap: "16px",
+                    }}>
+                      <div style={{ width: "48px", height: "48px", borderRadius: "50%", border: "2px solid rgba(201,168,76,0.3)", borderTop: "2px solid #c9a84c", animation: "spin 1s linear infinite" }} />
+                      <p style={{ color: "rgba(255,255,255,0.6)", fontSize: "13px" }}>Initializing camera...</p>
+                    </div>
+                  )}
+                  <video ref={videoRef} style={{ display: "none" }} autoPlay playsInline muted />
+                  <canvas 
+                    ref={canvasRef} 
+                    width={640} 
+                    height={480} 
+                    style={{ 
+                      width: "640px", 
+                      height: "480px", 
+                      objectFit: "cover",
+                      display: "block",
+                    }} 
+                  />
+                  <canvas 
+                    ref={threeCanvasRef} 
+                    width={640} 
+                    height={480} 
+                    style={{ 
+                      position: "absolute", 
+                      inset: 0, 
+                      width: "640px", 
+                      height: "480px", 
+                      pointerEvents: "none", 
+                      opacity: is3D ? 1 : 0,
+                      display: "block",
+                    }} 
+                  />
+                  {glbLoading && (
+                    <div style={{ position: "absolute", bottom: "16px", right: "16px", background: "rgba(0,0,0,0.7)", padding: "6px 12px", borderRadius: "20px", fontSize: "11px" }}>
+                      Loading 3D...
+                    </div>
+                  )}
+                </div>
+                
+                {/* Product Info Bar */}
+                <div style={{ padding: "16px 20px", borderTop: "1px solid rgba(255,255,255,0.06)" }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "12px" }}>
+                    <div>
+                      <div style={{ fontSize: "12px", color: "rgba(255,255,255,0.4)", letterSpacing: "1px" }}>PRODUCT NAME</div>
+                      <div style={{ fontSize: "18px", fontWeight: 600 }}>{glasses.brand} {glasses.model}</div>
+                    </div>
+                    <div style={{ textAlign: "right" }}>
+                      <div style={{ fontSize: "12px", color: "rgba(255,255,255,0.4)" }}>PRICE</div>
+                      <div style={{ fontSize: "20px", fontWeight: 700, color: "#c9a84c" }}>{glasses.price}</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Controls Column */}
+            <div style={{ 
+              flex: "1.2",
+              minWidth: "280px",
+              background: "rgba(255,255,255,0.02)",
+              borderRadius: "28px",
+              border: "1px solid rgba(255,255,255,0.08)",
+              padding: "24px",
+              display: "flex",
+              flexDirection: "column",
+              gap: "28px",
+            }}>
+              {/* Size Selection */}
+              <div>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
+                  <span style={{ fontSize: "13px", fontWeight: 600, letterSpacing: "1px", color: "rgba(255,255,255,0.6)" }}>SIZE</span>
+                  <span style={{ fontSize: "11px", color: "rgba(255,255,255,0.4)" }}>Actual product dimensions</span>
+                </div>
+                
+                <div style={{ display: "flex", gap: "12px", flexWrap: "wrap" }}>
+                  {glasses.sizes.map(size => (
+                    <button
+                      key={size.label}
+                      onClick={() => setSelectedSize(size.label)}
+                      style={{
+                        minWidth: "70px",
+                        padding: "12px 8px",
+                        borderRadius: "20px",
+                        background: selectedSize === size.label ? "#c9a84c" : "rgba(255,255,255,0.05)",
+                        border: selectedSize === size.label ? "none" : "1px solid rgba(255,255,255,0.1)",
+                        color: selectedSize === size.label ? "#000" : "rgba(255,255,255,0.7)",
+                        cursor: "pointer",
+                        textAlign: "center",
+                      }}
+                    >
+                      <div style={{ fontSize: "16px", fontWeight: 600 }}>{size.label}</div>
+                      <div style={{ fontSize: "9px", opacity: 0.8 }}>{size.width}×{size.height}mm</div>
+                    </button>
+                  ))}
+                </div>
+                
+                {currentSizeData && (
+                  <div style={{ 
+                    marginTop: "12px", 
+                    padding: "12px", 
+                    background: "rgba(255,255,255,0.03)", 
+                    borderRadius: "16px", 
+                    fontSize: "11px", 
+                    color: "rgba(255,255,255,0.5)",
+                  }}>
+                    <div style={{ display: "flex", justifyContent: "space-between" }}>
+                      <span>Lens: <strong style={{ color: "#c9a84c" }}>{currentSizeData.width}×{currentSizeData.height}mm</strong></span>
+                      <span>Bridge: <strong style={{ color: "#c9a84c" }}>{currentSizeData.bridge}mm</strong></span>
+                    </div>
+                    <div style={{ marginTop: "8px", fontSize: "10px", textAlign: "center", color: "#c9a84c", fontWeight: 500 }}>
+                      🔒 FIXED SIZE — Does NOT change when you zoom in/out
+                    </div>
+                    <div style={{ marginTop: "4px", fontSize: "9px", textAlign: "center", color: "rgba(255,255,255,0.3)" }}>
+                      Screen size: {currentSizeData.pxWidth}×{currentSizeData.pxHeight}px (constant)
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Color Selection */}
+              <div>
+                <div style={{ fontSize: "13px", fontWeight: 600, letterSpacing: "1px", color: "rgba(255,255,255,0.6)", marginBottom: "16px" }}>COLOR</div>
+                <div style={{ display: "flex", gap: "16px", flexWrap: "wrap" }}>
+                  {COLOR_OPTIONS.map(color => (
+                    <button
+                      key={color.name}
+                      onClick={() => setSelectedColor(color)}
+                      style={{
+                        display: "flex",
+                        flexDirection: "column",
+                        alignItems: "center",
+                        gap: "8px",
+                        background: "none",
+                        border: "none",
+                        cursor: "pointer",
+                      }}
+                    >
+                      <div style={{
+                        width: "48px",
+                        height: "48px",
+                        borderRadius: "48px",
+                        background: color.value,
+                        border: selectedColor.name === color.name ? "2px solid #c9a84c" : "1px solid rgba(255,255,255,0.2)",
+                        boxShadow: selectedColor.name === color.name ? "0 0 0 2px rgba(201,168,76,0.3)" : "none",
+                      }} />
+                      <span style={{ fontSize: "11px", color: "rgba(255,255,255,0.6)" }}>{color.name}</span>
+                      <span style={{ fontSize: "10px", color: "rgba(255,255,255,0.3)" }}>{color.code}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Improve Fit */}
+              <div>
+                <div style={{ fontSize: "13px", fontWeight: 600, letterSpacing: "1px", color: "rgba(255,255,255,0.6)", marginBottom: "16px" }}>IMPROVE FIT</div>
+                <div style={{ display: "flex", gap: "12px", flexWrap: "wrap" }}>
+                  <button 
+                    onClick={() => setShowArms(!showArms)}
+                    style={{
+                      background: "rgba(255,255,255,0.05)",
+                      border: "1px solid rgba(255,255,255,0.1)",
+                      borderRadius: "30px",
+                      padding: "10px 20px",
+                      fontSize: "13px",
+                      color: "rgba(255,255,255,0.8)",
                       cursor: "pointer",
                     }}
                   >
-                    <div style={{
-                      width: "48px",
-                      height: "48px",
-                      borderRadius: "48px",
-                      background: color.value,
-                      border: selectedColor.name === color.name ? "2px solid #c9a84c" : "1px solid rgba(255,255,255,0.2)",
-                      boxShadow: selectedColor.name === color.name ? "0 0 0 2px rgba(201,168,76,0.3)" : "none",
-                    }} />
-                    <span style={{ fontSize: "11px", color: "rgba(255,255,255,0.6)" }}>{color.name}</span>
-                    <span style={{ fontSize: "10px", color: "rgba(255,255,255,0.3)" }}>{color.code}</span>
+                    {showArms ? "Hide Arms" : "Show Arms"}
                   </button>
-                ))}
+                </div>
               </div>
-            </div>
 
-            {/* Improve Fit */}
-            <div>
-              <div style={{ fontSize: "13px", fontWeight: 600, letterSpacing: "1px", color: "rgba(255,255,255,0.6)", marginBottom: "16px" }}>IMPROVE FIT</div>
-              <div style={{ display: "flex", gap: "12px", flexWrap: "wrap" }}>
-                <button 
-                  onClick={() => setShowArms(!showArms)}
-                  style={{
-                    background: "rgba(255,255,255,0.05)",
-                    border: "1px solid rgba(255,255,255,0.1)",
-                    borderRadius: "30px",
-                    padding: "10px 20px",
-                    fontSize: "13px",
-                    color: "rgba(255,255,255,0.8)",
-                    cursor: "pointer",
-                  }}
-                >
-                  {showArms ? "Hide Arms" : "Show Arms"}
-                </button>
-              </div>
-            </div>
-
-            {/* Manual Adjustment */}
-            {!is3D && (
-              <div style={{ background: "rgba(0,0,0,0.3)", borderRadius: "20px", padding: "16px" }}>
-                <div style={{ fontSize: "11px", color: "#c9a84c", marginBottom: "12px" }}>MANUAL ADJUSTMENT</div>
-                {[
-                  { label: "Width", key: "scaleW", min: 0.7, max: 1.5, step: 0.01, fmt: v => `${(v*100).toFixed(0)}%` },
-                  { label: "Height", key: "scaleH", min: 0.7, max: 1.5, step: 0.01, fmt: v => `${(v*100).toFixed(0)}%` },
-                  { label: "Position X", key: "offsetX", min: -30, max: 30, step: 1, fmt: v => `${v}px` },
-                  { label: "Position Y", key: "offsetY", min: -30, max: 30, step: 1, fmt: v => `${v}px` },
-                ].map(({ label, key, min, max, step, fmt }) => (
-                  <div key={key} style={{ marginBottom: "12px" }}>
-                    <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "6px", fontSize: "11px" }}>
-                      <span>{label}</span>
-                      <span style={{ color: "#c9a84c" }}>{fmt(curAdj[key])}</span>
+              {/* Manual Adjustment */}
+              {!is3D && (
+                <div style={{ background: "rgba(0,0,0,0.3)", borderRadius: "20px", padding: "16px" }}>
+                  <div style={{ fontSize: "11px", color: "#c9a84c", marginBottom: "12px" }}>MANUAL ADJUSTMENT</div>
+                  {[
+                    { label: "Width", key: "scaleW", min: 0.7, max: 1.5, step: 0.01, fmt: v => `${(v*100).toFixed(0)}%` },
+                    { label: "Height", key: "scaleH", min: 0.7, max: 1.5, step: 0.01, fmt: v => `${(v*100).toFixed(0)}%` },
+                    { label: "Position X", key: "offsetX", min: -30, max: 30, step: 1, fmt: v => `${v}px` },
+                    { label: "Position Y", key: "offsetY", min: -30, max: 30, step: 1, fmt: v => `${v}px` },
+                  ].map(({ label, key, min, max, step, fmt }) => (
+                    <div key={key} style={{ marginBottom: "12px" }}>
+                      <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "6px", fontSize: "11px" }}>
+                        <span>{label}</span>
+                        <span style={{ color: "#c9a84c" }}>{fmt(curAdj[key])}</span>
+                      </div>
+                      <input 
+                        type="range" 
+                        min={min} 
+                        max={max} 
+                        step={step} 
+                        value={curAdj[key]} 
+                        onChange={e => setAdjustments(prev => ({ ...prev, [glasses.id]: { ...prev[glasses.id], [key]: Number(e.target.value) } }))}
+                        style={{ width: "100%", height: "3px", background: "rgba(255,255,255,0.2)", borderRadius: "3px" }}
+                      />
                     </div>
-                    <input 
-                      type="range" 
-                      min={min} 
-                      max={max} 
-                      step={step} 
-                      value={curAdj[key]} 
-                      onChange={e => setAdjustments(prev => ({ ...prev, [glasses.id]: { ...prev[glasses.id], [key]: Number(e.target.value) } }))}
-                      style={{ width: "100%", height: "3px", background: "rgba(255,255,255,0.2)", borderRadius: "3px" }}
-                    />
-                  </div>
-                ))}
-              </div>
-            )}
+                  ))}
+                </div>
+              )}
 
-            {/* Upload Image */}
-            <div>
-              <div style={{ fontSize: "13px", fontWeight: 600, letterSpacing: "1px", color: "rgba(255,255,255,0.6)", marginBottom: "16px" }}>UPLOAD IMAGE</div>
-              <label style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                gap: "8px",
-                background: "rgba(255,255,255,0.03)",
-                border: "1px dashed rgba(255,255,255,0.2)",
-                borderRadius: "20px",
-                padding: "14px",
-                cursor: "pointer",
-                fontSize: "13px",
-                color: "rgba(255,255,255,0.6)",
-              }}>
-                📷 Upload Photo for Face Detection
-                <input type="file" accept="image/*" style={{ display: "none" }} />
-              </label>
-            </div>
-
-            {/* Capture Button */}
-            <button 
-              onClick={capturePhoto}
-              style={{
-                width: "100%",
-                background: "linear-gradient(135deg, #c9a84c, #b8922e)",
-                border: "none",
-                borderRadius: "40px",
-                padding: "14px",
-                fontSize: "14px",
-                fontWeight: 600,
-                color: "#000",
-                cursor: "pointer",
-              }}
-            >
-              📸 Capture Look
-            </button>
-          </div>
-        </div>
-
-        {/* Frame Selection Row */}
-        <div style={{ 
-          background: "rgba(255,255,255,0.02)",
-          borderRadius: "28px",
-          border: "1px solid rgba(255,255,255,0.08)",
-          padding: "20px",
-        }}>
-          <div style={{ fontSize: "13px", fontWeight: 600, letterSpacing: "1px", color: "rgba(255,255,255,0.6)", marginBottom: "16px" }}>
-            TRY OTHER STYLES
-          </div>
-          <div style={{ display: "flex", gap: "16px", overflowX: "auto", paddingBottom: "8px" }}>
-            {GLASS_OPTIONS.map(g => (
-              <button
-                key={g.id}
-                onClick={() => {
-                  setGlasses(g);
-                  setSelectedSize(g.defaultSize);
-                }}
-                style={{
-                  minWidth: "100px",
-                  background: glasses.id === g.id ? "rgba(201,168,76,0.15)" : "rgba(255,255,255,0.03)",
-                  border: glasses.id === g.id ? "1px solid #c9a84c" : "1px solid rgba(255,255,255,0.08)",
+              {/* Upload Image */}
+              <div>
+                <div style={{ fontSize: "13px", fontWeight: 600, letterSpacing: "1px", color: "rgba(255,255,255,0.6)", marginBottom: "16px" }}>UPLOAD IMAGE</div>
+                <label style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: "8px",
+                  background: "rgba(255,255,255,0.03)",
+                  border: "1px dashed rgba(255,255,255,0.2)",
                   borderRadius: "20px",
-                  padding: "12px",
+                  padding: "14px",
+                  cursor: "pointer",
+                  fontSize: "13px",
+                  color: "rgba(255,255,255,0.6)",
+                }}>
+                  📷 Upload Photo for Face Detection
+                  <input type="file" accept="image/*" style={{ display: "none" }} />
+                </label>
+              </div>
+
+              {/* Capture Button */}
+              <button 
+                onClick={capturePhoto}
+                style={{
+                  width: "100%",
+                  background: "linear-gradient(135deg, #c9a84c, #b8922e)",
+                  border: "none",
+                  borderRadius: "40px",
+                  padding: "14px",
+                  fontSize: "14px",
+                  fontWeight: 600,
+                  color: "#000",
                   cursor: "pointer",
                 }}
               >
-                <div style={{ fontSize: "28px", marginBottom: "8px" }}>{g.emoji}</div>
-                <div style={{ fontSize: "13px", fontWeight: 500 }}>{g.name}</div>
-                <div style={{ fontSize: "11px", color: "#c9a84c" }}>{g.price}</div>
+                📸 Capture Look
               </button>
-            ))}
+            </div>
+          </div>
+
+          {/* Frame Selection Row */}
+          <div style={{ 
+            background: "rgba(255,255,255,0.02)",
+            borderRadius: "28px",
+            border: "1px solid rgba(255,255,255,0.08)",
+            padding: "20px",
+          }}>
+            <div style={{ fontSize: "13px", fontWeight: 600, letterSpacing: "1px", color: "rgba(255,255,255,0.6)", marginBottom: "16px" }}>
+              TRY OTHER STYLES
+            </div>
+            <div style={{ display: "flex", gap: "16px", overflowX: "auto", paddingBottom: "8px" }}>
+              {GLASS_OPTIONS.map(g => (
+                <button
+                  key={g.id}
+                  onClick={() => {
+                    setGlasses(g);
+                    setSelectedSize(g.defaultSize);
+                  }}
+                  style={{
+                    minWidth: "100px",
+                    background: glasses.id === g.id ? "rgba(201,168,76,0.15)" : "rgba(255,255,255,0.03)",
+                    border: glasses.id === g.id ? "1px solid #c9a84c" : "1px solid rgba(255,255,255,0.08)",
+                    borderRadius: "20px",
+                    padding: "12px",
+                    cursor: "pointer",
+                  }}
+                >
+                  <div style={{ fontSize: "28px", marginBottom: "8px" }}>{g.emoji}</div>
+                  <div style={{ fontSize: "13px", fontWeight: 500 }}>{g.name}</div>
+                  <div style={{ fontSize: "11px", color: "#c9a84c" }}>{g.price}</div>
+                </button>
+              ))}
+            </div>
           </div>
         </div>
-      </div>
 
-      <style>{`
-        @keyframes spin {
-          to { transform: rotate(360deg); }
-        }
-        ::-webkit-scrollbar { width: 6px; height: 6px; }
-        ::-webkit-scrollbar-track { background: rgba(255,255,255,0.05); border-radius: 10px; }
-        ::-webkit-scrollbar-thumb { background: rgba(201,168,76,0.5); border-radius: 10px; }
-        input[type="range"] { -webkit-appearance: none; }
-        input[type="range"]::-webkit-slider-thumb {
-          -webkit-appearance: none;
-          width: 14px; height: 14px;
-          border-radius: 50%;
-          background: #c9a84c;
-          cursor: pointer;
-        }
-        button { transition: all 0.2s ease; }
-        button:hover { transform: scale(0.98); opacity: 0.9; }
-      `}</style>
-    </div>
+        <style>{`
+          @keyframes spin {
+            to { transform: rotate(360deg); }
+          }
+          ::-webkit-scrollbar { width: 6px; height: 6px; }
+          ::-webkit-scrollbar-track { background: rgba(255,255,255,0.05); border-radius: 10px; }
+          ::-webkit-scrollbar-thumb { background: rgba(201,168,76,0.5); border-radius: 10px; }
+          input[type="range"] { -webkit-appearance: none; }
+          input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 14px; height: 14px;
+            border-radius: 50%;
+            background: #c9a84c;
+            cursor: pointer;
+          }
+          button { transition: all 0.2s ease; }
+          button:hover { transform: scale(0.98); opacity: 0.9; }
+          
+          /* CRITICAL: CSS zoom resistance for the camera container */
+          .zoom-resistant-container {
+            zoom: reset;
+            -moz-transform: scale(1);
+            -webkit-transform: scale(1);
+            transform: scale(1);
+          }
+          
+          /* Ensure canvas elements don't inherit zoom */
+          canvas {
+            zoom: 1;
+            image-rendering: crisp-edges;
+          }
+          
+          /* Prevent text zoom from affecting layout */
+          body {
+            text-size-adjust: 100%;
+            -webkit-text-size-adjust: 100%;
+          }
+        `}</style>
+      </div>
+    </>
   );
 };
 

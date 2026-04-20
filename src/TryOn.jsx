@@ -2,7 +2,7 @@ import React, { useRef, useEffect, useState, useCallback } from "react";
 import * as THREE from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 
-// ── GLASSES DATA WITH SIZE OPTIONS ─────────────────────────────────
+// ── GLASSES DATA WITH ACTUAL PHYSICAL SIZES (in mm) ─────────────────────────────────
 const GLASS_OPTIONS = [
   { 
     id: "/glass1.png", 
@@ -12,10 +12,10 @@ const GLASS_OPTIONS = [
     brand: "Gucci", 
     model: "GG01840",
     sizes: [
-      { label: "S", width: 128, height: 45, bridge: 16, faceMultiplier: 0.85 },
-      { label: "M", width: 135, height: 48, bridge: 18, faceMultiplier: 1.0 },
-      { label: "L", width: 142, height: 51, bridge: 20, faceMultiplier: 1.15 },
-      { label: "XL", width: 150, height: 54, bridge: 22, faceMultiplier: 1.3 }
+      { label: "S", width: 128, height: 45, bridge: 16 },
+      { label: "M", width: 135, height: 48, bridge: 18 },
+      { label: "L", width: 142, height: 51, bridge: 20 },
+      { label: "XL", width: 150, height: 54, bridge: 22 }
     ],
     defaultSize: "M"
   },
@@ -27,10 +27,10 @@ const GLASS_OPTIONS = [
     brand: "Ray-Ban", 
     model: "RB3025",
     sizes: [
-      { label: "S", width: 130, height: 48, bridge: 14, faceMultiplier: 0.85 },
-      { label: "M", width: 138, height: 52, bridge: 16, faceMultiplier: 1.0 },
-      { label: "L", width: 146, height: 56, bridge: 18, faceMultiplier: 1.15 },
-      { label: "XL", width: 155, height: 60, bridge: 20, faceMultiplier: 1.3 }
+      { label: "S", width: 130, height: 48, bridge: 14 },
+      { label: "M", width: 138, height: 52, bridge: 16 },
+      { label: "L", width: 146, height: 56, bridge: 18 },
+      { label: "XL", width: 155, height: 60, bridge: 20 }
     ],
     defaultSize: "M"
   },
@@ -42,10 +42,10 @@ const GLASS_OPTIONS = [
     brand: "Oakley", 
     model: "SPORT-01",
     sizes: [
-      { label: "S", width: 125, height: 44, bridge: 15, faceMultiplier: 0.85 },
-      { label: "M", width: 132, height: 47, bridge: 17, faceMultiplier: 1.0 },
-      { label: "L", width: 140, height: 50, bridge: 19, faceMultiplier: 1.15 },
-      { label: "XL", width: 148, height: 53, bridge: 21, faceMultiplier: 1.3 }
+      { label: "S", width: 125, height: 44, bridge: 15 },
+      { label: "M", width: 132, height: 47, bridge: 17 },
+      { label: "L", width: 140, height: 50, bridge: 19 },
+      { label: "XL", width: 148, height: 53, bridge: 21 }
     ],
     defaultSize: "M"
   },
@@ -57,10 +57,10 @@ const GLASS_OPTIONS = [
     brand: "Gucci", 
     model: "GG02300",
     sizes: [
-      { label: "S", width: 120, height: 42, bridge: 17, faceMultiplier: 0.85 },
-      { label: "M", width: 128, height: 45, bridge: 19, faceMultiplier: 1.0 },
-      { label: "L", width: 136, height: 48, bridge: 21, faceMultiplier: 1.15 },
-      { label: "XL", width: 145, height: 52, bridge: 23, faceMultiplier: 1.3 }
+      { label: "S", width: 120, height: 42, bridge: 17 },
+      { label: "M", width: 128, height: 45, bridge: 19 },
+      { label: "L", width: 136, height: 48, bridge: 21 },
+      { label: "XL", width: 145, height: 52, bridge: 23 }
     ],
     defaultSize: "M"
   },
@@ -73,10 +73,10 @@ const GLASS_OPTIONS = [
     brand: "VR", 
     model: "3D Pro",
     sizes: [
-      { label: "S", width: 130, height: 46, bridge: 16, faceMultiplier: 0.85 },
-      { label: "M", width: 138, height: 49, bridge: 18, faceMultiplier: 1.0 },
-      { label: "L", width: 146, height: 52, bridge: 20, faceMultiplier: 1.15 },
-      { label: "XL", width: 155, height: 56, bridge: 22, faceMultiplier: 1.3 }
+      { label: "S", width: 130, height: 46, bridge: 16 },
+      { label: "M", width: 138, height: 49, bridge: 18 },
+      { label: "L", width: 146, height: 52, bridge: 20 },
+      { label: "XL", width: 155, height: 56, bridge: 22 }
     ],
     defaultSize: "M"
   },
@@ -112,10 +112,6 @@ const LANDMARKS = {
   NOSE_RIGHT_PAD: 353,
   TEMPLE_LEFT: 127,
   TEMPLE_RIGHT: 356,
-  FACE_LEFT: 234,
-  FACE_RIGHT: 454,
-  FOREHEAD_CENTER: 10,
-  CHIN: 152,
 };
 
 class LandmarkSmoother {
@@ -139,7 +135,7 @@ class LandmarkSmoother {
 }
 
 // ══════════════════════════════════════════════════════════════════
-// ── FACE GEOMETRY EXTRACTOR - GETS ACTUAL FACE MEASUREMENTS ──
+// ── FACE GEOMETRY EXTRACTOR - GETS FACE POSITION ONLY ──
 // ══════════════════════════════════════════════════════════════════
 function extractFaceGeometry(lm, W, H) {
   const px = (idx) => ({ x: lm[idx].x * W, y: lm[idx].y * H, z: lm[idx].z });
@@ -160,47 +156,36 @@ function extractFaceGeometry(lm, W, H) {
   const leftBrowLower = avgPx(LANDMARKS.LEFT_EYEBROW_LOWER);
   const rightBrowLower = avgPx(LANDMARKS.RIGHT_EYEBROW_LOWER);
   const noseBridgeTop = px(LANDMARKS.NOSE_BRIDGE_TOP);
-  const faceLeft = px(LANDMARKS.FACE_LEFT);
-  const faceRight = px(LANDMARKS.FACE_RIGHT);
-  const forehead = px(LANDMARKS.FOREHEAD_CENTER);
-  const chin = px(LANDMARKS.CHIN);
 
-  // Actual face measurements in pixels
-  const faceWidth = dist(faceLeft, faceRight);
-  const faceHeight = dist(forehead, chin);
+  // Eye span for positioning reference only
   const eyeSpan = dist(leftEyeOut, rightEyeOut);
-  const interpupillaryDistance = dist(leftIris, rightIris);
-  
-  // Vertical measurements
-  const browToIrisLeft = dist(leftBrowLower, leftIris);
-  const browToIrisRight = dist(rightBrowLower, rightIris);
-  const avgBrowToIris = (browToIrisLeft + browToIrisRight) / 2;
+  const leftBrowEyeGap = dist(leftBrowLower, leftIris);
+  const rightBrowEyeGap = dist(rightBrowLower, rightIris);
+  const avgBrowEyeGap = (leftBrowEyeGap + rightBrowEyeGap) / 2;
 
-  // Rotation
+  // Rotation angle
   const angleIris = Math.atan2(rightIris.y - leftIris.y, rightIris.x - leftIris.x);
   const angleEyeCorners = Math.atan2(rightEyeOut.y - leftEyeOut.y, rightEyeOut.x - leftEyeOut.x);
   const angleBrow = Math.atan2(rightBrowLower.y - leftBrowLower.y, rightBrowLower.x - leftBrowLower.x);
   const angle = angleEyeCorners * 0.5 + angleBrow * 0.3 + angleIris * 0.2;
 
-  // Center position
+  // Center position between eyes
   const centerX = (leftIris.x + rightIris.x) / 2;
   const browCenterY = (leftBrowLower.y + rightBrowLower.y) / 2;
   const irisCenterY = (leftIris.y + rightIris.y) / 2;
-  const centerY = browCenterY * 0.45 + irisCenterY * 0.55;
+  const centerY = browCenterY * 0.4 + irisCenterY * 0.6;
 
   // Depth scaling
   const avgZ = (leftIris.z + rightIris.z + noseBridgeTop.z) / 3;
   const depthScale = 1 + (-avgZ * 0.8);
 
-  // Calculate base glasses size based on face proportions
-  // This ensures glasses scale with different face sizes
-  const baseWidth = eyeSpan * 1.5;
-  const baseHeight = avgBrowToIris * 2.5;
+  // Reference size based on face - this is just a reference, not changing the actual product size
+  const referenceWidth = eyeSpan * 1.5;
+  const referenceHeight = avgBrowEyeGap * 2.5;
 
   return {
     centerX, centerY, angle, depthScale,
-    baseWidth, baseHeight,
-    faceWidth, faceHeight, eyeSpan, interpupillaryDistance, avgBrowToIris,
+    referenceWidth, referenceHeight,
   };
 }
 
@@ -268,13 +253,9 @@ const TryOn = () => {
   const [showArms, setShowArms] = useState(true);
   const [cameraReady, setCameraReady] = useState(false);
   const [isFavorite, setIsFavorite] = useState(false);
-  const [showFitGuide, setShowFitGuide] = useState(false);
-  const [detectedFaceSize, setDetectedFaceSize] = useState(null);
-  const [currentFaceWidth, setCurrentFaceWidth] = useState(0);
   
   const cameraReadyRef = useRef(false);
   const smootherRef = useRef(new LandmarkSmoother(0.6));
-  const faceGeometryRef = useRef(null);
 
   const is3D = glasses.id === "__3D__";
   const currentSizeData = glasses.sizes.find(s => s.label === selectedSize) || glasses.sizes[1];
@@ -294,6 +275,7 @@ const TryOn = () => {
   const is3DRef = useRef(false);
   const adjRef = useRef(adjustments);
   const showArmsRef = useRef(showArms);
+  const sizeRef = useRef(currentSizeData);
 
   useEffect(() => { brightnessRef.current = brightness; }, [brightness]);
   useEffect(() => { contrastRef.current = contrast; }, [contrast]);
@@ -302,31 +284,23 @@ const TryOn = () => {
   useEffect(() => { is3DRef.current = glasses.id === "__3D__"; }, [glasses]);
   useEffect(() => { adjRef.current = adjustments; }, [adjustments]);
   useEffect(() => { showArmsRef.current = showArms; }, [showArms]);
+  useEffect(() => { 
+    sizeRef.current = currentSizeData;
+    console.log("Size changed to:", selectedSize, "Width:", currentSizeData?.width, "Height:", currentSizeData?.height);
+  }, [selectedSize, currentSizeData]);
 
   const curAdj = adjustments[glasses.id] || DEFAULT_ADJ;
 
-  // Auto-detect best size based on actual face width
-  const detectBestSize = useCallback((faceWidthPx) => {
-    // Typical face widths in pixels at 640x480 resolution
-    // Small face: < 180px, Medium: 180-230px, Large: 230-280px, XL: >280px
-    if (faceWidthPx < 160) return "S";
-    if (faceWidthPx < 210) return "M";
-    if (faceWidthPx < 260) return "L";
-    return "XL";
+  // Convert actual mm size to pixels on screen based on face distance
+  // This ensures the glasses display at their true physical size
+  const getGlassesPixelSize = useCallback((actualWidthMm, actualHeightMm, depthScale) => {
+    // At average face distance (500mm), 1mm ≈ 0.8 pixels at 640x480 resolution
+    // This gives realistic sizing where glasses don't scale with different face sizes
+    const mmToPx = 0.85;
+    const widthPx = actualWidthMm * mmToPx * depthScale;
+    const heightPx = actualHeightMm * mmToPx * depthScale;
+    return { width: widthPx, height: heightPx };
   }, []);
-
-  // Calculate final glasses size based on face detection + selected size multiplier
-  const calculateGlassesSize = useCallback((baseWidth, baseHeight, faceWidth) => {
-    // Get the face multiplier for selected size
-    const sizeMultiplier = currentSizeData?.faceMultiplier || 1.0;
-    
-    // Base size is determined by face proportions
-    // Then apply the selected size multiplier
-    const finalWidth = baseWidth * sizeMultiplier;
-    const finalHeight = baseHeight * sizeMultiplier;
-    
-    return { width: finalWidth, height: finalHeight };
-  }, [currentSizeData]);
 
   // 3D Scene
   useEffect(() => {
@@ -450,22 +424,10 @@ const TryOn = () => {
         
         const lm = results.multiFaceLandmarks[0];
         const geo = extractFaceGeometry(lm, W, H);
-        faceGeometryRef.current = geo;
-        
-        // Update face width and auto-detect size
-        if (geo.faceWidth && geo.faceWidth !== currentFaceWidth) {
-          setCurrentFaceWidth(geo.faceWidth);
-          const bestSize = detectBestSize(geo.faceWidth);
-          if (!detectedFaceSize) {
-            setDetectedFaceSize(bestSize);
-          }
-        }
         
         const smoothed = smootherRef.current.smooth({
           cx: geo.centerX, cy: geo.centerY,
-          bw: geo.baseWidth, bh: geo.baseHeight,
           angle: geo.angle, ds: geo.depthScale,
-          fw: geo.faceWidth,
         });
         
         if (is3DRef.current) {
@@ -473,8 +435,9 @@ const TryOn = () => {
           if (model && rendererRef.current && sceneRef.current && cameraRef.current) {
             model.position.x = smoothed.cx - W / 2;
             model.position.y = -(smoothed.cy - H / 2);
-            const sizeMultiplier = currentSizeData?.faceMultiplier || 1.0;
-            const scale3D = (smoothed.bw * smoothed.ds * sizeMultiplier) / modelWidthRef.current;
+            const sizeData = sizeRef.current;
+            const actualWidth = sizeData?.width || 135;
+            const scale3D = (actualWidth * 0.85 * smoothed.ds) / modelWidthRef.current;
             model.scale.setScalar(scale3D);
             model.rotation.z = -smoothed.angle;
             rendererRef.current.render(sceneRef.current, cameraRef.current);
@@ -483,11 +446,18 @@ const TryOn = () => {
           const img = imgRef.current;
           if (!img.complete || !img.src) return;
           const adj = adjRef.current[glassesRef.current.id] || DEFAULT_ADJ;
+          const sizeData = sizeRef.current;
           
-          // Calculate final size based on face proportions AND selected size multiplier
-          const sizeMultiplier = currentSizeData?.faceMultiplier || 1.0;
-          const w = smoothed.bw * adj.scaleW * smoothed.ds * sizeMultiplier;
-          const h = smoothed.bh * adj.scaleH * smoothed.ds * sizeMultiplier;
+          // Get actual physical dimensions from selected size (in mm)
+          const actualWidthMm = sizeData?.width || 135;
+          const actualHeightMm = sizeData?.height || 48;
+          
+          // Convert to pixel size based on face distance - NOT scaling with face size
+          const { width: baseW, height: baseH } = getGlassesPixelSize(actualWidthMm, actualHeightMm, smoothed.ds);
+          
+          // Apply user adjustments
+          const w = baseW * adj.scaleW;
+          const h = baseH * adj.scaleH;
           const finalAngle = smoothed.angle + (adj.rotate * Math.PI / 180);
           const fx = smoothed.cx + adj.offsetX;
           const fy = smoothed.cy + adj.offsetY;
@@ -513,7 +483,7 @@ const TryOn = () => {
       };
     };
     loadMediaPipe();
-  }, [detectBestSize, currentSizeData, currentFaceWidth, detectedFaceSize]);
+  }, [getGlassesPixelSize]);
 
   useEffect(() => {
     if (!is3D && imgRef.current) {
@@ -530,12 +500,6 @@ const TryOn = () => {
     link.href = canvas.toDataURL();
     link.click();
   }, []);
-
-  const applyDetectedSize = () => {
-    if (detectedFaceSize) {
-      setSelectedSize(detectedFaceSize);
-    }
-  };
 
   return (
     <div style={{ 
@@ -666,29 +630,14 @@ const TryOn = () => {
             flexDirection: "column",
             gap: "28px",
           }}>
-            {/* Size Selection */}
+            {/* Size Selection - FIXED ACTUAL SIZES */}
             <div>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
                 <span style={{ fontSize: "13px", fontWeight: 600, letterSpacing: "1px", color: "rgba(255,255,255,0.6)" }}>SIZE</span>
-                <div style={{ display: "flex", gap: "8px" }}>
-                  {detectedFaceSize && detectedFaceSize !== selectedSize && (
-                    <button 
-                      onClick={applyDetectedSize}
-                      style={{ background: "rgba(201,168,76,0.15)", border: "1px solid #c9a84c", borderRadius: "20px", padding: "6px 12px", fontSize: "11px", color: "#c9a84c", cursor: "pointer" }}
-                    >
-                      Use AI Size: {detectedFaceSize}
-                    </button>
-                  )}
-                  <button 
-                    onClick={() => setShowFitGuide(!showFitGuide)}
-                    style={{ background: "none", border: "none", color: "#c9a84c", fontSize: "12px", cursor: "pointer" }}
-                  >
-                    Get Face Shape →
-                  </button>
-                </div>
+                <span style={{ fontSize: "11px", color: "rgba(255,255,255,0.4)" }}>Actual product dimensions</span>
               </div>
               
-              {/* Size options */}
+              {/* Size options with actual dimensions */}
               <div style={{ display: "flex", gap: "12px", flexWrap: "wrap" }}>
                 {glasses.sizes.map(size => (
                   <button
@@ -706,41 +655,29 @@ const TryOn = () => {
                     }}
                   >
                     <div style={{ fontSize: "16px", fontWeight: 600 }}>{size.label}</div>
-                    <div style={{ fontSize: "9px", opacity: 0.7 }}>{size.width}mm</div>
+                    <div style={{ fontSize: "9px", opacity: 0.8 }}>{size.width}×{size.height}mm</div>
                   </button>
                 ))}
               </div>
               
-              {/* Size info */}
+              {/* Size details */}
               {currentSizeData && (
                 <div style={{ 
                   marginTop: "12px", 
                   padding: "12px", 
-                  background: selectedSize === detectedFaceSize ? "rgba(201,168,76,0.1)" : "rgba(255,255,255,0.03)", 
+                  background: "rgba(255,255,255,0.03)", 
                   borderRadius: "16px", 
                   fontSize: "11px", 
                   color: "rgba(255,255,255,0.5)",
                 }}>
                   <div style={{ display: "flex", justifyContent: "space-between" }}>
-                    <span>Lens: <strong style={{ color: "#c9a84c" }}>{currentSizeData.width}×{currentSizeData.height}mm</strong></span>
+                    <span>Lens Width: <strong style={{ color: "#c9a84c" }}>{currentSizeData.width}mm</strong></span>
+                    <span>Lens Height: <strong style={{ color: "#c9a84c" }}>{currentSizeData.height}mm</strong></span>
                     <span>Bridge: <strong style={{ color: "#c9a84c" }}>{currentSizeData.bridge}mm</strong></span>
                   </div>
-                  {currentFaceWidth > 0 && (
-                    <div style={{ marginTop: "8px", fontSize: "10px", textAlign: "center" }}>
-                      Your face width: <strong>{Math.round(currentFaceWidth)}px</strong> | AI recommends: <strong style={{ color: "#c9a84c" }}>{detectedFaceSize || "M"}</strong>
-                    </div>
-                  )}
-                  {selectedSize === detectedFaceSize && detectedFaceSize && (
-                    <div style={{ marginTop: "8px", fontSize: "10px", color: "#c9a84c", textAlign: "center" }}>
-                      ✓ AI-recommended size for your face
-                    </div>
-                  )}
-                </div>
-              )}
-              
-              {showFitGuide && (
-                <div style={{ marginTop: "12px", padding: "12px", background: "rgba(201,168,76,0.1)", borderRadius: "16px", fontSize: "12px", color: "rgba(255,255,255,0.7)" }}>
-                  📏 Based on your face width ({Math.round(currentFaceWidth)}px), we recommend size <strong style={{ color: "#c9a84c" }}>{detectedFaceSize || "M"}</strong>.
+                  <div style={{ marginTop: "8px", fontSize: "10px", textAlign: "center", color: "rgba(255,255,255,0.3)" }}>
+                    These are the actual physical dimensions of the frame
+                  </div>
                 </div>
               )}
             </div>

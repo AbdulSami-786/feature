@@ -168,10 +168,10 @@ const drawGlassesWithRealisticArms = (ctx, img, x, y, w, h, angle) => {
   ctx.save();
   ctx.translate(x, y);
   ctx.rotate(angle);
-  ctx.shadowColor = "rgba(0,0,0,0.35)";
-  ctx.shadowBlur = 8;
-  ctx.shadowOffsetX = 2;
-  ctx.shadowOffsetY = 2;
+  ctx.shadowColor = "rgba(0,0,0,0.45)";
+  ctx.shadowBlur = 12;
+  ctx.shadowOffsetX = 3;
+  ctx.shadowOffsetY = 3;
   ctx.drawImage(img, -w / 2, -h / 2, w, h);
   ctx.shadowColor = "transparent";
   
@@ -495,9 +495,9 @@ const TryOn = () => {
 
   return (
     <div style={{ 
-      fontFamily: "'Space Grotesk', 'Inter', sans-serif", 
-      background: "radial-gradient(circle at 20% 30%, #050508, #000000)", 
-      color: "#f0ede8", 
+      fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif", 
+      background: "radial-gradient(circle at 20% 30%, #0a0a0f, #000000)", 
+      color: "#ffffff", 
       minHeight: "100vh", 
       display: "flex", 
       flexDirection: "column",
@@ -507,122 +507,125 @@ const TryOn = () => {
       <div style={{
         position: "fixed",
         inset: 0,
-        backgroundImage: `linear-gradient(rgba(201,168,76,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(201,168,76,0.03) 1px, transparent 1px)`,
-        backgroundSize: "40px 40px",
+        backgroundImage: `radial-gradient(circle at 25% 40%, rgba(201,168,76,0.08) 0%, transparent 50%)`,
         pointerEvents: "none",
         zIndex: 0
       }} />
-      <div style={{ position: "fixed", top: "-20%", right: "-10%", width: "60vw", height: "60vw", background: "radial-gradient(circle, rgba(201,168,76,0.12), transparent 70%)", borderRadius: "50%", pointerEvents: "none", zIndex: 0 }} />
-      <div style={{ position: "fixed", bottom: "-20%", left: "-10%", width: "60vw", height: "60vw", background: "radial-gradient(circle, rgba(100,180,255,0.08), transparent 70%)", borderRadius: "50%", pointerEvents: "none", zIndex: 0 }} />
+      <div style={{ position: "fixed", top: "-20%", right: "-10%", width: "70vw", height: "70vw", background: "radial-gradient(circle, rgba(201,168,76,0.08), transparent 70%)", borderRadius: "50%", pointerEvents: "none", zIndex: 0 }} />
+      <div style={{ position: "fixed", bottom: "-20%", left: "-10%", width: "70vw", height: "70vw", background: "radial-gradient(circle, rgba(100,180,255,0.06), transparent 70%)", borderRadius: "50%", pointerEvents: "none", zIndex: 0 }} />
 
       <div style={{ 
         display: "flex", 
         alignItems: "center", 
         justifyContent: "space-between", 
-        padding: "18px 24px", 
-        borderBottom: "1px solid rgba(201,168,76,0.3)",
-        backdropFilter: "blur(12px)",
-        background: "rgba(0,0,0,0.5)",
+        padding: "20px 32px", 
+        borderBottom: "1px solid rgba(201,168,76,0.2)",
+        backdropFilter: "blur(20px)",
+        background: "rgba(0,0,0,0.4)",
         zIndex: 2,
         position: "relative"
       }}>
         <div style={{ 
-          fontFamily: "'Space Grotesk', monospace", 
-          fontSize: "24px", 
-          fontWeight: 600, 
-          letterSpacing: "-0.02em", 
-          background: "linear-gradient(135deg, #f0e8d0 0%, #c9a84c 100%)",
+          fontFamily: "'Inter', sans-serif", 
+          fontSize: "28px", 
+          fontWeight: 700, 
+          letterSpacing: "-0.5px", 
+          background: "linear-gradient(135deg, #ffffff 0%, #c9a84c 100%)",
           WebkitBackgroundClip: "text",
           WebkitTextFillColor: "transparent",
-          textShadow: "0 0 8px rgba(201,168,76,0.3)"
+          backgroundClip: "text"
         }}>
           VR<span style={{ color: "#c9a84c", background: "none", WebkitTextFillColor: "#c9a84c" }}>.</span>OPTICS
         </div>
         <div style={{ 
-          fontSize: "10px", 
-          letterSpacing: "2px", 
-          background: "rgba(201,168,76,0.15)",
-          border: "1px solid rgba(201,168,76,0.5)",
-          padding: "6px 16px", 
-          borderRadius: "40px",
-          backdropFilter: "blur(4px)",
-          fontWeight: 500,
-          boxShadow: "0 0 12px rgba(201,168,76,0.2)"
+          fontSize: "11px", 
+          letterSpacing: "3px", 
+          background: "rgba(201,168,76,0.12)",
+          border: "1px solid rgba(201,168,76,0.4)",
+          padding: "8px 20px", 
+          borderRadius: "100px",
+          backdropFilter: "blur(8px)",
+          fontWeight: 600,
+          textTransform: "uppercase"
         }}>
-          {is3D ? "⚡ 3D MODE" : "🔮 LIVE"}
+          {is3D ? "3D MODE" : "LIVE TRY-ON"}
         </div>
       </div>
 
       <div style={{ 
         display: "flex", 
         flexDirection: "column", 
-        gap: "20px", 
+        gap: "24px", 
         flex: 1, 
-        padding: "16px 16px 24px 16px", 
+        padding: "24px 32px 32px 32px", 
         overflowY: "auto",
         zIndex: 2,
-        position: "relative"
+        position: "relative",
+        maxWidth: "1400px",
+        margin: "0 auto",
+        width: "100%"
       }}>
         <div style={{ 
-          background: "rgba(8, 8, 12, 0.7)",
-          backdropFilter: "blur(20px)",
-          borderRadius: "32px", 
-          padding: "12px", 
-          border: "1px solid rgba(201,168,76,0.25)",
-          boxShadow: "0 25px 40px -12px rgba(0,0,0,0.8), inset 0 1px 0 rgba(255,255,255,0.05)"
+          background: "rgba(10, 10, 15, 0.6)",
+          backdropFilter: "blur(24px)",
+          borderRadius: "40px", 
+          padding: "16px", 
+          border: "1px solid rgba(201,168,76,0.2)",
+          boxShadow: "0 25px 50px -12px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.05)"
         }}>
-          <div style={{ position: "relative", width: "100%", aspectRatio: "4/3", maxWidth: "100%", margin: "0 auto" }}>
+          <div style={{ position: "relative", width: "100%", aspectRatio: "4/3", maxWidth: "100%", margin: "0 auto", borderRadius: "32px", overflow: "hidden" }}>
             {[...Array(4)].map((_, i) => (
               <div key={i} style={{
                 position: "absolute",
-                width: "20px",
-                height: "20px",
+                width: "24px",
+                height: "24px",
                 borderColor: "#c9a84c",
                 borderStyle: "solid",
                 zIndex: 10,
-                top: i < 2 ? "12px" : "auto",
-                bottom: i >= 2 ? "12px" : "auto",
-                left: i % 2 === 0 ? "12px" : "auto",
-                right: i % 2 === 1 ? "12px" : "auto",
+                top: i < 2 ? "20px" : "auto",
+                bottom: i >= 2 ? "20px" : "auto",
+                left: i % 2 === 0 ? "20px" : "auto",
+                right: i % 2 === 1 ? "20px" : "auto",
                 borderWidth: i === 0 ? "2px 0 0 2px" : i === 1 ? "2px 2px 0 0" : i === 2 ? "0 0 2px 2px" : "0 2px 2px 0",
-                opacity: 0.7
+                opacity: 0.6,
+                pointerEvents: "none"
               }} />
             ))}
             <div style={{ 
               position: "absolute", 
-              top: "16px", 
-              right: "16px", 
+              top: "20px", 
+              right: "20px", 
               display: "flex", 
               alignItems: "center", 
-              gap: "8px", 
+              gap: "10px", 
               fontSize: "10px", 
               fontWeight: 600,
-              letterSpacing: "1px", 
+              letterSpacing: "1.5px", 
               color: "#c9a84c", 
               zIndex: 10, 
-              background: "rgba(0,0,0,0.6)", 
-              padding: "5px 14px", 
-              borderRadius: "40px",
-              backdropFilter: "blur(8px)",
+              background: "rgba(0,0,0,0.7)", 
+              padding: "6px 16px", 
+              borderRadius: "100px",
+              backdropFilter: "blur(12px)",
               border: "0.5px solid rgba(201,168,76,0.5)"
             }}>
-              <div style={{ width: "8px", height: "8px", borderRadius: "50%", background: "#c9a84c", boxShadow: "0 0 8px #c9a84c", animation: "pulse 1.2s ease-in-out infinite" }} />
-              {is3D ? "3D ACTIVE" : "FACE TRACKING"}
+              <div style={{ width: "6px", height: "6px", borderRadius: "50%", background: "#c9a84c", boxShadow: "0 0 8px #c9a84c", animation: "pulse 1.2s ease-in-out infinite" }} />
+              {is3D ? "3D ACTIVE" : "TRACKING"}
             </div>
             <div style={{ 
               position: "absolute", 
-              bottom: "16px", 
-              left: "16px", 
+              bottom: "20px", 
+              left: "20px", 
               display: "flex", 
-              gap: "8px", 
+              gap: "10px", 
               flexWrap: "wrap", 
               zIndex: 10 
             }}>
-              <span style={{ fontSize: "9px", fontWeight: 500, background: "rgba(0,0,0,0.6)", backdropFilter: "blur(4px)", border: "0.5px solid rgba(201,168,76,0.3)", padding: "4px 12px", borderRadius: "30px", letterSpacing: "0.5px" }}>💡 {brightness}%</span>
-              <span style={{ fontSize: "9px", fontWeight: 500, background: "rgba(0,0,0,0.6)", backdropFilter: "blur(4px)", border: "0.5px solid rgba(201,168,76,0.3)", padding: "4px 12px", borderRadius: "30px" }}>🎨 {contrast}%</span>
-              <span style={{ fontSize: "9px", fontWeight: 500, background: "rgba(0,0,0,0.6)", backdropFilter: "blur(4px)", border: "0.5px solid rgba(201,168,76,0.3)", padding: "4px 12px", borderRadius: "30px" }}>🌈 {saturate}%</span>
-              {showArms && !is3D && <span style={{ fontSize: "9px", background: "rgba(201,168,76,0.2)", borderColor: "#c9a84c", color: "#c9a84c", padding: "4px 12px", borderRadius: "30px" }}>🦾 ARMS ON</span>}
-              {is3D && <span style={{ fontSize: "9px", color: "#64b4ff", background: "rgba(100,180,255,0.15)", border: "0.5px solid rgba(100,180,255,0.5)", padding: "4px 12px", borderRadius: "30px" }}>✨ GLB 3D</span>}
+              <span style={{ fontSize: "10px", fontWeight: 500, background: "rgba(0,0,0,0.7)", backdropFilter: "blur(8px)", border: "0.5px solid rgba(255,255,255,0.1)", padding: "5px 14px", borderRadius: "100px", letterSpacing: "0.3px" }}>💡 {brightness}%</span>
+              <span style={{ fontSize: "10px", fontWeight: 500, background: "rgba(0,0,0,0.7)", backdropFilter: "blur(8px)", border: "0.5px solid rgba(255,255,255,0.1)", padding: "5px 14px", borderRadius: "100px" }}>🎨 {contrast}%</span>
+              <span style={{ fontSize: "10px", fontWeight: 500, background: "rgba(0,0,0,0.7)", backdropFilter: "blur(8px)", border: "0.5px solid rgba(255,255,255,0.1)", padding: "5px 14px", borderRadius: "100px" }}>🌈 {saturate}%</span>
+              {showArms && !is3D && <span style={{ fontSize: "10px", background: "rgba(201,168,76,0.2)", borderColor: "#c9a84c", color: "#c9a84c", padding: "5px 14px", borderRadius: "100px" }}>🦾 ARMS</span>}
+              {is3D && <span style={{ fontSize: "10px", color: "#64b4ff", background: "rgba(100,180,255,0.15)", border: "0.5px solid rgba(100,180,255,0.4)", padding: "5px 14px", borderRadius: "100px" }}>✨ 3D MODEL</span>}
             </div>
             {glbLoading && (
               <div style={{ 
@@ -630,80 +633,79 @@ const TryOn = () => {
                 top: "50%", 
                 left: "50%", 
                 transform: "translate(-50%,-50%)", 
-                fontSize: "11px", 
+                fontSize: "12px", 
                 fontWeight: 600,
                 letterSpacing: "2px", 
-                background: "rgba(0,0,0,0.8)", 
-                padding: "8px 20px", 
-                borderRadius: "40px", 
+                background: "rgba(0,0,0,0.9)", 
+                padding: "10px 24px", 
+                borderRadius: "100px", 
                 zIndex: 20, 
                 border: "1px solid #c9a84c",
-                backdropFilter: "blur(8px)"
+                backdropFilter: "blur(12px)"
               }}>
-                ⚡ LOADING 3D...
+                LOADING 3D...
               </div>
             )}
             {!cameraReady && (
               <div style={{
                 position: "absolute",
                 inset: 0,
-                borderRadius: "24px",
-                background: "rgba(5, 5, 8, 0.97)",
+                borderRadius: "32px",
+                background: "rgba(8, 8, 12, 0.98)",
                 display: "flex",
                 flexDirection: "column",
                 alignItems: "center",
                 justifyContent: "center",
-                gap: "20px",
+                gap: "24px",
                 zIndex: 30,
               }}>
                 <div style={{
-                  width: "64px",
-                  height: "64px",
+                  width: "56px",
+                  height: "56px",
                   borderRadius: "50%",
-                  border: "3px solid rgba(201,168,76,0.15)",
-                  borderTop: "3px solid #c9a84c",
-                  animation: "spinRing 0.9s linear infinite",
-                  boxShadow: "0 0 18px rgba(201,168,76,0.35)"
+                  border: "2px solid rgba(201,168,76,0.2)",
+                  borderTop: "2px solid #c9a84c",
+                  animation: "spinRing 0.9s linear infinite"
                 }} />
                 <div style={{ textAlign: "center" }}>
-                  <div style={{ fontSize: "11px", fontWeight: 700, letterSpacing: "3px", color: "#c9a84c", marginBottom: "6px" }}>INITIALIZING CAMERA</div>
-                  <div style={{ fontSize: "10px", color: "rgba(240,236,225,0.4)", letterSpacing: "1px" }}>Please allow camera access…</div>
+                  <div style={{ fontSize: "12px", fontWeight: 600, letterSpacing: "3px", color: "#c9a84c", marginBottom: "8px" }}>INITIALIZING</div>
+                  <div style={{ fontSize: "11px", color: "rgba(255,255,255,0.4)", letterSpacing: "0.5px" }}>Please allow camera access</div>
                 </div>
               </div>
             )}
             <video ref={videoRef} style={{ display: "none" }} autoPlay playsInline muted />
-            <canvas ref={canvasRef} width={640} height={480} style={{ display: "block", width: "100%", height: "100%", borderRadius: "24px", objectFit: "cover", boxShadow: "inset 0 0 20px rgba(0,0,0,0.3)" }} />
-            <canvas ref={threeCanvasRef} width={640} height={480} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", pointerEvents: "none", opacity: is3D ? 1 : 0, borderRadius: "24px" }} />
+            <canvas ref={canvasRef} width={640} height={480} style={{ display: "block", width: "100%", height: "100%", borderRadius: "32px", objectFit: "cover", boxShadow: "inset 0 0 20px rgba(0,0,0,0.2)" }} />
+            <canvas ref={threeCanvasRef} width={640} height={480} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", pointerEvents: "none", opacity: is3D ? 1 : 0, borderRadius: "32px" }} />
           </div>
         </div>
 
         <div style={{ 
-          background: "rgba(12, 12, 18, 0.7)",
+          background: "rgba(10, 10, 15, 0.6)",
           backdropFilter: "blur(24px)",
-          borderRadius: "32px", 
-          padding: "20px 18px", 
+          borderRadius: "40px", 
+          padding: "28px", 
           display: "flex", 
           flexDirection: "column", 
-          gap: "24px", 
-          border: "1px solid rgba(201,168,76,0.2)",
+          gap: "28px", 
+          border: "1px solid rgba(201,168,76,0.15)",
           boxShadow: "0 8px 32px rgba(0,0,0,0.3)"
         }}>
           <div>
-            <div style={{ fontSize: "10px", letterSpacing: "2.5px", color: "#c9a84c", marginBottom: "14px", fontWeight: 600, display: "flex", alignItems: "center", gap: "8px" }}>
-              <span style={{ width: "20px", height: "2px", background: "#c9a84c" }}></span>
+            <div style={{ fontSize: "11px", letterSpacing: "3px", color: "#c9a84c", marginBottom: "16px", fontWeight: 600, display: "flex", alignItems: "center", gap: "10px" }}>
+              <span style={{ width: "24px", height: "1px", background: "#c9a84c" }}></span>
               SELECT FRAME
             </div>
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: "12px" }}>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))", gap: "16px" }}>
               {GLASS_OPTIONS.map(g => (
                 <div key={g.id} onClick={() => setGlasses(g.id)} style={{
-                  background: glasses === g.id ? (g.is3d ? "linear-gradient(135deg, #0f1828, #0a0f1a)" : "linear-gradient(135deg, #1e1a10, #14110a)") : "rgba(20,20,28,0.6)",
-                  border: `1px solid ${glasses === g.id ? (g.is3d ? "#64b4ff" : "#c9a84c") : "rgba(201,168,76,0.2)"}`,
-                  borderRadius: "20px", padding: "14px 6px", display: "flex", flexDirection: "column", alignItems: "center", gap: "6px", cursor: "pointer", transition: "all 0.2s cubic-bezier(0.2, 0.9, 0.4, 1.1)", transform: glasses === g.id ? "scale(1.02)" : "scale(1)", boxShadow: glasses === g.id ? `0 0 15px ${g.is3d ? "rgba(100,180,255,0.3)" : "rgba(201,168,76,0.2)"}` : "none", position: "relative"
+                  background: glasses === g.id ? (g.is3d ? "linear-gradient(135deg, #0f1828, #0a0f1a)" : "linear-gradient(135deg, #1e1a10, #14110a)") : "rgba(20,20,28,0.5)",
+                  border: `1.5px solid ${glasses === g.id ? (g.is3d ? "#64b4ff" : "#c9a84c") : "rgba(201,168,76,0.15)"}`,
+                  borderRadius: "28px", padding: "20px 12px", display: "flex", flexDirection: "column", alignItems: "center", gap: "8px", cursor: "pointer", transition: "all 0.3s cubic-bezier(0.2, 0.9, 0.4, 1.1)", transform: glasses === g.id ? "translateY(-2px)" : "translateY(0)", boxShadow: glasses === g.id ? `0 8px 20px ${g.is3d ? "rgba(100,180,255,0.2)" : "rgba(201,168,76,0.15)"}` : "none", position: "relative"
                 }}>
-                  {g.is3d && <span style={{ position: "absolute", top: "8px", right: "8px", fontSize: "8px", fontWeight: 700, color: "#64b4ff", background: "rgba(100,180,255,0.2)", padding: "2px 8px", borderRadius: "20px", border: "0.5px solid rgba(100,180,255,0.5)" }}>3D</span>}
-                  <div style={{ fontSize: "32px", filter: "drop-shadow(0 2px 4px rgba(0,0,0,0.3))" }}>{g.emoji}</div>
-                  <div style={{ fontSize: "12px", fontWeight: 500, color: "rgba(240,236,225,0.9)" }}>{g.name}</div>
-                  <div style={{ fontSize: "13px", color: g.is3d ? "#64b4ff" : "#c9a84c", fontWeight: 700 }}>{g.price}</div>
+                  {g.is3d && <span style={{ position: "absolute", top: "12px", right: "12px", fontSize: "9px", fontWeight: 700, color: "#64b4ff", background: "rgba(100,180,255,0.15)", padding: "3px 10px", borderRadius: "100px", border: "0.5px solid rgba(100,180,255,0.4)" }}>3D</span>}
+                  <div style={{ fontSize: "40px", filter: "drop-shadow(0 4px 6px rgba(0,0,0,0.3))" }}>{g.emoji}</div>
+                  <div style={{ fontSize: "14px", fontWeight: 600, color: "rgba(255,255,255,0.9)" }}>{g.name}</div>
+                  <div style={{ fontSize: "15px", color: g.is3d ? "#64b4ff" : "#c9a84c", fontWeight: 700 }}>{g.price}</div>
                 </div>
               ))}
             </div>
@@ -712,11 +714,11 @@ const TryOn = () => {
           {/* --- New Size Selector UI --- */}
           {currentFrameSizes.length > 0 && (
             <div>
-              <div style={{ fontSize: "10px", letterSpacing: "2.5px", color: "#c9a84c", marginBottom: "12px", fontWeight: 600, display: "flex", alignItems: "center", gap: "8px" }}>
-                <span style={{ width: "20px", height: "2px", background: "#c9a84c" }}></span>
+              <div style={{ fontSize: "11px", letterSpacing: "3px", color: "#c9a84c", marginBottom: "16px", fontWeight: 600, display: "flex", alignItems: "center", gap: "10px" }}>
+                <span style={{ width: "24px", height: "1px", background: "#c9a84c" }}></span>
                 FRAME SIZE
               </div>
-              <div style={{ display: "flex", gap: "12px", justifyContent: "space-between" }}>
+              <div style={{ display: "flex", gap: "12px", justifyContent: "stretch" }}>
                 {currentFrameSizes.map(size => (
                   <button
                     key={size.label}
@@ -724,17 +726,16 @@ const TryOn = () => {
                     style={{
                       flex: 1,
                       background: selectedSizeKey === size.label ? "linear-gradient(135deg, #c9a84c, #b38f3a)" : "rgba(20,20,28,0.8)",
-                      border: `1px solid ${selectedSizeKey === size.label ? "#c9a84c" : "rgba(201,168,76,0.3)"}`,
-                      color: selectedSizeKey === size.label ? "#0c0c0e" : "#f0ede8",
-                      fontSize: "12px",
+                      border: `1px solid ${selectedSizeKey === size.label ? "#c9a84c" : "rgba(201,168,76,0.2)"}`,
+                      color: selectedSizeKey === size.label ? "#0a0a0f" : "#ffffff",
+                      fontSize: "13px",
                       fontWeight: 700,
-                      padding: "10px 0",
-                      borderRadius: "40px",
+                      padding: "12px 0",
+                      borderRadius: "100px",
                       cursor: "pointer",
                       transition: "all 0.2s ease",
-                      letterSpacing: "1px",
-                      textShadow: selectedSizeKey === size.label ? "none" : "0 0 4px rgba(0,0,0,0.5)",
-                      boxShadow: selectedSizeKey === size.label ? "0 0 12px rgba(201,168,76,0.4)" : "none"
+                      letterSpacing: "0.5px",
+                      textTransform: "uppercase"
                     }}
                   >
                     {size.label}
@@ -745,22 +746,22 @@ const TryOn = () => {
           )}
 
           {!is3D && (
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "4px 0" }}>
-              <span style={{ fontSize: "12px", fontWeight: 500, color: "rgba(240,236,225,0.8)", letterSpacing: "0.5px" }}>🦾 REALISTIC ARMS (BEHIND EARS)</span>
-              <label style={{ position: "relative", display: "inline-block", width: "48px", height: "24px" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "8px 0" }}>
+              <span style={{ fontSize: "13px", fontWeight: 500, color: "rgba(255,255,255,0.7)", letterSpacing: "0.3px" }}>🦾 Realistic Arms (Behind Ears)</span>
+              <label style={{ position: "relative", display: "inline-block", width: "52px", height: "26px" }}>
                 <input type="checkbox" checked={showArms} onChange={(e) => setShowArms(e.target.checked)} style={{ opacity: 0, width: 0, height: 0 }} />
-                <span style={{ position: "absolute", cursor: "pointer", top: 0, left: 0, right: 0, bottom: 0, backgroundColor: "#2a2a2f", transition: ".3s", borderRadius: "24px", border: "0.5px solid rgba(201,168,76,0.4)" }}>
-                  <span style={{ position: "absolute", height: "18px", width: "18px", left: "3px", bottom: "2px", backgroundColor: "#c9a84c", transition: ".3s", borderRadius: "50%", transform: showArms ? "translateX(24px)" : "none", boxShadow: "0 0 6px #c9a84c" }} />
+                <span style={{ position: "absolute", cursor: "pointer", top: 0, left: 0, right: 0, bottom: 0, backgroundColor: "rgba(30,30,38,0.8)", transition: "0.3s", borderRadius: "26px", border: "0.5px solid rgba(201,168,76,0.3)" }}>
+                  <span style={{ position: "absolute", height: "20px", width: "20px", left: "3px", bottom: "2px", backgroundColor: "#c9a84c", transition: "0.3s", borderRadius: "50%", transform: showArms ? "translateX(26px)" : "none" }} />
                 </span>
               </label>
             </div>
           )}
 
           {!is3D && (
-            <div style={{ background: "rgba(0,0,0,0.4)", borderRadius: "24px", padding: "16px", border: "0.5px solid rgba(201,168,76,0.2)" }}>
-              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "16px", alignItems: "center" }}>
-                <span style={{ fontSize: "10px", letterSpacing: "2px", color: "#c9a84c", fontWeight: 600 }}>⚙️ FRAME ADJUST</span>
-                <button onClick={resetAdj} style={{ fontSize: "9px", fontWeight: 500, color: "#c9a84c", background: "rgba(201,168,76,0.1)", border: "0.5px solid rgba(201,168,76,0.4)", padding: "4px 14px", borderRadius: "30px", cursor: "pointer" }}>⟳ RESET</button>
+            <div style={{ background: "rgba(0,0,0,0.3)", borderRadius: "28px", padding: "20px", border: "0.5px solid rgba(201,168,76,0.15)" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "20px", alignItems: "center" }}>
+                <span style={{ fontSize: "11px", letterSpacing: "3px", color: "#c9a84c", fontWeight: 600 }}>⚙️ FRAME ADJUSTMENT</span>
+                <button onClick={resetAdj} style={{ fontSize: "10px", fontWeight: 600, color: "#c9a84c", background: "rgba(201,168,76,0.1)", border: "0.5px solid rgba(201,168,76,0.3)", padding: "5px 16px", borderRadius: "100px", cursor: "pointer", transition: "all 0.2s" }}>RESET</button>
               </div>
               {[
                 { label: "WIDTH", key: "scaleW", min: 0.3, max: 3, step: 0.05, fmt: v => `${v.toFixed(2)}×` },
@@ -769,10 +770,10 @@ const TryOn = () => {
                 { label: "MOVE U/D", key: "offsetY", min: -150, max: 150, step: 1, fmt: v => `${v > 0 ? "+" : ""}${v}px` },
                 { label: "ROTATION", key: "rotate", min: -30, max: 30, step: 0.5, fmt: v => `${v > 0 ? "+" : ""}${v.toFixed(1)}°` },
               ].map(({ label, key, min, max, step, fmt }) => (
-                <div key={key} style={{ marginBottom: "14px" }}>
-                  <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "8px" }}>
-                    <span style={{ fontSize: "11px", color: "rgba(240,236,225,0.6)" }}>{label}</span>
-                    <span style={{ fontSize: "11px", color: "#c9a84c", fontWeight: 600 }}>{fmt(curAdj[key])}</span>
+                <div key={key} style={{ marginBottom: "18px" }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "10px" }}>
+                    <span style={{ fontSize: "12px", color: "rgba(255,255,255,0.5)", fontWeight: 500 }}>{label}</span>
+                    <span style={{ fontSize: "12px", color: "#c9a84c", fontWeight: 600 }}>{fmt(curAdj[key])}</span>
                   </div>
                   <input type="range" min={min} max={max} step={step} value={curAdj[key]} onChange={e => setAdj(key, Number(e.target.value))} style={{ width: "100%", height: "4px", background: "rgba(201,168,76,0.2)", borderRadius: "4px" }} />
                 </div>
@@ -781,8 +782,8 @@ const TryOn = () => {
           )}
 
           <div>
-            <div style={{ fontSize: "10px", letterSpacing: "2px", color: "#c9a84c", marginBottom: "14px", fontWeight: 600, display: "flex", alignItems: "center", gap: "8px" }}>
-              <span style={{ width: "20px", height: "2px", background: "#c9a84c" }}></span>
+            <div style={{ fontSize: "11px", letterSpacing: "3px", color: "#c9a84c", marginBottom: "16px", fontWeight: 600, display: "flex", alignItems: "center", gap: "10px" }}>
+              <span style={{ width: "24px", height: "1px", background: "#c9a84c" }}></span>
               SCENE FILTERS
             </div>
             {[
@@ -790,31 +791,75 @@ const TryOn = () => {
               { label: "CONTRAST", val: contrast, set: setContrast, icon: "🎚️" },
               { label: "SATURATION", val: saturate, set: setSaturate, icon: "🎨" },
             ].map(({ label, val, set, icon }) => (
-              <div key={label} style={{ marginBottom: "14px" }}>
-                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "8px" }}>
-                  <span style={{ fontSize: "11px", color: "rgba(240,236,225,0.6)" }}>{icon} {label}</span>
-                  <span style={{ fontSize: "11px", color: "#c9a84c", fontWeight: 600 }}>{val}%</span>
+              <div key={label} style={{ marginBottom: "18px" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "10px" }}>
+                  <span style={{ fontSize: "12px", color: "rgba(255,255,255,0.5)", fontWeight: 500 }}>{icon} {label}</span>
+                  <span style={{ fontSize: "12px", color: "#c9a84c", fontWeight: 600 }}>{val}%</span>
                 </div>
                 <input type="range" min="0" max="200" step="1" value={val} onChange={e => set(Number(e.target.value))} style={{ width: "100%", height: "4px", background: "rgba(201,168,76,0.2)", borderRadius: "4px" }} />
               </div>
             ))}
           </div>
 
-          <button onClick={capturePhoto} style={{ width: "100%", background: "linear-gradient(135deg, rgba(201,168,76,0.15), rgba(201,168,76,0.05))", border: "1px solid rgba(201,168,76,0.5)", color: "#c9a84c", fontSize: "12px", letterSpacing: "2px", padding: "14px", borderRadius: "60px", cursor: "pointer", fontWeight: 700, transition: "all 0.2s", backdropFilter: "blur(4px)" }} onMouseEnter={e => e.currentTarget.style.background = "linear-gradient(135deg, rgba(201,168,76,0.25), rgba(201,168,76,0.1))"} onMouseLeave={e => e.currentTarget.style.background = "linear-gradient(135deg, rgba(201,168,76,0.15), rgba(201,168,76,0.05))"}>📸 CAPTURE LOOK</button>
+          <button onClick={capturePhoto} style={{ width: "100%", background: "linear-gradient(135deg, rgba(201,168,76,0.15), rgba(201,168,76,0.05))", border: "1px solid rgba(201,168,76,0.4)", color: "#c9a84c", fontSize: "13px", letterSpacing: "2px", padding: "16px", borderRadius: "100px", cursor: "pointer", fontWeight: 700, transition: "all 0.3s ease", backdropFilter: "blur(8px)" }} onMouseEnter={e => { e.currentTarget.style.background = "linear-gradient(135deg, rgba(201,168,76,0.25), rgba(201,168,76,0.1))"; e.currentTarget.style.transform = "translateY(-1px)"; e.currentTarget.style.boxShadow = "0 8px 20px rgba(201,168,76,0.2)"; }} onMouseLeave={e => { e.currentTarget.style.background = "linear-gradient(135deg, rgba(201,168,76,0.15), rgba(201,168,76,0.05))"; e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.boxShadow = "none"; }}>📸 CAPTURE LOOK</button>
         </div>
       </div>
 
       <style>{`
-        @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.4;transform:scale(0.85)} }
-        @keyframes spinRing { to { transform: rotate(360deg); } }
-        input[type="range"] { -webkit-appearance: none; background: transparent; }
-        input[type="range"]:focus { outline: none; }
-        input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 16px; height: 16px; border-radius: 50%; background: #c9a84c; cursor: pointer; border: 2px solid #0c0c0e; box-shadow: 0 0 8px #c9a84c; }
-        input[type="range"]::-moz-range-thumb { width: 16px; height: 16px; border-radius: 50%; background: #c9a84c; cursor: pointer; border: 2px solid #0c0c0e; }
-        button:hover { background: rgba(201,168,76,0.2); box-shadow: 0 0 12px rgba(201,168,76,0.3); }
-        ::-webkit-scrollbar { width: 4px; }
-        ::-webkit-scrollbar-track { background: rgba(20,20,28,0.5); border-radius: 4px; }
-        ::-webkit-scrollbar-thumb { background: #c9a84c; border-radius: 4px; }
+        @keyframes pulse { 
+          0%, 100% { opacity: 1; transform: scale(1); } 
+          50% { opacity: 0.4; transform: scale(0.8); } 
+        }
+        @keyframes spinRing { 
+          to { transform: rotate(360deg); } 
+        }
+        input[type="range"] { 
+          -webkit-appearance: none; 
+          background: transparent; 
+        }
+        input[type="range"]:focus { 
+          outline: none; 
+        }
+        input[type="range"]::-webkit-slider-thumb { 
+          -webkit-appearance: none; 
+          width: 18px; 
+          height: 18px; 
+          border-radius: 50%; 
+          background: #c9a84c; 
+          cursor: pointer; 
+          border: 2px solid #0a0a0f; 
+          box-shadow: 0 0 8px #c9a84c; 
+          transition: all 0.2s ease;
+        }
+        input[type="range"]::-webkit-slider-thumb:hover {
+          transform: scale(1.2);
+          box-shadow: 0 0 12px #c9a84c;
+        }
+        input[type="range"]::-moz-range-thumb { 
+          width: 18px; 
+          height: 18px; 
+          border-radius: 50%; 
+          background: #c9a84c; 
+          cursor: pointer; 
+          border: 2px solid #0a0a0f; 
+        }
+        button { 
+          transition: all 0.3s ease; 
+        }
+        ::-webkit-scrollbar { 
+          width: 4px; 
+        }
+        ::-webkit-scrollbar-track { 
+          background: rgba(20,20,28,0.5); 
+          border-radius: 4px; 
+        }
+        ::-webkit-scrollbar-thumb { 
+          background: #c9a84c; 
+          border-radius: 4px; 
+        }
+        * {
+          box-sizing: border-box;
+        }
       `}</style>
     </div>
   );

@@ -2,7 +2,7 @@ import React, { useRef, useEffect, useState, useCallback } from "react";
 import * as THREE from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 
-// ── GLASSES DATA WITH ACTUAL PHYSICAL SIZES (in mm) ─────────────────────────────────
+// ── GLASSES DATA ────────────────────────────────────────────────────
 const GLASS_OPTIONS = [
   { 
     id: "/glass1.png", 
@@ -90,14 +90,12 @@ const COLOR_OPTIONS = [
   { name: "Matte Black", value: "#2d2d2d", code: "004" },
 ];
 
-// ── Per-frame adjustments ─────────────────────────────────
+// Per-frame adjustments (manual user overrides)
 const DEFAULT_ADJ = { scaleW: 1, scaleH: 1, offsetX: 0, offsetY: 0, rotate: 0 };
 const AVIATOR_ADJ = { scaleW: 1, scaleH: 1.18, offsetX: 0, offsetY: 12, rotate: 0 };
 const ROUND_ADJ   = { scaleW: 1, scaleH: 0.85, offsetX: 0, offsetY: 0, rotate: 0 };
 
-// ══════════════════════════════════════════════════════════════════
-// ── FACE LANDMARK INDICES ──
-// ══════════════════════════════════════════════════════════════════
+// Landmark indices
 const LANDMARKS = {
   LEFT_IRIS_CENTER: 468,
   RIGHT_IRIS_CENTER: 473,
@@ -110,6 +108,7 @@ const LANDMARKS = {
   NOSE_BRIDGE_TOP: 6,
 };
 
+// Smoothing for face position/angle (not size)
 class LandmarkSmoother {
   constructor(alpha = 0.7) {
     this.alpha = alpha;
@@ -130,9 +129,7 @@ class LandmarkSmoother {
   reset() { this.prev = null; }
 }
 
-// ══════════════════════════════════════════════════════════════════
-// ── FACE GEOMETRY EXTRACTOR (only position & angle) ──
-// ══════════════════════════════════════════════════════════════════
+// Extract face position and angle only (no width)
 function extractFaceGeometry(lm, W, H) {
   const px = (idx) => ({ x: lm[idx].x * W, y: lm[idx].y * H });
   const avgPx = (indices) => {
@@ -160,7 +157,7 @@ function extractFaceGeometry(lm, W, H) {
   return { centerX, centerY, angle };
 }
 
-// ── Drawing function (unchanged) ───────────────────────────────────
+// Draw glasses with arms (unchanged)
 const drawGlassesWithArms = (ctx, img, x, y, w, h, angle) => {
   ctx.save();
   ctx.translate(x, y);
@@ -204,9 +201,7 @@ const drawGlassesWithArms = (ctx, img, x, y, w, h, angle) => {
   ctx.restore();
 };
 
-// ══════════════════════════════════════════════════════════════════
-// ── MAIN COMPONENT (FIXED SIZE, NO DYNAMIC SCALING) ──
-// ══════════════════════════════════════════════════════════════════
+// ── MAIN COMPONENT (PERMANENTLY FIXED SIZE) ─────────────────────────
 const TryOn = () => {
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
@@ -250,7 +245,17 @@ const TryOn = () => {
   const is3DRef = useRef(false);
   const adjRef = useRef(adjustments);
   const showArmsRef = useRef(showArms);
+  
+  // Fixed size ref - NEVER changes except when user picks a different size
   const fixedSizeRef = useRef({ width: currentSizeData.pxWidth, height: currentSizeData.pxHeight });
+
+  // Update fixed size when size selection changes
+  useEffect(() => {
+    fixedSizeRef.current = {
+      width: currentSizeData.pxWidth,
+      height: currentSizeData.pxHeight,
+    };
+  }, [currentSizeData]);
 
   useEffect(() => { brightnessRef.current = brightness; }, [brightness]);
   useEffect(() => { contrastRef.current = contrast; }, [contrast]);
@@ -260,16 +265,9 @@ const TryOn = () => {
   useEffect(() => { adjRef.current = adjustments; }, [adjustments]);
   useEffect(() => { showArmsRef.current = showArms; }, [showArms]);
 
-  useEffect(() => {
-    fixedSizeRef.current = {
-      width: currentSizeData.pxWidth,
-      height: currentSizeData.pxHeight,
-    };
-  }, [currentSizeData]);
-
   const curAdj = adjustments[glasses.id] || DEFAULT_ADJ;
 
-  // 3D Scene setup
+  // 3D Scene setup (fixed scale)
   useEffect(() => {
     if (!is3D) {
       if (rendererRef.current) {
@@ -319,7 +317,7 @@ const TryOn = () => {
     };
   }, [is3D]);
 
-  // Main FaceMesh and rendering loop
+  // Main MediaPipe & rendering loop
   useEffect(() => {
     const loadMediaPipe = async () => {
       if (!window.FaceMesh) {
@@ -392,7 +390,7 @@ const TryOn = () => {
         const lm = results.multiFaceLandmarks[0];
         const geo = extractFaceGeometry(lm, W, H);
         
-        // Smooth position & angle
+        // Smooth position & angle only (size is fixed)
         const smoothed = smootherRef.current.smooth({
           cx: geo.centerX, cy: geo.centerY,
           angle: geo.angle,
@@ -403,7 +401,7 @@ const TryOn = () => {
           if (model && rendererRef.current && sceneRef.current && cameraRef.current) {
             model.position.x = smoothed.cx - W / 2;
             model.position.y = -(smoothed.cy - H / 2);
-            // FIXED SCALE: based on selected size, never changes with distance
+            // FIXED SCALE - never changes with distance
             const fixedScale = 0.28 * (fixedSizeRef.current.width / 162);
             model.scale.setScalar(fixedScale);
             model.rotation.z = -smoothed.angle;
@@ -414,10 +412,11 @@ const TryOn = () => {
           if (!img.complete || !img.src) return;
           const adj = adjRef.current[glassesRef.current.id] || DEFAULT_ADJ;
           
-          // FIXED PIXEL SIZE — no scaling based on face distance
-          const fixedSize = fixedSizeRef.current;
-          const w = fixedSize.width * adj.scaleW;
-          const h = fixedSize.height * adj.scaleH;
+          // FIXED SIZE - absolute pixel dimensions
+          const fixedW = fixedSizeRef.current.width;
+          const fixedH = fixedSizeRef.current.height;
+          const w = fixedW * adj.scaleW;
+          const h = fixedH * adj.scaleH;
           const finalAngle = smoothed.angle + (adj.rotate * Math.PI / 180);
           const fx = smoothed.cx + adj.offsetX;
           const fy = smoothed.cy + adj.offsetY;

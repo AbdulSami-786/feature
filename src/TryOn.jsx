@@ -3,17 +3,57 @@ import * as THREE from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 
 // ── Per-frame default adjustments ─────────────────────────────────
-// Little down offset preserved
 const DEFAULT_ADJ = { scaleW: 1, scaleH: 1, offsetX: 0, offsetY: 8, rotate: 0 };
 const AVIATOR_ADJ = { scaleW: 1, scaleH: 1.18, offsetX: 0, offsetY: 18, rotate: 0 };
 const ROUND_ADJ   = { scaleW: 1, scaleH: 0.85, offsetX: 0, offsetY: 6, rotate: 0 };
 
+// Each frame now includes size options
 const GLASS_OPTIONS = [
-  { id: "/glass1.png", name: "Classic",  price: "PKR 4,500", emoji: "👓" },
-  { id: "/glass2.png", name: "Aviator",  price: "PKR 5,200", emoji: "🕶️" },
-  { id: "/glass3.png", name: "Sport",    price: "PKR 3,800", emoji: "🥽" },
-  { id: "/glass4.png", name: "Round",    price: "PKR 4,900", emoji: "🪬" },
-  { id: "__3D__",      name: "3D Frame", price: "PKR 6,500", emoji: "✨", is3d: true },
+  {
+    id: "/glass1.png", name: "Classic", price: "PKR 4,500", emoji: "👓",
+    sizes: [
+      { label: "S", scale: 0.85 },
+      { label: "M", scale: 1.0 },
+      { label: "L", scale: 1.15 },
+      { label: "XL", scale: 1.3 }
+    ]
+  },
+  {
+    id: "/glass2.png", name: "Aviator", price: "PKR 5,200", emoji: "🕶️",
+    sizes: [
+      { label: "S", scale: 0.85 },
+      { label: "M", scale: 1.0 },
+      { label: "L", scale: 1.15 },
+      { label: "XL", scale: 1.3 }
+    ]
+  },
+  {
+    id: "/glass3.png", name: "Sport", price: "PKR 3,800", emoji: "🥽",
+    sizes: [
+      { label: "S", scale: 0.85 },
+      { label: "M", scale: 1.0 },
+      { label: "L", scale: 1.15 },
+      { label: "XL", scale: 1.3 }
+    ]
+  },
+  {
+    id: "/glass4.png", name: "Round", price: "PKR 4,900", emoji: "🪬",
+    sizes: [
+      { label: "S", scale: 0.85 },
+      { label: "M", scale: 1.0 },
+      { label: "L", scale: 1.15 },
+      { label: "XL", scale: 1.3 }
+    ]
+  },
+  {
+    id: "__3D__", name: "3D Frame", price: "PKR 6,500", emoji: "✨", is3d: true,
+    sizes: [
+      { label: "S", scale: 0.85 },
+      { label: "M", scale: 1.0 },
+      { label: "L", scale: 1.15 },
+      { label: "XL", scale: 1.3 }
+    ]
+  },
 ];
 
 // ══════════════════════════════════════════════════════════════════
@@ -114,7 +154,6 @@ function extractFaceGeometry(lm, W, H) {
   const noseBridgeY = noseBridgeTop.y;
   const centerY = browCenterY * 0.35 + noseBridgeY * 0.45 + ((leftIris.y + rightIris.y)/2) * 0.20;
 
-  // *** BIGGER: width 1.7 (was 1.55), height 2.9 (was 2.6) ***
   const glassesWidth = eyeSpan * 1.7;
   const glassesHeight = avgBrowEyeGap * 3.3;
 
@@ -240,6 +279,17 @@ const TryOn = () => {
   const [cameraReady, setCameraReady] = useState(false);
   const cameraReadyRef = useRef(false);
 
+  // --- Size selection state ---
+  const [selectedSizeKey, setSelectedSizeKey] = useState("M"); // "S", "M", "L", "XL"
+
+  // Helper: get scale multiplier for current glass and selected size
+  const getCurrentSizeScale = useCallback(() => {
+    const currentGlass = GLASS_OPTIONS.find(g => g.id === glasses);
+    if (!currentGlass || !currentGlass.sizes) return 1.0;
+    const sizeObj = currentGlass.sizes.find(s => s.label === selectedSizeKey);
+    return sizeObj ? sizeObj.scale : 1.0;
+  }, [glasses, selectedSizeKey]);
+
   const smootherRef = useRef(new LandmarkSmoother(0.45));
 
   const [adjustments, setAdjustments] = useState(() =>
@@ -337,7 +387,7 @@ const TryOn = () => {
     };
   }, [is3D]);
 
-  // FaceMesh and main loop
+  // FaceMesh and main loop (with size multiplier applied)
   useEffect(() => {
     const faceMesh = new window.FaceMesh({
       locateFile: f => `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${f}`,
@@ -378,13 +428,23 @@ const TryOn = () => {
         cx: geo.centerX, cy: geo.centerY, gw: geo.glassesWidth, gh: geo.glassesHeight,
         angle: geo.angle, ds: geo.depthScale,
       });
+      
+      // --- Obtain current size multiplier ---
+      const currentGlassObj = GLASS_OPTIONS.find(g => g.id === glassesRef.current);
+      let sizeScale = 1.0;
+      if (currentGlassObj && currentGlassObj.sizes) {
+        const sizeObj = currentGlassObj.sizes.find(s => s.label === selectedSizeKey);
+        if (sizeObj) sizeScale = sizeObj.scale;
+      }
+      
       if (_is3D) {
         const model = glassModel3dRef.current;
         const r = rendererRef.current, s = sceneRef.current, c = cameraRef.current;
         if (model && r && s && c) {
           model.position.x = smoothed.cx - W / 2;
           model.position.y = -(smoothed.cy - H / 2);
-          const scale3D = (smoothed.gw * smoothed.ds) / modelWidthRef.current;
+          let scale3D = (smoothed.gw * smoothed.ds) / modelWidthRef.current;
+          scale3D *= sizeScale;  // apply size multiplier
           model.scale.setScalar(scale3D);
           model.rotation.z = -smoothed.angle;
           r.render(s, c);
@@ -393,8 +453,10 @@ const TryOn = () => {
         const img = imgRef.current;
         if (!img.complete || !img.src) return;
         const adj = adjRef.current[glassesRef.current] || DEFAULT_ADJ;
-        const w = smoothed.gw * adj.scaleW * smoothed.ds;
-        const h = smoothed.gh * adj.scaleH * smoothed.ds;
+        let w = smoothed.gw * adj.scaleW * smoothed.ds;
+        let h = smoothed.gh * adj.scaleH * smoothed.ds;
+        w *= sizeScale;   // apply size multiplier
+        h *= sizeScale;
         const finalAngle = smoothed.angle + (adj.rotate * Math.PI / 180);
         const fx = smoothed.cx + adj.offsetX;
         const fy = smoothed.cy + adj.offsetY;
@@ -410,7 +472,7 @@ const TryOn = () => {
       }
     }
     return () => { if (faceMesh) faceMesh.close(); };
-  }, []);
+  }, [selectedSizeKey]); // re-run effect when size changes (ensures smoother closure captures latest size)
 
   useEffect(() => {
     if (!is3D && imgRef.current) {
@@ -428,7 +490,9 @@ const TryOn = () => {
     link.click();
   }, []);
 
-  // UI (unchanged)
+  // UI (unchanged except added size selector)
+  const currentFrameSizes = GLASS_OPTIONS.find(g => g.id === glasses)?.sizes || [];
+
   return (
     <div style={{ 
       fontFamily: "'Space Grotesk', 'Inter', sans-serif", 
@@ -644,6 +708,41 @@ const TryOn = () => {
               ))}
             </div>
           </div>
+
+          {/* --- New Size Selector UI --- */}
+          {currentFrameSizes.length > 0 && (
+            <div>
+              <div style={{ fontSize: "10px", letterSpacing: "2.5px", color: "#c9a84c", marginBottom: "12px", fontWeight: 600, display: "flex", alignItems: "center", gap: "8px" }}>
+                <span style={{ width: "20px", height: "2px", background: "#c9a84c" }}></span>
+                FRAME SIZE
+              </div>
+              <div style={{ display: "flex", gap: "12px", justifyContent: "space-between" }}>
+                {currentFrameSizes.map(size => (
+                  <button
+                    key={size.label}
+                    onClick={() => setSelectedSizeKey(size.label)}
+                    style={{
+                      flex: 1,
+                      background: selectedSizeKey === size.label ? "linear-gradient(135deg, #c9a84c, #b38f3a)" : "rgba(20,20,28,0.8)",
+                      border: `1px solid ${selectedSizeKey === size.label ? "#c9a84c" : "rgba(201,168,76,0.3)"}`,
+                      color: selectedSizeKey === size.label ? "#0c0c0e" : "#f0ede8",
+                      fontSize: "12px",
+                      fontWeight: 700,
+                      padding: "10px 0",
+                      borderRadius: "40px",
+                      cursor: "pointer",
+                      transition: "all 0.2s ease",
+                      letterSpacing: "1px",
+                      textShadow: selectedSizeKey === size.label ? "none" : "0 0 4px rgba(0,0,0,0.5)",
+                      boxShadow: selectedSizeKey === size.label ? "0 0 12px rgba(201,168,76,0.4)" : "none"
+                    }}
+                  >
+                    {size.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
 
           {!is3D && (
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "4px 0" }}>

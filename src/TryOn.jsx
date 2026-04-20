@@ -12,10 +12,10 @@ const GLASS_OPTIONS = [
     brand: "Gucci", 
     model: "GG01840",
     sizes: [
-      { label: "S", width: 128, height: 45, bridge: 16 },
-      { label: "M", width: 135, height: 48, bridge: 18 },
-      { label: "L", width: 142, height: 51, bridge: 20 },
-      { label: "XL", width: 230, height: 90, bridge: 29 }
+      { label: "S", width: 160, height: 65, bridge: 16 },
+      { label: "M", width: 180, height: 75, bridge: 18 },
+      { label: "L", width: 200, height: 85, bridge: 20 },
+      { label: "XL", width: 230, height: 100, bridge: 29 }
     ],
     defaultSize: "M"
   },

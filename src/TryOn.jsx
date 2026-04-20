@@ -5,12 +5,7 @@ import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 // ── GLASSES DATA ────────────────────────────────────────────────────
 const GLASS_OPTIONS = [
   { 
-    id: "/glass1.png", 
-    name: "Classic", 
-    price: "PKR 4,500", 
-    emoji: "👓", 
-    brand: "Gucci", 
-    model: "GG01840",
+    id: "/glass1.png", name: "Classic", price: "PKR 4,500", emoji: "👓", brand: "Gucci", model: "GG01840",
     sizes: [
       { label: "S", width: 128, height: 45, bridge: 16, pxWidth: 150, pxHeight: 53 },
       { label: "M", width: 135, height: 48, bridge: 18, pxWidth: 158, pxHeight: 56 },
@@ -20,12 +15,7 @@ const GLASS_OPTIONS = [
     defaultSize: "M"
   },
   { 
-    id: "/glass2.png", 
-    name: "Aviator", 
-    price: "PKR 5,200", 
-    emoji: "🕶️", 
-    brand: "Ray-Ban", 
-    model: "RB3025",
+    id: "/glass2.png", name: "Aviator", price: "PKR 5,200", emoji: "🕶️", brand: "Ray-Ban", model: "RB3025",
     sizes: [
       { label: "S", width: 130, height: 48, bridge: 14, pxWidth: 152, pxHeight: 56 },
       { label: "M", width: 138, height: 52, bridge: 16, pxWidth: 162, pxHeight: 61 },
@@ -35,12 +25,7 @@ const GLASS_OPTIONS = [
     defaultSize: "M"
   },
   { 
-    id: "/glass3.png", 
-    name: "Sport", 
-    price: "PKR 3,800", 
-    emoji: "🥽", 
-    brand: "Oakley", 
-    model: "SPORT-01",
+    id: "/glass3.png", name: "Sport", price: "PKR 3,800", emoji: "🥽", brand: "Oakley", model: "SPORT-01",
     sizes: [
       { label: "S", width: 125, height: 44, bridge: 15, pxWidth: 147, pxHeight: 52 },
       { label: "M", width: 132, height: 47, bridge: 17, pxWidth: 155, pxHeight: 55 },
@@ -50,12 +35,7 @@ const GLASS_OPTIONS = [
     defaultSize: "M"
   },
   { 
-    id: "/glass4.png", 
-    name: "Round", 
-    price: "PKR 4,900", 
-    emoji: "🪬", 
-    brand: "Gucci", 
-    model: "GG02300",
+    id: "/glass4.png", name: "Round", price: "PKR 4,900", emoji: "🪬", brand: "Gucci", model: "GG02300",
     sizes: [
       { label: "S", width: 120, height: 42, bridge: 17, pxWidth: 141, pxHeight: 49 },
       { label: "M", width: 128, height: 45, bridge: 19, pxWidth: 150, pxHeight: 53 },
@@ -65,13 +45,7 @@ const GLASS_OPTIONS = [
     defaultSize: "M"
   },
   { 
-    id: "__3D__", 
-    name: "3D Frame", 
-    price: "PKR 6,500", 
-    emoji: "✨", 
-    is3d: true, 
-    brand: "VR", 
-    model: "3D Pro",
+    id: "__3D__", name: "3D Frame", price: "PKR 6,500", emoji: "✨", is3d: true, brand: "VR", model: "3D Pro",
     sizes: [
       { label: "S", width: 130, height: 46, bridge: 16, pxWidth: 152, pxHeight: 54 },
       { label: "M", width: 138, height: 49, bridge: 18, pxWidth: 162, pxHeight: 57 },
@@ -90,7 +64,7 @@ const COLOR_OPTIONS = [
   { name: "Matte Black", value: "#2d2d2d", code: "004" },
 ];
 
-// Per-frame adjustments (manual user overrides)
+// Manual adjustments
 const DEFAULT_ADJ = { scaleW: 1, scaleH: 1, offsetX: 0, offsetY: 0, rotate: 0 };
 const AVIATOR_ADJ = { scaleW: 1, scaleH: 1.18, offsetX: 0, offsetY: 12, rotate: 0 };
 const ROUND_ADJ   = { scaleW: 1, scaleH: 0.85, offsetX: 0, offsetY: 0, rotate: 0 };
@@ -105,10 +79,9 @@ const LANDMARKS = {
   RIGHT_EYE_OUTER: 263,
   LEFT_EYEBROW_LOWER: [70, 63, 105, 66, 107],
   RIGHT_EYEBROW_LOWER: [300, 293, 334, 296, 336],
-  NOSE_BRIDGE_TOP: 6,
 };
 
-// Smoothing for face position/angle (not size)
+// Smoothing for face position/angle
 class LandmarkSmoother {
   constructor(alpha = 0.7) {
     this.alpha = alpha;
@@ -129,7 +102,7 @@ class LandmarkSmoother {
   reset() { this.prev = null; }
 }
 
-// Extract face position and angle only (no width)
+// Extract face position and angle only (NO width calculation)
 function extractFaceGeometry(lm, W, H) {
   const px = (idx) => ({ x: lm[idx].x * W, y: lm[idx].y * H });
   const avgPx = (indices) => {
@@ -157,7 +130,7 @@ function extractFaceGeometry(lm, W, H) {
   return { centerX, centerY, angle };
 }
 
-// Draw glasses with arms (unchanged)
+// Draw glasses with arms
 const drawGlassesWithArms = (ctx, img, x, y, w, h, angle) => {
   ctx.save();
   ctx.translate(x, y);
@@ -201,7 +174,7 @@ const drawGlassesWithArms = (ctx, img, x, y, w, h, angle) => {
   ctx.restore();
 };
 
-// ── MAIN COMPONENT (PERMANENTLY FIXED SIZE) ─────────────────────────
+// ── MAIN COMPONENT (PERMANENTLY FIXED SIZE - NO SCALING) ────────────
 const TryOn = () => {
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
@@ -245,17 +218,7 @@ const TryOn = () => {
   const is3DRef = useRef(false);
   const adjRef = useRef(adjustments);
   const showArmsRef = useRef(showArms);
-  
-  // Fixed size ref - NEVER changes except when user picks a different size
   const fixedSizeRef = useRef({ width: currentSizeData.pxWidth, height: currentSizeData.pxHeight });
-
-  // Update fixed size when size selection changes
-  useEffect(() => {
-    fixedSizeRef.current = {
-      width: currentSizeData.pxWidth,
-      height: currentSizeData.pxHeight,
-    };
-  }, [currentSizeData]);
 
   useEffect(() => { brightnessRef.current = brightness; }, [brightness]);
   useEffect(() => { contrastRef.current = contrast; }, [contrast]);
@@ -265,9 +228,16 @@ const TryOn = () => {
   useEffect(() => { adjRef.current = adjustments; }, [adjustments]);
   useEffect(() => { showArmsRef.current = showArms; }, [showArms]);
 
+  useEffect(() => {
+    fixedSizeRef.current = {
+      width: currentSizeData.pxWidth,
+      height: currentSizeData.pxHeight,
+    };
+  }, [currentSizeData]);
+
   const curAdj = adjustments[glasses.id] || DEFAULT_ADJ;
 
-  // 3D Scene setup (fixed scale)
+  // 3D scene (fixed scale)
   useEffect(() => {
     if (!is3D) {
       if (rendererRef.current) {
@@ -317,7 +287,7 @@ const TryOn = () => {
     };
   }, [is3D]);
 
-  // Main MediaPipe & rendering loop
+  // Main MediaPipe loop
   useEffect(() => {
     const loadMediaPipe = async () => {
       if (!window.FaceMesh) {
@@ -390,7 +360,6 @@ const TryOn = () => {
         const lm = results.multiFaceLandmarks[0];
         const geo = extractFaceGeometry(lm, W, H);
         
-        // Smooth position & angle only (size is fixed)
         const smoothed = smootherRef.current.smooth({
           cx: geo.centerX, cy: geo.centerY,
           angle: geo.angle,
@@ -401,7 +370,7 @@ const TryOn = () => {
           if (model && rendererRef.current && sceneRef.current && cameraRef.current) {
             model.position.x = smoothed.cx - W / 2;
             model.position.y = -(smoothed.cy - H / 2);
-            // FIXED SCALE - never changes with distance
+            // FIXED SCALE - never changes
             const fixedScale = 0.28 * (fixedSizeRef.current.width / 162);
             model.scale.setScalar(fixedScale);
             model.rotation.z = -smoothed.angle;
@@ -412,11 +381,9 @@ const TryOn = () => {
           if (!img.complete || !img.src) return;
           const adj = adjRef.current[glassesRef.current.id] || DEFAULT_ADJ;
           
-          // FIXED SIZE - absolute pixel dimensions
-          const fixedW = fixedSizeRef.current.width;
-          const fixedH = fixedSizeRef.current.height;
-          const w = fixedW * adj.scaleW;
-          const h = fixedH * adj.scaleH;
+          // FIXED SIZE - ABSOLUTE PIXEL VALUES, NO SCALING
+          const w = fixedSizeRef.current.width * adj.scaleW;
+          const h = fixedSizeRef.current.height * adj.scaleH;
           const finalAngle = smoothed.angle + (adj.rotate * Math.PI / 180);
           const fx = smoothed.cx + adj.offsetX;
           const fy = smoothed.cy + adj.offsetY;
@@ -463,56 +430,15 @@ const TryOn = () => {
   return (
     <>
       <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover" />
-      
-      <div style={{ 
-        fontFamily: "'Inter', 'Space Grotesk', sans-serif", 
-        background: "#0a0a0c", 
-        color: "#ffffff", 
-        minHeight: "100vh", 
-        display: "flex", 
-        flexDirection: "column",
-      }}>
-        <div style={{ 
-          display: "flex", 
-          flexDirection: "column",
-          maxWidth: "1400px",
-          margin: "0 auto",
-          width: "100%",
-          padding: "20px 24px",
-          gap: "24px",
-        }}>
+      <div style={{ fontFamily: "'Inter', 'Space Grotesk', sans-serif", background: "#0a0a0c", color: "#ffffff", minHeight: "100vh", display: "flex", flexDirection: "column" }}>
+        <div style={{ display: "flex", flexDirection: "column", maxWidth: "1400px", margin: "0 auto", width: "100%", padding: "20px 24px", gap: "24px" }}>
           {/* Header */}
-          <div style={{ 
-            display: "flex", 
-            alignItems: "center", 
-            justifyContent: "space-between",
-            flexWrap: "wrap",
-            gap: "16px",
-            borderBottom: "1px solid rgba(255,255,255,0.08)",
-            paddingBottom: "20px",
-          }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: "16px", borderBottom: "1px solid rgba(255,255,255,0.08)", paddingBottom: "20px" }}>
             <div>
-              <h1 style={{ fontSize: "28px", fontWeight: 600, letterSpacing: "-0.02em", margin: 0 }}>
-                VR<span style={{ color: "#c9a84c" }}>.</span>OPTICS
-              </h1>
+              <h1 style={{ fontSize: "28px", fontWeight: 600, letterSpacing: "-0.02em", margin: 0 }}>VR<span style={{ color: "#c9a84c" }}>.</span>OPTICS</h1>
               <p style={{ fontSize: "13px", color: "rgba(255,255,255,0.5)", margin: "4px 0 0 0" }}>Virtual Try-On Experience</p>
             </div>
-            <button 
-              onClick={() => setIsFavorite(!isFavorite)}
-              style={{
-                background: "rgba(255,255,255,0.05)",
-                border: "1px solid rgba(255,255,255,0.1)",
-                borderRadius: "40px",
-                padding: "10px 20px",
-                color: isFavorite ? "#c9a84c" : "rgba(255,255,255,0.7)",
-                fontSize: "14px",
-                fontWeight: 500,
-                cursor: "pointer",
-                display: "flex",
-                alignItems: "center",
-                gap: "8px",
-              }}
-            >
+            <button onClick={() => setIsFavorite(!isFavorite)} style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "40px", padding: "10px 20px", color: isFavorite ? "#c9a84c" : "rgba(255,255,255,0.7)", fontSize: "14px", fontWeight: 500, cursor: "pointer", display: "flex", alignItems: "center", gap: "8px" }}>
               <span>{isFavorite ? "❤️" : "🤍"}</span> Add to Favorite Products
             </button>
           </div>
@@ -521,70 +447,18 @@ const TryOn = () => {
           <div style={{ display: "flex", flexWrap: "wrap", gap: "24px" }}>
             {/* Camera Column */}
             <div style={{ flex: "2", minWidth: "300px" }}>
-              <div style={{ 
-                background: "rgba(255,255,255,0.02)",
-                borderRadius: "28px",
-                border: "1px solid rgba(255,255,255,0.08)",
-                overflow: "hidden",
-              }}>
-                <div 
-                  className="zoom-resistant-container"
-                  style={{ 
-                    position: "relative", 
-                    width: "640px", 
-                    height: "480px", 
-                    background: "#000",
-                    margin: "0 auto",
-                    transformOrigin: "top left",
-                  }}
-                >
+              <div style={{ background: "rgba(255,255,255,0.02)", borderRadius: "28px", border: "1px solid rgba(255,255,255,0.08)", overflow: "hidden" }}>
+                <div className="zoom-resistant-container" style={{ position: "relative", width: "640px", height: "480px", background: "#000", margin: "0 auto", transformOrigin: "top left" }}>
                   {!cameraReady && (
-                    <div style={{
-                      position: "absolute",
-                      inset: 0,
-                      background: "#0a0a0c",
-                      display: "flex",
-                      flexDirection: "column",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      zIndex: 20,
-                      gap: "16px",
-                    }}>
+                    <div style={{ position: "absolute", inset: 0, background: "#0a0a0c", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", zIndex: 20, gap: "16px" }}>
                       <div style={{ width: "48px", height: "48px", borderRadius: "50%", border: "2px solid rgba(201,168,76,0.3)", borderTop: "2px solid #c9a84c", animation: "spin 1s linear infinite" }} />
                       <p style={{ color: "rgba(255,255,255,0.6)", fontSize: "13px" }}>Initializing camera...</p>
                     </div>
                   )}
                   <video ref={videoRef} style={{ display: "none" }} autoPlay playsInline muted />
-                  <canvas 
-                    ref={canvasRef} 
-                    width={640} 
-                    height={480} 
-                    style={{ 
-                      width: "640px", 
-                      height: "480px", 
-                      objectFit: "cover",
-                      display: "block",
-                    }} 
-                  />
-                  <canvas 
-                    ref={threeCanvasRef} 
-                    width={640} 
-                    height={480} 
-                    style={{ 
-                      position: "absolute", 
-                      inset: 0, 
-                      width: "640px", 
-                      height: "480px", 
-                      pointerEvents: "none", 
-                      opacity: is3D ? 1 : 0,
-                      display: "block",
-                    }} 
-                  />
-                  {glbLoading && (
-                    <div style={{ position: "absolute", bottom: "16px", right: "16px", background: "rgba(0,0,0,0.7)", padding: "6px 12px", borderRadius: "20px", fontSize: "11px" }}>
-                      Loading 3D...
-                    </div>
-                  )}
+                  <canvas ref={canvasRef} width={640} height={480} style={{ width: "640px", height: "480px", objectFit: "cover", display: "block" }} />
+                  <canvas ref={threeCanvasRef} width={640} height={480} style={{ position: "absolute", inset: 0, width: "640px", height: "480px", pointerEvents: "none", opacity: is3D ? 1 : 0, display: "block" }} />
+                  {glbLoading && <div style={{ position: "absolute", bottom: "16px", right: "16px", background: "rgba(0,0,0,0.7)", padding: "6px 12px", borderRadius: "20px", fontSize: "11px" }}>Loading 3D...</div>}
                 </div>
                 
                 {/* Product Info Bar */}
@@ -604,17 +478,7 @@ const TryOn = () => {
             </div>
 
             {/* Controls Column */}
-            <div style={{ 
-              flex: "1.2",
-              minWidth: "280px",
-              background: "rgba(255,255,255,0.02)",
-              borderRadius: "28px",
-              border: "1px solid rgba(255,255,255,0.08)",
-              padding: "24px",
-              display: "flex",
-              flexDirection: "column",
-              gap: "28px",
-            }}>
+            <div style={{ flex: "1.2", minWidth: "280px", background: "rgba(255,255,255,0.02)", borderRadius: "28px", border: "1px solid rgba(255,255,255,0.08)", padding: "24px", display: "flex", flexDirection: "column", gap: "28px" }}>
               {/* Size Selection */}
               <div>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
@@ -624,20 +488,7 @@ const TryOn = () => {
                 
                 <div style={{ display: "flex", gap: "12px", flexWrap: "wrap" }}>
                   {glasses.sizes.map(size => (
-                    <button
-                      key={size.label}
-                      onClick={() => setSelectedSize(size.label)}
-                      style={{
-                        minWidth: "70px",
-                        padding: "12px 8px",
-                        borderRadius: "20px",
-                        background: selectedSize === size.label ? "#c9a84c" : "rgba(255,255,255,0.05)",
-                        border: selectedSize === size.label ? "none" : "1px solid rgba(255,255,255,0.1)",
-                        color: selectedSize === size.label ? "#000" : "rgba(255,255,255,0.7)",
-                        cursor: "pointer",
-                        textAlign: "center",
-                      }}
-                    >
+                    <button key={size.label} onClick={() => setSelectedSize(size.label)} style={{ minWidth: "70px", padding: "12px 8px", borderRadius: "20px", background: selectedSize === size.label ? "#c9a84c" : "rgba(255,255,255,0.05)", border: selectedSize === size.label ? "none" : "1px solid rgba(255,255,255,0.1)", color: selectedSize === size.label ? "#000" : "rgba(255,255,255,0.7)", cursor: "pointer", textAlign: "center" }}>
                       <div style={{ fontSize: "16px", fontWeight: 600 }}>{size.label}</div>
                       <div style={{ fontSize: "9px", opacity: 0.8 }}>{size.width}×{size.height}mm</div>
                     </button>
@@ -645,24 +496,13 @@ const TryOn = () => {
                 </div>
                 
                 {currentSizeData && (
-                  <div style={{ 
-                    marginTop: "12px", 
-                    padding: "12px", 
-                    background: "rgba(255,255,255,0.03)", 
-                    borderRadius: "16px", 
-                    fontSize: "11px", 
-                    color: "rgba(255,255,255,0.5)",
-                  }}>
+                  <div style={{ marginTop: "12px", padding: "12px", background: "rgba(255,255,255,0.03)", borderRadius: "16px", fontSize: "11px", color: "rgba(255,255,255,0.5)" }}>
                     <div style={{ display: "flex", justifyContent: "space-between" }}>
                       <span>Lens: <strong style={{ color: "#c9a84c" }}>{currentSizeData.width}×{currentSizeData.height}mm</strong></span>
                       <span>Bridge: <strong style={{ color: "#c9a84c" }}>{currentSizeData.bridge}mm</strong></span>
                     </div>
-                    <div style={{ marginTop: "8px", fontSize: "10px", textAlign: "center", color: "#c9a84c", fontWeight: 500 }}>
-                      🔒 FIXED SIZE — Does NOT change with distance
-                    </div>
-                    <div style={{ marginTop: "4px", fontSize: "9px", textAlign: "center", color: "rgba(255,255,255,0.3)" }}>
-                      Screen size: {currentSizeData.pxWidth}×{currentSizeData.pxHeight}px (constant)
-                    </div>
+                    <div style={{ marginTop: "8px", fontSize: "10px", textAlign: "center", color: "#c9a84c", fontWeight: 500 }}>🔒 FIXED SIZE — Does NOT change with distance</div>
+                    <div style={{ marginTop: "4px", fontSize: "9px", textAlign: "center", color: "rgba(255,255,255,0.3)" }}>Screen size: {currentSizeData.pxWidth}×{currentSizeData.pxHeight}px (constant)</div>
                   </div>
                 )}
               </div>
@@ -672,27 +512,8 @@ const TryOn = () => {
                 <div style={{ fontSize: "13px", fontWeight: 600, letterSpacing: "1px", color: "rgba(255,255,255,0.6)", marginBottom: "16px" }}>COLOR</div>
                 <div style={{ display: "flex", gap: "16px", flexWrap: "wrap" }}>
                   {COLOR_OPTIONS.map(color => (
-                    <button
-                      key={color.name}
-                      onClick={() => setSelectedColor(color)}
-                      style={{
-                        display: "flex",
-                        flexDirection: "column",
-                        alignItems: "center",
-                        gap: "8px",
-                        background: "none",
-                        border: "none",
-                        cursor: "pointer",
-                      }}
-                    >
-                      <div style={{
-                        width: "48px",
-                        height: "48px",
-                        borderRadius: "48px",
-                        background: color.value,
-                        border: selectedColor.name === color.name ? "2px solid #c9a84c" : "1px solid rgba(255,255,255,0.2)",
-                        boxShadow: selectedColor.name === color.name ? "0 0 0 2px rgba(201,168,76,0.3)" : "none",
-                      }} />
+                    <button key={color.name} onClick={() => setSelectedColor(color)} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "8px", background: "none", border: "none", cursor: "pointer" }}>
+                      <div style={{ width: "48px", height: "48px", borderRadius: "48px", background: color.value, border: selectedColor.name === color.name ? "2px solid #c9a84c" : "1px solid rgba(255,255,255,0.2)", boxShadow: selectedColor.name === color.name ? "0 0 0 2px rgba(201,168,76,0.3)" : "none" }} />
                       <span style={{ fontSize: "11px", color: "rgba(255,255,255,0.6)" }}>{color.name}</span>
                       <span style={{ fontSize: "10px", color: "rgba(255,255,255,0.3)" }}>{color.code}</span>
                     </button>
@@ -704,18 +525,7 @@ const TryOn = () => {
               <div>
                 <div style={{ fontSize: "13px", fontWeight: 600, letterSpacing: "1px", color: "rgba(255,255,255,0.6)", marginBottom: "16px" }}>IMPROVE FIT</div>
                 <div style={{ display: "flex", gap: "12px", flexWrap: "wrap" }}>
-                  <button 
-                    onClick={() => setShowArms(!showArms)}
-                    style={{
-                      background: "rgba(255,255,255,0.05)",
-                      border: "1px solid rgba(255,255,255,0.1)",
-                      borderRadius: "30px",
-                      padding: "10px 20px",
-                      fontSize: "13px",
-                      color: "rgba(255,255,255,0.8)",
-                      cursor: "pointer",
-                    }}
-                  >
+                  <button onClick={() => setShowArms(!showArms)} style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "30px", padding: "10px 20px", fontSize: "13px", color: "rgba(255,255,255,0.8)", cursor: "pointer" }}>
                     {showArms ? "Hide Arms" : "Show Arms"}
                   </button>
                 </div>
@@ -736,15 +546,7 @@ const TryOn = () => {
                         <span>{label}</span>
                         <span style={{ color: "#c9a84c" }}>{fmt(curAdj[key])}</span>
                       </div>
-                      <input 
-                        type="range" 
-                        min={min} 
-                        max={max} 
-                        step={step} 
-                        value={curAdj[key]} 
-                        onChange={e => setAdjustments(prev => ({ ...prev, [glasses.id]: { ...prev[glasses.id], [key]: Number(e.target.value) } }))}
-                        style={{ width: "100%", height: "3px", background: "rgba(255,255,255,0.2)", borderRadius: "3px" }}
-                      />
+                      <input type="range" min={min} max={max} step={step} value={curAdj[key]} onChange={e => setAdjustments(prev => ({ ...prev, [glasses.id]: { ...prev[glasses.id], [key]: Number(e.target.value) } }))} style={{ width: "100%", height: "3px", background: "rgba(255,255,255,0.2)", borderRadius: "3px" }} />
                     </div>
                   ))}
                 </div>
@@ -753,71 +555,23 @@ const TryOn = () => {
               {/* Upload Image */}
               <div>
                 <div style={{ fontSize: "13px", fontWeight: 600, letterSpacing: "1px", color: "rgba(255,255,255,0.6)", marginBottom: "16px" }}>UPLOAD IMAGE</div>
-                <label style={{
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  gap: "8px",
-                  background: "rgba(255,255,255,0.03)",
-                  border: "1px dashed rgba(255,255,255,0.2)",
-                  borderRadius: "20px",
-                  padding: "14px",
-                  cursor: "pointer",
-                  fontSize: "13px",
-                  color: "rgba(255,255,255,0.6)",
-                }}>
+                <label style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "8px", background: "rgba(255,255,255,0.03)", border: "1px dashed rgba(255,255,255,0.2)", borderRadius: "20px", padding: "14px", cursor: "pointer", fontSize: "13px", color: "rgba(255,255,255,0.6)" }}>
                   📷 Upload Photo for Face Detection
                   <input type="file" accept="image/*" style={{ display: "none" }} />
                 </label>
               </div>
 
               {/* Capture Button */}
-              <button 
-                onClick={capturePhoto}
-                style={{
-                  width: "100%",
-                  background: "linear-gradient(135deg, #c9a84c, #b8922e)",
-                  border: "none",
-                  borderRadius: "40px",
-                  padding: "14px",
-                  fontSize: "14px",
-                  fontWeight: 600,
-                  color: "#000",
-                  cursor: "pointer",
-                }}
-              >
-                📸 Capture Look
-              </button>
+              <button onClick={capturePhoto} style={{ width: "100%", background: "linear-gradient(135deg, #c9a84c, #b8922e)", border: "none", borderRadius: "40px", padding: "14px", fontSize: "14px", fontWeight: 600, color: "#000", cursor: "pointer" }}>📸 Capture Look</button>
             </div>
           </div>
 
           {/* Frame Selection Row */}
-          <div style={{ 
-            background: "rgba(255,255,255,0.02)",
-            borderRadius: "28px",
-            border: "1px solid rgba(255,255,255,0.08)",
-            padding: "20px",
-          }}>
-            <div style={{ fontSize: "13px", fontWeight: 600, letterSpacing: "1px", color: "rgba(255,255,255,0.6)", marginBottom: "16px" }}>
-              TRY OTHER STYLES
-            </div>
+          <div style={{ background: "rgba(255,255,255,0.02)", borderRadius: "28px", border: "1px solid rgba(255,255,255,0.08)", padding: "20px" }}>
+            <div style={{ fontSize: "13px", fontWeight: 600, letterSpacing: "1px", color: "rgba(255,255,255,0.6)", marginBottom: "16px" }}>TRY OTHER STYLES</div>
             <div style={{ display: "flex", gap: "16px", overflowX: "auto", paddingBottom: "8px" }}>
               {GLASS_OPTIONS.map(g => (
-                <button
-                  key={g.id}
-                  onClick={() => {
-                    setGlasses(g);
-                    setSelectedSize(g.defaultSize);
-                  }}
-                  style={{
-                    minWidth: "100px",
-                    background: glasses.id === g.id ? "rgba(201,168,76,0.15)" : "rgba(255,255,255,0.03)",
-                    border: glasses.id === g.id ? "1px solid #c9a84c" : "1px solid rgba(255,255,255,0.08)",
-                    borderRadius: "20px",
-                    padding: "12px",
-                    cursor: "pointer",
-                  }}
-                >
+                <button key={g.id} onClick={() => { setGlasses(g); setSelectedSize(g.defaultSize); }} style={{ minWidth: "100px", background: glasses.id === g.id ? "rgba(201,168,76,0.15)" : "rgba(255,255,255,0.03)", border: glasses.id === g.id ? "1px solid #c9a84c" : "1px solid rgba(255,255,255,0.08)", borderRadius: "20px", padding: "12px", cursor: "pointer" }}>
                   <div style={{ fontSize: "28px", marginBottom: "8px" }}>{g.emoji}</div>
                   <div style={{ fontSize: "13px", fontWeight: 500 }}>{g.name}</div>
                   <div style={{ fontSize: "11px", color: "#c9a84c" }}>{g.price}</div>
@@ -828,39 +582,17 @@ const TryOn = () => {
         </div>
 
         <style>{`
-          @keyframes spin {
-            to { transform: rotate(360deg); }
-          }
+          @keyframes spin { to { transform: rotate(360deg); } }
           ::-webkit-scrollbar { width: 6px; height: 6px; }
           ::-webkit-scrollbar-track { background: rgba(255,255,255,0.05); border-radius: 10px; }
           ::-webkit-scrollbar-thumb { background: rgba(201,168,76,0.5); border-radius: 10px; }
           input[type="range"] { -webkit-appearance: none; }
-          input[type="range"]::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            width: 14px; height: 14px;
-            border-radius: 50%;
-            background: #c9a84c;
-            cursor: pointer;
-          }
+          input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 14px; height: 14px; border-radius: 50%; background: #c9a84c; cursor: pointer; }
           button { transition: all 0.2s ease; }
           button:hover { transform: scale(0.98); opacity: 0.9; }
-          
-          .zoom-resistant-container {
-            zoom: reset;
-            -moz-transform: scale(1);
-            -webkit-transform: scale(1);
-            transform: scale(1);
-          }
-          
-          canvas {
-            zoom: 1;
-            image-rendering: crisp-edges;
-          }
-          
-          body {
-            text-size-adjust: 100%;
-            -webkit-text-size-adjust: 100%;
-          }
+          .zoom-resistant-container { zoom: reset; -moz-transform: scale(1); -webkit-transform: scale(1); transform: scale(1); }
+          canvas { zoom: 1; image-rendering: crisp-edges; }
+          body { text-size-adjust: 100%; -webkit-text-size-adjust: 100%; }
         `}</style>
       </div>
     </>

@@ -111,7 +111,7 @@ const LANDMARKS = {
 };
 
 class LandmarkSmoother {
-  constructor(alpha = 0.6) {
+  constructor(alpha = 0.7) {
     this.alpha = alpha;
     this.prev = null;
   }
@@ -131,16 +131,15 @@ class LandmarkSmoother {
 }
 
 // ══════════════════════════════════════════════════════════════════
-// ── FACE GEOMETRY EXTRACTOR - GETS FACE POSITION ONLY ──
+// ── FACE GEOMETRY EXTRACTOR - GETS FACE POSITION ONLY (NO SIZE) ──
 // ══════════════════════════════════════════════════════════════════
 function extractFaceGeometry(lm, W, H) {
-  const px = (idx) => ({ x: lm[idx].x * W, y: lm[idx].y * H, z: lm[idx].z });
+  const px = (idx) => ({ x: lm[idx].x * W, y: lm[idx].y * H });
   const avgPx = (indices) => {
     const pts = indices.map(i => px(i));
     return {
       x: pts.reduce((s, p) => s + p.x, 0) / pts.length,
       y: pts.reduce((s, p) => s + p.y, 0) / pts.length,
-      z: pts.reduce((s, p) => s + p.z, 0) / pts.length,
     };
   };
 
@@ -149,12 +148,12 @@ function extractFaceGeometry(lm, W, H) {
   const leftBrowLower = avgPx(LANDMARKS.LEFT_EYEBROW_LOWER);
   const rightBrowLower = avgPx(LANDMARKS.RIGHT_EYEBROW_LOWER);
 
-  // Rotation angle
+  // Rotation angle only - no size scaling
   const angleIris = Math.atan2(rightIris.y - leftIris.y, rightIris.x - leftIris.x);
   const angleBrow = Math.atan2(rightBrowLower.y - leftBrowLower.y, rightBrowLower.x - leftBrowLower.x);
   const angle = angleIris * 0.6 + angleBrow * 0.4;
 
-  // Center position between eyes (this is what tracks the face)
+  // Center position between eyes
   const centerX = (leftIris.x + rightIris.x) / 2;
   const browCenterY = (leftBrowLower.y + rightBrowLower.y) / 2;
   const irisCenterY = (leftIris.y + rightIris.y) / 2;
@@ -231,7 +230,7 @@ const TryOn = () => {
   const [isFavorite, setIsFavorite] = useState(false);
   
   const cameraReadyRef = useRef(false);
-  const smootherRef = useRef(new LandmarkSmoother(0.6));
+  const smootherRef = useRef(new LandmarkSmoother(0.7));
 
   const is3D = glasses.id === "__3D__";
   const currentSizeData = glasses.sizes.find(s => s.label === selectedSize) || glasses.sizes[1];
@@ -251,7 +250,6 @@ const TryOn = () => {
   const is3DRef = useRef(false);
   const adjRef = useRef(adjustments);
   const showArmsRef = useRef(showArms);
-  const sizeRef = useRef(currentSizeData);
 
   useEffect(() => { brightnessRef.current = brightness; }, [brightness]);
   useEffect(() => { contrastRef.current = contrast; }, [contrast]);
@@ -260,36 +258,29 @@ const TryOn = () => {
   useEffect(() => { is3DRef.current = glasses.id === "__3D__"; }, [glasses]);
   useEffect(() => { adjRef.current = adjustments; }, [adjustments]);
   useEffect(() => { showArmsRef.current = showArms; }, [showArms]);
-  useEffect(() => { 
-    sizeRef.current = currentSizeData;
-  }, [selectedSize, currentSizeData]);
 
   const curAdj = adjustments[glasses.id] || DEFAULT_ADJ;
 
-  // FIXED SIZE - Does NOT change with zoom or face distance
-  // These are the actual pixel dimensions that remain constant
-  const FIXED_GLASSES_WIDTH_PX = 180;
-  const FIXED_GLASSES_HEIGHT_PX = 65;
-
-  // Get the fixed pixel size based on selected size (different sizes have different fixed dimensions)
+  // COMPLETELY FIXED SIZE - Does NOT change with zoom, distance, or face size
+  // These are constant pixel dimensions that never change
   const getFixedGlassesSize = useCallback(() => {
-    // Base size is M (135mm width)
+    // Base fixed size for M (optimal for 640x480 camera view)
+    const baseFixedWidth = 165;
+    const baseFixedHeight = 60;
+    
+    // Scale based on selected size only (S, M, L, XL)
     const baseWidthMm = 135;
-    const baseHeightMm = 48;
     const selectedWidthMm = currentSizeData?.width || 135;
     const selectedHeightMm = currentSizeData?.height || 48;
+    const baseHeightMm = 48;
     
-    // Scale factor based on actual product dimensions
-    const widthScale = selectedWidthMm / baseWidthMm;
-    const heightScale = selectedHeightMm / baseHeightMm;
-    
-    // Fixed base pixel size (optimized for 640x480 camera view)
-    const baseFixedWidth = 160;
-    const baseFixedHeight = 58;
+    // Size multiplier based on actual product dimensions
+    const widthMultiplier = selectedWidthMm / baseWidthMm;
+    const heightMultiplier = selectedHeightMm / baseHeightMm;
     
     return {
-      width: baseFixedWidth * widthScale,
-      height: baseFixedHeight * heightScale
+      width: baseFixedWidth * widthMultiplier,
+      height: baseFixedHeight * heightMultiplier
     };
   }, [currentSizeData]);
 
@@ -424,13 +415,14 @@ const TryOn = () => {
         if (is3DRef.current) {
           const model = glassModel3dRef.current;
           if (model && rendererRef.current && sceneRef.current && cameraRef.current) {
+            // Only update position, NOT scale (fixed size)
             model.position.x = smoothed.cx - W / 2;
             model.position.y = -(smoothed.cy - H / 2);
-            // Fixed scale for 3D model based on selected size
-            const sizeData = sizeRef.current;
+            // Fixed scale based on selected size only - NEVER changes with distance
+            const sizeData = currentSizeData;
             const baseScale = 0.28;
-            const scale3D = baseScale * (sizeData?.width / 135);
-            model.scale.setScalar(scale3D);
+            const fixedScale = baseScale * (sizeData?.width / 135);
+            model.scale.setScalar(fixedScale);
             model.rotation.z = -smoothed.angle;
             rendererRef.current.render(sceneRef.current, cameraRef.current);
           }
@@ -439,13 +431,14 @@ const TryOn = () => {
           if (!img.complete || !img.src) return;
           const adj = adjRef.current[glassesRef.current.id] || DEFAULT_ADJ;
           
-          // FIXED SIZE - does NOT change with zoom or face distance
+          // COMPLETELY FIXED SIZE - does NOT change with zoom, distance, or depth
           const fixedSize = getFixedGlassesSize();
           
           // Apply user adjustments to fixed size
           const w = fixedSize.width * adj.scaleW;
           const h = fixedSize.height * adj.scaleH;
           const finalAngle = smoothed.angle + (adj.rotate * Math.PI / 180);
+          // Position tracks the face, size stays constant
           const fx = smoothed.cx + adj.offsetX;
           const fy = smoothed.cy + adj.offsetY;
           
@@ -470,7 +463,7 @@ const TryOn = () => {
       };
     };
     loadMediaPipe();
-  }, [getFixedGlassesSize]);
+  }, [getFixedGlassesSize, currentSizeData]);
 
   useEffect(() => {
     if (!is3D && imgRef.current) {
@@ -617,7 +610,7 @@ const TryOn = () => {
             flexDirection: "column",
             gap: "28px",
           }}>
-            {/* Size Selection - Fixed sizes that don't scale with face */}
+            {/* Size Selection */}
             <div>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
                 <span style={{ fontSize: "13px", fontWeight: 600, letterSpacing: "1px", color: "rgba(255,255,255,0.6)" }}>SIZE</span>
@@ -660,8 +653,8 @@ const TryOn = () => {
                     <span>Lens Height: <strong style={{ color: "#c9a84c" }}>{currentSizeData.height}mm</strong></span>
                     <span>Bridge: <strong style={{ color: "#c9a84c" }}>{currentSizeData.bridge}mm</strong></span>
                   </div>
-                  <div style={{ marginTop: "8px", fontSize: "10px", textAlign: "center", color: "rgba(255,255,255,0.3)" }}>
-                    Frame size is fixed and does not change when you move closer/further
+                  <div style={{ marginTop: "8px", fontSize: "10px", textAlign: "center", color: "#c9a84c" }}>
+                    ✓ Frame size is FIXED - does NOT change when you move closer/further
                   </div>
                 </div>
               )}

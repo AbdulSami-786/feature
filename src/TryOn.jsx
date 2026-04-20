@@ -148,12 +148,10 @@ function extractFaceGeometry(lm, W, H) {
   const leftBrowLower = avgPx(LANDMARKS.LEFT_EYEBROW_LOWER);
   const rightBrowLower = avgPx(LANDMARKS.RIGHT_EYEBROW_LOWER);
 
-  // Rotation angle
   const angleIris = Math.atan2(rightIris.y - leftIris.y, rightIris.x - leftIris.x);
   const angleBrow = Math.atan2(rightBrowLower.y - leftBrowLower.y, rightBrowLower.x - leftBrowLower.x);
   const angle = angleIris * 0.6 + angleBrow * 0.4;
 
-  // Center position between eyes
   const centerX = (leftIris.x + rightIris.x) / 2;
   const browCenterY = (leftBrowLower.y + rightBrowLower.y) / 2;
   const irisCenterY = (leftIris.y + rightIris.y) / 2;
@@ -249,6 +247,9 @@ const TryOn = () => {
   const adjRef = useRef(adjustments);
   const showArmsRef = useRef(showArms);
 
+  // Snapshot of fixed size kept in a ref so the render loop always reads the latest
+  const fixedSizeRef = useRef({ width: currentSizeData.pxWidth, height: currentSizeData.pxHeight });
+
   useEffect(() => { brightnessRef.current = brightness; }, [brightness]);
   useEffect(() => { contrastRef.current = contrast; }, [contrast]);
   useEffect(() => { saturateRef.current = saturate; }, [saturate]);
@@ -257,15 +258,20 @@ const TryOn = () => {
   useEffect(() => { adjRef.current = adjustments; }, [adjustments]);
   useEffect(() => { showArmsRef.current = showArms; }, [showArms]);
 
+  // Keep fixedSizeRef in sync with selected size — the ONLY thing that changes frame size
+  useEffect(() => {
+    fixedSizeRef.current = {
+      width: currentSizeData.pxWidth,
+      height: currentSizeData.pxHeight,
+    };
+  }, [currentSizeData]);
+
   const curAdj = adjustments[glasses.id] || DEFAULT_ADJ;
 
-  // FIXED PIXEL SIZE - NEVER CHANGES, regardless of zoom or distance
+  // Returns the current fixed pixel size (never affected by zoom / face distance)
   const getFixedGlassesSize = useCallback(() => {
-    // Use predefined pixel sizes for each frame size
-    const pxWidth = currentSizeData?.pxWidth || 158;
-    const pxHeight = currentSizeData?.pxHeight || 56;
-    return { width: pxWidth, height: pxHeight };
-  }, [currentSizeData]);
+    return { width: fixedSizeRef.current.width, height: fixedSizeRef.current.height };
+  }, []);
 
   // 3D Scene
   useEffect(() => {
@@ -398,11 +404,10 @@ const TryOn = () => {
         if (is3DRef.current) {
           const model = glassModel3dRef.current;
           if (model && rendererRef.current && sceneRef.current && cameraRef.current) {
-            // Only update position - scale is FIXED
+            // Position tracks face; scale is FIXED by selected size only
             model.position.x = smoothed.cx - W / 2;
             model.position.y = -(smoothed.cy - H / 2);
-            // FIXED scale based on selected size only
-            const fixedScale = 0.28 * (currentSizeData?.width / 135);
+            const fixedScale = 0.28 * (fixedSizeRef.current.width / 162);
             model.scale.setScalar(fixedScale);
             model.rotation.z = -smoothed.angle;
             rendererRef.current.render(sceneRef.current, cameraRef.current);
@@ -412,14 +417,11 @@ const TryOn = () => {
           if (!img.complete || !img.src) return;
           const adj = adjRef.current[glassesRef.current.id] || DEFAULT_ADJ;
           
-          // FIXED SIZE - never changes with zoom or distance
+          // FIXED pixel size — never changes with zoom or face distance
           const fixedSize = getFixedGlassesSize();
-          
-          // Apply user adjustments
           const w = fixedSize.width * adj.scaleW;
           const h = fixedSize.height * adj.scaleH;
           const finalAngle = smoothed.angle + (adj.rotate * Math.PI / 180);
-          // Position tracks the face
           const fx = smoothed.cx + adj.offsetX;
           const fy = smoothed.cy + adj.offsetY;
           
@@ -444,7 +446,7 @@ const TryOn = () => {
       };
     };
     loadMediaPipe();
-  }, [getFixedGlassesSize, currentSizeData]);
+  }, [getFixedGlassesSize]);
 
   useEffect(() => {
     if (!is3D && imgRef.current) {
@@ -634,7 +636,7 @@ const TryOn = () => {
                     <span>Bridge: <strong style={{ color: "#c9a84c" }}>{currentSizeData.bridge}mm</strong></span>
                   </div>
                   <div style={{ marginTop: "8px", fontSize: "10px", textAlign: "center", color: "#c9a84c", fontWeight: 500 }}>
-                    🔒 FIXED SIZE - Does NOT change when you zoom in/out
+                    🔒 FIXED SIZE — Does NOT change when you zoom in/out
                   </div>
                   <div style={{ marginTop: "4px", fontSize: "9px", textAlign: "center", color: "rgba(255,255,255,0.3)" }}>
                     Screen size: {currentSizeData.pxWidth}×{currentSizeData.pxHeight}px (constant)
@@ -807,36 +809,19 @@ const TryOn = () => {
         @keyframes spin {
           to { transform: rotate(360deg); }
         }
-        ::-webkit-scrollbar {
-          width: 6px;
-          height: 6px;
-        }
-        ::-webkit-scrollbar-track {
-          background: rgba(255,255,255,0.05);
-          border-radius: 10px;
-        }
-        ::-webkit-scrollbar-thumb {
-          background: rgba(201,168,76,0.5);
-          border-radius: 10px;
-        }
-        input[type="range"] {
-          -webkit-appearance: none;
-        }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: rgba(255,255,255,0.05); border-radius: 10px; }
+        ::-webkit-scrollbar-thumb { background: rgba(201,168,76,0.5); border-radius: 10px; }
+        input[type="range"] { -webkit-appearance: none; }
         input[type="range"]::-webkit-slider-thumb {
           -webkit-appearance: none;
-          width: 14px;
-          height: 14px;
+          width: 14px; height: 14px;
           border-radius: 50%;
           background: #c9a84c;
           cursor: pointer;
         }
-        button {
-          transition: all 0.2s ease;
-        }
-        button:hover {
-          transform: scale(0.98);
-          opacity: 0.9;
-        }
+        button { transition: all 0.2s ease; }
+        button:hover { transform: scale(0.98); opacity: 0.9; }
       `}</style>
     </div>
   );

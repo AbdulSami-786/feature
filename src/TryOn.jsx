@@ -280,15 +280,7 @@ const TryOn = () => {
   const cameraReadyRef = useRef(false);
 
   // --- Size selection state ---
-  const [selectedSizeKey, setSelectedSizeKey] = useState("M");
-
-  // ── NEW: per-axis size scale (width & height multipliers) ──
-  const [sizeScaleW, setSizeScaleW] = useState(1.0);
-  const [sizeScaleH, setSizeScaleH] = useState(1.0);
-  const sizeScaleWRef = useRef(1.0);
-  const sizeScaleHRef = useRef(1.0);
-  useEffect(() => { sizeScaleWRef.current = sizeScaleW; }, [sizeScaleW]);
-  useEffect(() => { sizeScaleHRef.current = sizeScaleH; }, [sizeScaleH]);
+  const [selectedSizeKey, setSelectedSizeKey] = useState("M"); // "S", "M", "L", "XL"
 
   // Helper: get scale multiplier for current glass and selected size
   const getCurrentSizeScale = useCallback(() => {
@@ -395,7 +387,7 @@ const TryOn = () => {
     };
   }, [is3D]);
 
-  // FaceMesh and main loop
+  // FaceMesh and main loop (with size multiplier applied)
   useEffect(() => {
     const faceMesh = new window.FaceMesh({
       locateFile: f => `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${f}`,
@@ -437,17 +429,13 @@ const TryOn = () => {
         angle: geo.angle, ds: geo.depthScale,
       });
       
-      // --- Obtain current size multiplier (S/M/L/XL) ---
+      // --- Obtain current size multiplier ---
       const currentGlassObj = GLASS_OPTIONS.find(g => g.id === glassesRef.current);
       let sizeScale = 1.0;
       if (currentGlassObj && currentGlassObj.sizes) {
         const sizeObj = currentGlassObj.sizes.find(s => s.label === selectedSizeKey);
         if (sizeObj) sizeScale = sizeObj.scale;
       }
-
-      // --- Combine S/M/L/XL scale with per-axis W & H scale ---
-      const finalScaleW = sizeScale * sizeScaleWRef.current;
-      const finalScaleH = sizeScale * sizeScaleHRef.current;
       
       if (_is3D) {
         const model = glassModel3dRef.current;
@@ -455,13 +443,9 @@ const TryOn = () => {
         if (model && r && s && c) {
           model.position.x = smoothed.cx - W / 2;
           model.position.y = -(smoothed.cy - H / 2);
-          // For 3D, apply uniform base scale then non-uniform W/H via model.scale
-          const base3D = (smoothed.gw * smoothed.ds) / modelWidthRef.current;
-          model.scale.set(
-            base3D * finalScaleW,
-            base3D * finalScaleH,
-            base3D * sizeScale
-          );
+          let scale3D = (smoothed.gw * smoothed.ds) / modelWidthRef.current;
+          scale3D *= sizeScale;  // apply size multiplier
+          model.scale.setScalar(scale3D);
           model.rotation.z = -smoothed.angle;
           r.render(s, c);
         }
@@ -469,9 +453,10 @@ const TryOn = () => {
         const img = imgRef.current;
         if (!img.complete || !img.src) return;
         const adj = adjRef.current[glassesRef.current] || DEFAULT_ADJ;
-        // Apply per-axis size scales on top of adj scales
-        let w = smoothed.gw * adj.scaleW * smoothed.ds * finalScaleW;
-        let h = smoothed.gh * adj.scaleH * smoothed.ds * finalScaleH;
+        let w = smoothed.gw * adj.scaleW * smoothed.ds;
+        let h = smoothed.gh * adj.scaleH * smoothed.ds;
+        w *= sizeScale;   // apply size multiplier
+        h *= sizeScale;
         const finalAngle = smoothed.angle + (adj.rotate * Math.PI / 180);
         const fx = smoothed.cx + adj.offsetX;
         const fy = smoothed.cy + adj.offsetY;
@@ -487,7 +472,7 @@ const TryOn = () => {
       }
     }
     return () => { if (faceMesh) faceMesh.close(); };
-  }, [selectedSizeKey]);
+  }, [selectedSizeKey]); // re-run effect when size changes (ensures smoother closure captures latest size)
 
   useEffect(() => {
     if (!is3D && imgRef.current) {
@@ -505,6 +490,7 @@ const TryOn = () => {
     link.click();
   }, []);
 
+  // UI (unchanged except added size selector)
   const currentFrameSizes = GLASS_OPTIONS.find(g => g.id === glasses)?.sizes || [];
 
   return (
@@ -725,16 +711,14 @@ const TryOn = () => {
             </div>
           </div>
 
-          {/* ── FRAME SIZE: S/M/L/XL + Width & Height scale sliders ── */}
+          {/* --- New Size Selector UI --- */}
           {currentFrameSizes.length > 0 && (
             <div>
               <div style={{ fontSize: "11px", letterSpacing: "3px", color: "#c9a84c", marginBottom: "16px", fontWeight: 600, display: "flex", alignItems: "center", gap: "10px" }}>
                 <span style={{ width: "24px", height: "1px", background: "#c9a84c" }}></span>
                 FRAME SIZE
               </div>
-
-              {/* S / M / L / XL preset buttons */}
-              <div style={{ display: "flex", gap: "12px", justifyContent: "stretch", marginBottom: "20px" }}>
+              <div style={{ display: "flex", gap: "12px", justifyContent: "stretch" }}>
                 {currentFrameSizes.map(size => (
                   <button
                     key={size.label}
@@ -757,57 +741,6 @@ const TryOn = () => {
                     {size.label}
                   </button>
                 ))}
-              </div>
-
-              {/* ── Width & Height scale sliders ── */}
-              <div style={{ background: "rgba(0,0,0,0.25)", borderRadius: "20px", padding: "18px 20px", border: "0.5px solid rgba(201,168,76,0.12)" }}>
-                {/* Width scale */}
-                <div style={{ marginBottom: "18px" }}>
-                  <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "10px" }}>
-                    <span style={{ fontSize: "12px", color: "rgba(255,255,255,0.5)", fontWeight: 500 }}>↔ WIDTH SCALE</span>
-                    <span style={{ fontSize: "12px", color: "#c9a84c", fontWeight: 600 }}>{sizeScaleW.toFixed(2)}×</span>
-                  </div>
-                  <input
-                    type="range"
-                    min="0.3"
-                    max="2.5"
-                    step="0.01"
-                    value={sizeScaleW}
-                    onChange={e => setSizeScaleW(Number(e.target.value))}
-                    style={{ width: "100%", height: "4px", background: "rgba(201,168,76,0.2)", borderRadius: "4px" }}
-                  />
-                </div>
-
-                {/* Height scale */}
-                <div style={{ marginBottom: "4px" }}>
-                  <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "10px" }}>
-                    <span style={{ fontSize: "12px", color: "rgba(255,255,255,0.5)", fontWeight: 500 }}>↕ HEIGHT SCALE</span>
-                    <span style={{ fontSize: "12px", color: "#c9a84c", fontWeight: 600 }}>{sizeScaleH.toFixed(2)}×</span>
-                  </div>
-                  <input
-                    type="range"
-                    min="0.3"
-                    max="2.5"
-                    step="0.01"
-                    value={sizeScaleH}
-                    onChange={e => setSizeScaleH(Number(e.target.value))}
-                    style={{ width: "100%", height: "4px", background: "rgba(201,168,76,0.2)", borderRadius: "4px" }}
-                  />
-                </div>
-
-                {/* Reset W/H button */}
-                <div style={{ display: "flex", justifyContent: "flex-end", marginTop: "14px" }}>
-                  <button
-                    onClick={() => { setSizeScaleW(1.0); setSizeScaleH(1.0); }}
-                    style={{
-                      fontSize: "10px", fontWeight: 600, color: "#c9a84c",
-                      background: "rgba(201,168,76,0.1)", border: "0.5px solid rgba(201,168,76,0.3)",
-                      padding: "5px 16px", borderRadius: "100px", cursor: "pointer", transition: "all 0.2s"
-                    }}
-                  >
-                    RESET W/H
-                  </button>
-                </div>
               </div>
             </div>
           )}

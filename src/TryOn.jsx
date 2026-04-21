@@ -12,10 +12,10 @@ const GLASS_OPTIONS = [
   {
     id: "/glass1.png", name: "Classic", price: "PKR 4,500", emoji: "👓",
     sizes: [
-      { label: "S", scale: 0.85 },
-      { label: "M", scale: 1.0 },
-      { label: "L", scale: 1.15 },
-      { label: "XL", scale: 1.3 }
+      { label: "S", scale: 0.80 },
+      { label: "M", scale: 0.90 },
+      { label: "L", scale: 1 },
+      { label: "XL", scale: 1.1 }
     ]
   },
   {

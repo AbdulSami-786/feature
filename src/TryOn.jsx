@@ -7,251 +7,93 @@ const DEFAULT_ADJ = { scaleW: 1, scaleH: 1, offsetX: 0, offsetY: 8, rotate: 0 };
 const AVIATOR_ADJ = { scaleW: 1, scaleH: 1.18, offsetX: 0, offsetY: 18, rotate: 0 };
 const ROUND_ADJ   = { scaleW: 1, scaleH: 0.85, offsetX: 0, offsetY: 6, rotate: 0 };
 
-// Each frame now includes size options
 const GLASS_OPTIONS = [
-  {
-    id: "/glass1.png", name: "Classic", price: "PKR 4,500", emoji: "👓",
-    sizes: [
-      { label: "S", scale: 0.80 },
-      { label: "M", scale: 0.90 },
-      { label: "L", scale: 1 },
-      { label: "XL", scale: 1.1 }
-    ]
-  },
-  {
-    id: "/glass2.png", name: "Aviator", price: "PKR 5,200", emoji: "🕶️",
-    sizes: [
-      { label: "S", scale: 0.85 },
-      { label: "M", scale: 1.0 },
-      { label: "L", scale: 1.15 },
-      { label: "XL", scale: 1.3 }
-    ]
-  },
-  {
-    id: "/glass3.png", name: "Sport", price: "PKR 3,800", emoji: "🥽",
-    sizes: [
-      { label: "S", scale: 0.85 },
-      { label: "M", scale: 1.0 },
-      { label: "L", scale: 1.15 },
-      { label: "XL", scale: 1.3 }
-    ]
-  },
-  {
-    id: "/glass4.png", name: "Round", price: "PKR 4,900", emoji: "🪬",
-    sizes: [
-      { label: "S", scale: 0.85 },
-      { label: "M", scale: 1.0 },
-      { label: "L", scale: 1.15 },
-      { label: "XL", scale: 1.3 }
-    ]
-  },
-  {
-    id: "/glass5.png", name: "Wayfarer", price: "PKR 4,900", emoji: "🪬",
-    sizes: [
-      { label: "S", scale: 0.85 },
-      { label: "M", scale: 1.0 },
-      { label: "L", scale: 1.15 },
-      { label: "XL", scale: 1.3 }
-    ]
-  },
-  {
-    id: "/glass6.png", name: "Round", price: "PKR 4,900", emoji: "🪬",
-    sizes: [
-      { label: "S", scale: 0.85 },
-      { label: "M", scale: 1.0 },
-      { label: "L", scale: 1.15 },
-      { label: "XL", scale: 1.3 }
-    ]
-  },
-  {
-    id: "/glass7.png", name: "Round", price: "PKR 4,900", emoji: "🪬",
-    sizes: [
-      { label: "S", scale: 0.85 },
-      { label: "M", scale: 1.0 },
-      { label: "L", scale: 1.15 },
-      { label: "XL", scale: 1.3 }
-    ]
-  },
-  {
-    id: "/glass8.png", name: "Round", price: "PKR 4,900", emoji: "🪬",
-    sizes: [
-      { label: "S", scale: 0.85 },
-      { label: "M", scale: 1.0 },
-      { label: "L", scale: 1.15 },
-      { label: "XL", scale: 1.3 }
-    ]
-  },
-  {
-    id: "/glass9.png", name: "Round", price: "PKR 4,900", emoji: "🪬",
-    sizes: [
-      { label: "S", scale: 0.85 },
-      { label: "M", scale: 1.0 },
-      { label: "L", scale: 1.15 },
-      { label: "XL", scale: 1.3 }
-    ]
-  },
-  {
-    id: "/glass10.png", name: "Round", price: "PKR 4,900", emoji: "🪬",
-    sizes: [
-      { label: "S", scale: 0.85 },
-      { label: "M", scale: 1.0 },
-      { label: "L", scale: 1.15 },
-      { label: "XL", scale: 1.3 }
-    ]
-  },
-  {
-    id: "/glass11.png", name: "Round", price: "PKR 4,900", emoji: "🪬",
-    sizes: [
-      { label: "S", scale: 0.85 },
-      { label: "M", scale: 1.0 },
-      { label: "L", scale: 1.15 },
-      { label: "XL", scale: 1.3 }
-    ]
-  },
-  {
-    id: "/glass12.png", name: "Round", price: "PKR 4,900", emoji: "🪬",
-    sizes: [
-      { label: "S", scale: 0.85 },
-      { label: "M", scale: 1.0 },
-      { label: "L", scale: 1.15 },
-      { label: "XL", scale: 1.3 }
-    ]
-  },
-  {
-    id: "/glass13.png", name: "Round", price: "PKR 4,900", emoji: "🪬",
-    sizes: [
-      { label: "S", scale: 0.85 },
-      { label: "M", scale: 1.0 },
-      { label: "L", scale: 1.15 },
-      { label: "XL", scale: 1.3 }
-    ]
-  },
-  {
-    id: "/glass14.png", name: "Round", price: "PKR 4,900", emoji: "🪬",
-    sizes: [
-      { label: "S", scale: 0.85 },
-      { label: "M", scale: 1.0 },
-      { label: "L", scale: 1.15 },
-      { label: "XL", scale: 1.3 }
-    ]
-  },
-  {
-    id: "/glass15.png", name: "Round", price: "PKR 4,900", emoji: "🪬",
-    sizes: [
-      { label: "S", scale: 0.85 },
-      { label: "M", scale: 1.0 },
-      { label: "L", scale: 1.15 },
-      { label: "XL", scale: 1.3 }
-    ]
-  },
-  {
-    id: "/glass16.png", name: "Round", price: "PKR 4,900", emoji: "🪬",
-    sizes: [
-      { label: "S", scale: 0.85 },
-      { label: "M", scale: 1.0 },
-      { label: "L", scale: 1.15 },
-      { label: "XL", scale: 1.3 }
-    ]
-  },
-  {
-    id: "/glass17.png", name: "Round", price: "PKR 4,900", emoji: "🪬",
-    sizes: [
-      { label: "S", scale: 0.85 },
-      { label: "M", scale: 1.0 },
-      { label: "L", scale: 1.15 },
-      { label: "XL", scale: 1.3 }
-    ]
-  },
-  {
-    id: "/glass18.png", name: "Round", price: "PKR 4,900", emoji: "🪬",
-    sizes: [
-      { label: "S", scale: 0.85 },
-      { label: "M", scale: 1.0 },
-      { label: "L", scale: 1.15 },
-      { label: "XL", scale: 1.3 }
-    ]
-  },
-  {
-    id: "/glass19.png", name: "Round", price: "PKR 4,900", emoji: "🪬",
-    sizes: [
-      { label: "S", scale: 0.85 },
-      { label: "M", scale: 1.0 },
-      { label: "L", scale: 1.15 },
-      { label: "XL", scale: 1.3 }
-    ]
-  },
-  {
-    id: "/glass20.png", name: "Round", price: "PKR 4,900", emoji: "🪬",
-    sizes: [
-      { label: "S", scale: 0.85 },
-      { label: "M", scale: 1.0 },
-      { label: "L", scale: 1.15 },
-      { label: "XL", scale: 1.3 }
-    ]
-  },
-  {
-    id: "__3D__", name: "3D Frame", price: "PKR 6,500", emoji: "✨", is3d: true,
-    sizes: [
-      { label: "S", scale: 0.85 },
-      { label: "M", scale: 1.0 },
-      { label: "L", scale: 1.15 },
-      { label: "XL", scale: 1.3 }
-    ]
-  },
+  { id: "/glass1.png",  name: "Classic",  price: "PKR 4,500", emoji: "👓", sizes: [{ label:"S",scale:0.80},{ label:"M",scale:0.90},{ label:"L",scale:1},{ label:"XL",scale:1.1}] },
+  { id: "/glass2.png",  name: "Aviator",  price: "PKR 5,200", emoji: "🕶️", sizes: [{ label:"S",scale:0.85},{ label:"M",scale:1.0},{ label:"L",scale:1.15},{ label:"XL",scale:1.3}] },
+  { id: "/glass3.png",  name: "Sport",    price: "PKR 3,800", emoji: "🥽", sizes: [{ label:"S",scale:0.85},{ label:"M",scale:1.0},{ label:"L",scale:1.15},{ label:"XL",scale:1.3}] },
+  { id: "/glass4.png",  name: "Round",    price: "PKR 4,900", emoji: "🪬", sizes: [{ label:"S",scale:0.85},{ label:"M",scale:1.0},{ label:"L",scale:1.15},{ label:"XL",scale:1.3}] },
+  { id: "/glass5.png",  name: "Wayfarer", price: "PKR 4,900", emoji: "🪬", sizes: [{ label:"S",scale:0.85},{ label:"M",scale:1.0},{ label:"L",scale:1.15},{ label:"XL",scale:1.3}] },
+  { id: "/glass6.png",  name: "Round",    price: "PKR 4,900", emoji: "🪬", sizes: [{ label:"S",scale:0.85},{ label:"M",scale:1.0},{ label:"L",scale:1.15},{ label:"XL",scale:1.3}] },
+  { id: "/glass7.png",  name: "Round",    price: "PKR 4,900", emoji: "🪬", sizes: [{ label:"S",scale:0.85},{ label:"M",scale:1.0},{ label:"L",scale:1.15},{ label:"XL",scale:1.3}] },
+  { id: "/glass8.png",  name: "Round",    price: "PKR 4,900", emoji: "🪬", sizes: [{ label:"S",scale:0.85},{ label:"M",scale:1.0},{ label:"L",scale:1.15},{ label:"XL",scale:1.3}] },
+  { id: "/glass9.png",  name: "Round",    price: "PKR 4,900", emoji: "🪬", sizes: [{ label:"S",scale:0.85},{ label:"M",scale:1.0},{ label:"L",scale:1.15},{ label:"XL",scale:1.3}] },
+  { id: "/glass10.png", name: "Round",    price: "PKR 4,900", emoji: "🪬", sizes: [{ label:"S",scale:0.85},{ label:"M",scale:1.0},{ label:"L",scale:1.15},{ label:"XL",scale:1.3}] },
+  { id: "/glass11.png", name: "Round",    price: "PKR 4,900", emoji: "🪬", sizes: [{ label:"S",scale:0.85},{ label:"M",scale:1.0},{ label:"L",scale:1.15},{ label:"XL",scale:1.3}] },
+  { id: "/glass12.png", name: "Round",    price: "PKR 4,900", emoji: "🪬", sizes: [{ label:"S",scale:0.85},{ label:"M",scale:1.0},{ label:"L",scale:1.15},{ label:"XL",scale:1.3}] },
+  { id: "/glass13.png", name: "Round",    price: "PKR 4,900", emoji: "🪬", sizes: [{ label:"S",scale:0.85},{ label:"M",scale:1.0},{ label:"L",scale:1.15},{ label:"XL",scale:1.3}] },
+  { id: "/glass14.png", name: "Round",    price: "PKR 4,900", emoji: "🪬", sizes: [{ label:"S",scale:0.85},{ label:"M",scale:1.0},{ label:"L",scale:1.15},{ label:"XL",scale:1.3}] },
+  { id: "/glass15.png", name: "Round",    price: "PKR 4,900", emoji: "🪬", sizes: [{ label:"S",scale:0.85},{ label:"M",scale:1.0},{ label:"L",scale:1.15},{ label:"XL",scale:1.3}] },
+  { id: "/glass16.png", name: "Round",    price: "PKR 4,900", emoji: "🪬", sizes: [{ label:"S",scale:0.85},{ label:"M",scale:1.0},{ label:"L",scale:1.15},{ label:"XL",scale:1.3}] },
+  { id: "/glass17.png", name: "Round",    price: "PKR 4,900", emoji: "🪬", sizes: [{ label:"S",scale:0.85},{ label:"M",scale:1.0},{ label:"L",scale:1.15},{ label:"XL",scale:1.3}] },
+  { id: "/glass18.png", name: "Round",    price: "PKR 4,900", emoji: "🪬", sizes: [{ label:"S",scale:0.85},{ label:"M",scale:1.0},{ label:"L",scale:1.15},{ label:"XL",scale:1.3}] },
+  { id: "/glass19.png", name: "Round",    price: "PKR 4,900", emoji: "🪬", sizes: [{ label:"S",scale:0.85},{ label:"M",scale:1.0},{ label:"L",scale:1.15},{ label:"XL",scale:1.3}] },
+  { id: "/glass20.png", name: "Round",    price: "PKR 4,900", emoji: "🪬", sizes: [{ label:"S",scale:0.85},{ label:"M",scale:1.0},{ label:"L",scale:1.15},{ label:"XL",scale:1.3}] },
+  { id: "__3D__", name: "3D Frame", price: "PKR 6,500", emoji: "✨", is3d: true, sizes: [{ label:"S",scale:0.85},{ label:"M",scale:1.0},{ label:"L",scale:1.15},{ label:"XL",scale:1.3}] },
 ];
 
 // ══════════════════════════════════════════════════════════════════
-// ── ENHANCED FACE LANDMARK INDICES (MediaPipe 468 + 10 iris)  ──
+// ── MOBILE DETECTION (Req 1) ──────────────────────────────────────
+// ══════════════════════════════════════════════════════════════════
+const isMobile = typeof window !== "undefined" &&
+  (window.innerWidth < 768 || /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent));
+
+// ── MOBILE-SPECIFIC CONSTANTS ─────────────────────────────────────
+const BASE_EYE_SPAN       = 120;                        // tunable (Req 3)
+const BASE_GLASSES_WIDTH  = BASE_EYE_SPAN * 1.7;       // 204px at baseline
+const MOBILE_EMA_ALPHA    = 0.25;                       // Req 4: reduced from 0.45
+const MOBILE_DEADZONE     = 1.5;                        // Req 4: ignore tiny jitter
+const MOBILE_LERP         = 0.2;                        // Req 5: smooth interpolation
+const MOBILE_CANVAS_W     = 480;                        // Req 8: reduced resolution
+const MOBILE_CANVAS_H     = 360;
+const DESKTOP_CANVAS_W    = 640;
+const DESKTOP_CANVAS_H    = 480;
+const CANVAS_W            = isMobile ? MOBILE_CANVAS_W : DESKTOP_CANVAS_W;
+const CANVAS_H            = isMobile ? MOBILE_CANVAS_H : DESKTOP_CANVAS_H;
+const MOBILE_FPS          = 30;                         // Req 8: throttle to 30fps
+const MOBILE_FRAME_INTERVAL = 1000 / MOBILE_FPS;
+
+// ── LERP HELPER ───────────────────────────────────────────────────
+const lerp = (a, b, t) => a + (b - a) * t;
+
+// ══════════════════════════════════════════════════════════════════
+// ── FACE LANDMARK INDICES ─────────────────────────────────────────
 // ══════════════════════════════════════════════════════════════════
 const LANDMARKS = {
-  LEFT_IRIS_CENTER:  468,
-  RIGHT_IRIS_CENTER: 473,
-  LEFT_EYE_INNER:  133,
-  LEFT_EYE_OUTER:   33,
-  RIGHT_EYE_INNER: 362,
-  RIGHT_EYE_OUTER: 263,
+  LEFT_IRIS_CENTER: 468, RIGHT_IRIS_CENTER: 473,
+  LEFT_EYE_INNER: 133,   LEFT_EYE_OUTER: 33,
+  RIGHT_EYE_INNER: 362,  RIGHT_EYE_OUTER: 263,
   LEFT_EYEBROW_LOWER:  [70, 63, 105, 66, 107],
   RIGHT_EYEBROW_LOWER: [300, 293, 334, 296, 336],
   LEFT_EYEBROW_UPPER:  [46, 53, 52, 65, 55],
   RIGHT_EYEBROW_UPPER: [276, 283, 282, 295, 285],
-  NOSE_BRIDGE_TOP:    6,
-  NOSE_BRIDGE_MID:  168,
-  NOSE_BRIDGE_LOW:  197,
-  NOSE_TIP:           5,
-  NOSE_LEFT_PAD:   124,
-  NOSE_RIGHT_PAD:  353,
-  FACE_LEFT:   234,
-  FACE_RIGHT:  454,
-  CHEEK_LEFT:  116,
-  CHEEK_RIGHT: 345,
-  FOREHEAD_CENTER: 10,
-  CHIN: 152,
-  UNDER_EYE_LEFT:  145,
-  UNDER_EYE_RIGHT: 374,
-  TEMPLE_LEFT:  127,
-  TEMPLE_RIGHT: 356,
-  LEFT_UPPER_LID:  159,
-  RIGHT_UPPER_LID: 386,
-  LEFT_LOWER_LID:  145,
-  RIGHT_LOWER_LID: 374,
+  NOSE_BRIDGE_TOP: 6, NOSE_BRIDGE_MID: 168, NOSE_BRIDGE_LOW: 197,
+  NOSE_TIP: 5, NOSE_LEFT_PAD: 124, NOSE_RIGHT_PAD: 353,
+  FACE_LEFT: 234, FACE_RIGHT: 454,
+  CHEEK_LEFT: 116, CHEEK_RIGHT: 345,
+  FOREHEAD_CENTER: 10, CHIN: 152,
+  UNDER_EYE_LEFT: 145, UNDER_EYE_RIGHT: 374,
+  TEMPLE_LEFT: 127,    TEMPLE_RIGHT: 356,
+  LEFT_UPPER_LID: 159, RIGHT_UPPER_LID: 386,
+  LEFT_LOWER_LID: 145, RIGHT_LOWER_LID: 374,
 };
 
 // ══════════════════════════════════════════════════════════════════
-// ── EXPONENTIAL MOVING AVERAGE SMOOTHER ─────────────────────────
+// ── EMA SMOOTHER with optional deadzone (Req 4) ──────────────────
 // ══════════════════════════════════════════════════════════════════
 class LandmarkSmoother {
   constructor(alpha = 0.45) {
     this.alpha = alpha;
     this.prev = null;
   }
-  smooth(current) {
-    if (!this.prev) {
-      this.prev = { ...current };
-      return current;
-    }
+  smooth(current, deadzone = 0) {
+    if (!this.prev) { this.prev = { ...current }; return current; }
     const result = {};
     for (const key of Object.keys(current)) {
-      result[key] = this.prev[key] + this.alpha * (current[key] - this.prev[key]);
+      const delta = current[key] - this.prev[key];
+      // Req 4: deadzone — ignore micro-movements
+      result[key] = (deadzone > 0 && Math.abs(delta) < deadzone)
+        ? this.prev[key]
+        : this.prev[key] + this.alpha * delta;
     }
     this.prev = { ...result };
     return result;
@@ -260,10 +102,10 @@ class LandmarkSmoother {
 }
 
 // ══════════════════════════════════════════════════════════════════
-// ── FULL FACE GEOMETRY EXTRACTOR ────────────────────────────────
+// ── FACE GEOMETRY EXTRACTOR (mobile normalized scale — Req 3) ────
 // ══════════════════════════════════════════════════════════════════
 function extractFaceGeometry(lm, W, H) {
-  const px = (idx) => ({ x: lm[idx].x * W, y: lm[idx].y * H, z: lm[idx].z });
+  const px    = (idx)     => ({ x: lm[idx].x * W, y: lm[idx].y * H, z: lm[idx].z });
   const avgPx = (indices) => {
     const pts = indices.map(i => px(i));
     return {
@@ -274,40 +116,45 @@ function extractFaceGeometry(lm, W, H) {
   };
   const dist = (a, b) => Math.hypot(a.x - b.x, a.y - b.y);
 
-  const leftIris   = px(LANDMARKS.LEFT_IRIS_CENTER);
-  const rightIris  = px(LANDMARKS.RIGHT_IRIS_CENTER);
-  const leftEyeOut = px(LANDMARKS.LEFT_EYE_OUTER);
-  const rightEyeOut= px(LANDMARKS.RIGHT_EYE_OUTER);
+  const leftIris    = px(LANDMARKS.LEFT_IRIS_CENTER);
+  const rightIris   = px(LANDMARKS.RIGHT_IRIS_CENTER);
+  const leftEyeOut  = px(LANDMARKS.LEFT_EYE_OUTER);
+  const rightEyeOut = px(LANDMARKS.RIGHT_EYE_OUTER);
   const leftBrowLower  = avgPx(LANDMARKS.LEFT_EYEBROW_LOWER);
   const rightBrowLower = avgPx(LANDMARKS.RIGHT_EYEBROW_LOWER);
-  const browMidLower   = { x: (leftBrowLower.x + rightBrowLower.x)/2, y: (leftBrowLower.y + rightBrowLower.y)/2 };
-  const noseBridgeTop = px(LANDMARKS.NOSE_BRIDGE_TOP);
+  const browMidLower   = { x: (leftBrowLower.x + rightBrowLower.x) / 2, y: (leftBrowLower.y + rightBrowLower.y) / 2 };
+  const noseBridgeTop  = px(LANDMARKS.NOSE_BRIDGE_TOP);
 
-  const eyeSpan = dist(leftEyeOut, rightEyeOut);
-  const leftBrowEyeGap  = dist(leftBrowLower, leftIris);
-  const rightBrowEyeGap = dist(rightBrowLower, rightIris);
-  const avgBrowEyeGap   = (leftBrowEyeGap + rightBrowEyeGap) / 2;
+  const eyeSpan        = dist(leftEyeOut, rightEyeOut);
+  const leftBrowGap    = dist(leftBrowLower,  leftIris);
+  const rightBrowGap   = dist(rightBrowLower, rightIris);
+  const avgBrowEyeGap  = (leftBrowGap + rightBrowGap) / 2;
 
-  const angleIris = Math.atan2(rightIris.y - leftIris.y, rightIris.x - leftIris.x);
-  const angleEyeCorners = Math.atan2(rightEyeOut.y - leftEyeOut.y, rightEyeOut.x - leftEyeOut.x);
-  const angleBrow = Math.atan2(rightBrowLower.y - leftBrowLower.y, rightBrowLower.x - leftBrowLower.x);
-  const angle = angleEyeCorners * 0.5 + angleBrow * 0.3 + angleIris * 0.2;
+  const angleIris       = Math.atan2(rightIris.y    - leftIris.y,    rightIris.x    - leftIris.x);
+  const angleEyeCorners = Math.atan2(rightEyeOut.y  - leftEyeOut.y,  rightEyeOut.x  - leftEyeOut.x);
+  const angleBrow       = Math.atan2(rightBrowLower.y - leftBrowLower.y, rightBrowLower.x - leftBrowLower.x);
+  const angle           = angleEyeCorners * 0.5 + angleBrow * 0.3 + angleIris * 0.2;
 
-  const centerX = (leftIris.x + rightIris.x) / 2;
-  const browCenterY = browMidLower.y;
-  const noseBridgeY = noseBridgeTop.y;
-  const centerY = browCenterY * 0.35 + noseBridgeY * 0.45 + ((leftIris.y + rightIris.y)/2) * 0.20;
+  const centerX   = (leftIris.x + rightIris.x) / 2;
+  const centerY   = browMidLower.y * 0.35 + noseBridgeTop.y * 0.45 + ((leftIris.y + rightIris.y) / 2) * 0.20;
 
-  const glassesWidth = eyeSpan * 1.7;
+  // ── Req 3: Normalized scale on mobile — clamp to prevent dramatic size change ──
+  let glassesWidth;
+  if (isMobile) {
+    const normalizedScale = Math.max(0.9, Math.min(1.1, eyeSpan / BASE_EYE_SPAN));
+    glassesWidth = BASE_GLASSES_WIDTH * normalizedScale;
+  } else {
+    glassesWidth = eyeSpan * 1.7;
+  }
+
   const glassesHeight = avgBrowEyeGap * 3.3;
-
-  const avgZ = (leftIris.z + rightIris.z + noseBridgeTop.z) / 3;
-  const depthScale = 1 + (-avgZ * 0.8);
+  const avgZ          = (leftIris.z + rightIris.z + noseBridgeTop.z) / 3;
+  const depthScale    = 1 + (-avgZ * 0.8);
 
   return { centerX, centerY, angle, glassesWidth, glassesHeight, depthScale };
 }
 
-// ── REALISTIC GLASSES WITH SIDE ARMS (unchanged) ──
+// ── REALISTIC GLASSES WITH SIDE ARMS (unchanged) ─────────────────
 const drawGlassesWithRealisticArms = (ctx, img, x, y, w, h, angle) => {
   ctx.save();
   ctx.translate(x, y);
@@ -318,20 +165,16 @@ const drawGlassesWithRealisticArms = (ctx, img, x, y, w, h, angle) => {
   ctx.shadowOffsetY = 3;
   ctx.drawImage(img, -w / 2, -h / 2, w, h);
   ctx.shadowColor = "transparent";
-  
-  const armLength = w * 0.92;
+
+  const armLength    = w * 0.92;
   const armThickness = h * 0.058;
-  const armStartY = -h * 0.09;
-  
-  const hingeX = -w / 2;
-  const hingeY = armStartY;
-  const backX = -w / 2 - armLength * 0.42;
-  const backY = armStartY - armThickness * 0.2;
-  const earX = -w / 2 - armLength * 0.68;
-  const earY = armStartY + armThickness * 1.3;
-  const hookX = -w / 2 - armLength;
-  const hookY = armStartY + armThickness * 2.0;
-  
+  const armStartY    = -h * 0.09;
+
+  const hingeX = -w / 2, hingeY = armStartY;
+  const backX  = -w / 2 - armLength * 0.42, backY = armStartY - armThickness * 0.2;
+  const earX   = -w / 2 - armLength * 0.68, earY  = armStartY + armThickness * 1.3;
+  const hookX  = -w / 2 - armLength,         hookY = armStartY + armThickness * 2.0;
+
   ctx.beginPath();
   const armGrad = ctx.createLinearGradient(hingeX - 10, hingeY - 5, hookX + 5, hookY + 5);
   armGrad.addColorStop(0, "#2a241c");
@@ -348,16 +191,12 @@ const drawGlassesWithRealisticArms = (ctx, img, x, y, w, h, angle) => {
   ctx.lineTo(hingeX, hingeY + armThickness);
   ctx.closePath();
   ctx.fill();
-  
-  const hingeXR = w / 2;
-  const hingeYR = armStartY;
-  const backXR = w / 2 + armLength * 0.42;
-  const backYR = armStartY - armThickness * 0.2;
-  const earXR = w / 2 + armLength * 0.68;
-  const earYR = armStartY + armThickness * 1.3;
-  const hookXR = w / 2 + armLength;
-  const hookYR = armStartY + armThickness * 2.0;
-  
+
+  const hingeXR = w / 2,   hingeYR = armStartY;
+  const backXR  = w / 2 + armLength * 0.42, backYR = armStartY - armThickness * 0.2;
+  const earXR   = w / 2 + armLength * 0.68, earYR  = armStartY + armThickness * 1.3;
+  const hookXR  = w / 2 + armLength,         hookYR = armStartY + armThickness * 2.0;
+
   ctx.beginPath();
   ctx.moveTo(hingeXR, hingeYR);
   ctx.lineTo(backXR, backYR - armThickness * 0.35);
@@ -369,11 +208,11 @@ const drawGlassesWithRealisticArms = (ctx, img, x, y, w, h, angle) => {
   ctx.lineTo(hingeXR, hingeYR + armThickness);
   ctx.closePath();
   ctx.fill();
-  
+
   ctx.fillStyle = "#c9a84c";
   ctx.fillRect(hingeX - 4, hingeY - 1.5, 6, armThickness + 3);
   ctx.fillRect(hingeXR - 2, hingeYR - 1.5, 6, armThickness + 3);
-  
+
   ctx.fillStyle = "#3a3022";
   ctx.beginPath();
   ctx.ellipse(hookX - 3, hookY + armThickness * 0.7, armThickness * 0.9, armThickness * 1.3, -0.25, 0, Math.PI * 2);
@@ -381,111 +220,61 @@ const drawGlassesWithRealisticArms = (ctx, img, x, y, w, h, angle) => {
   ctx.beginPath();
   ctx.ellipse(hookXR + 3, hookYR + armThickness * 0.7, armThickness * 0.9, armThickness * 1.3, 0.25, 0, Math.PI * 2);
   ctx.fill();
-  
-  ctx.fillStyle = "rgba(220, 200, 160, 0.25)";
+
+  ctx.fillStyle = "rgba(220,200,160,0.25)";
   ctx.beginPath();
-  ctx.moveTo(hingeX + 2, hingeY + 2);
-  ctx.lineTo(backX - 3, backY + 1.5);
+  ctx.moveTo(hingeX + 2,  hingeY + 2);
+  ctx.lineTo(backX - 3,   backY + 1.5);
   ctx.quadraticCurveTo(earX - 4, earY - 3, hookX - 3, hookY + 2);
-  ctx.lineTo(hookX - 3, hookY + armThickness - 3);
+  ctx.lineTo(hookX - 3,   hookY + armThickness - 3);
   ctx.quadraticCurveTo(earX - 4, earY + armThickness - 5, backX - 3, backY + armThickness - 2);
-  ctx.lineTo(hingeX + 2, hingeY + armThickness - 1);
+  ctx.lineTo(hingeX + 2,  hingeY + armThickness - 1);
   ctx.fill();
   ctx.beginPath();
   ctx.moveTo(hingeXR - 2, hingeYR + 2);
-  ctx.lineTo(backXR + 3, backYR + 1.5);
+  ctx.lineTo(backXR + 3,  backYR + 1.5);
   ctx.quadraticCurveTo(earXR + 4, earYR - 3, hookXR + 3, hookYR + 2);
-  ctx.lineTo(hookXR + 3, hookYR + armThickness - 3);
+  ctx.lineTo(hookXR + 3,  hookYR + armThickness - 3);
   ctx.quadraticCurveTo(earXR + 4, earYR + armThickness - 5, backXR + 3, backYR + armThickness - 2);
   ctx.lineTo(hingeXR - 2, hingeYR + armThickness - 1);
   ctx.fill();
-  
+
   ctx.restore();
 };
 
-// Mobile detection helper
-const isMobileDevice = () => {
-  return window.innerWidth < 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-};
-
-// Linear interpolation helper
-const lerp = (start, end, factor) => start + (end - start) * factor;
-
-// Mobile-specific smoother with lower alpha and deadzone
-class MobileLandmarkSmoother {
-  constructor(alpha = 0.25) {
-    this.alpha = alpha;
-    this.prev = null;
-    this.deadzone = 0.5; // Ignore movements smaller than this threshold
-  }
-  smooth(current) {
-    if (!this.prev) {
-      this.prev = { ...current };
-      return current;
-    }
-    const result = {};
-    for (const key of Object.keys(current)) {
-      const delta = current[key] - this.prev[key];
-      // Apply deadzone: ignore small movements
-      const effectiveDelta = Math.abs(delta) < this.deadzone ? 0 : delta;
-      result[key] = this.prev[key] + this.alpha * effectiveDelta;
-    }
-    this.prev = { ...result };
-    return result;
-  }
-  reset() { this.prev = null; }
-}
-
-// Mobile-specific frame size normalization
-const normalizeGlassesSize = (eyeSpan, baseEyeSpan = 120) => {
-  const rawScale = eyeSpan / baseEyeSpan;
-  return Math.min(1.1, Math.max(0.9, rawScale));
-};
-
+// ══════════════════════════════════════════════════════════════════
+// ── COMPONENT ────────────────────────────────────────────────────
+// ══════════════════════════════════════════════════════════════════
 const TryOn = () => {
-  const videoRef = useRef(null);
-  const canvasRef = useRef(null);
-  const imgRef = useRef(new Image());
+  const videoRef       = useRef(null);
+  const canvasRef      = useRef(null);
+  const imgRef         = useRef(new Image());
   const threeCanvasRef = useRef(null);
-  const rendererRef = useRef(null);
-  const sceneRef = useRef(null);
-  const cameraRef = useRef(null);
+  const rendererRef    = useRef(null);
+  const sceneRef       = useRef(null);
+  const cameraRef      = useRef(null);
   const glassModel3dRef = useRef(null);
-  const modelWidthRef = useRef(1);
+  const modelWidthRef  = useRef(1);
 
-  const [glasses, setGlasses] = useState("/glass1.png");
-  const [brightness, setBrightness] = useState(100);
-  const [contrast, setContrast] = useState(100);
-  const [saturate, setSaturate] = useState(100);
-  const [glbLoading, setGlbLoading] = useState(false);
-  const [showArms, setShowArms] = useState(true);
-  const [cameraReady, setCameraReady] = useState(false);
-  const cameraReadyRef = useRef(false);
-  
-  // Mobile detection state
-  const [isMobile, setIsMobile] = useState(false);
-  const [mobileCanvasSize, setMobileCanvasSize] = useState({ width: 480, height: 360 });
-  
-  // Interpolated position for smooth motion (mobile only)
-  const interpolatedPosRef = useRef({ cx: 0, cy: 0, angle: 0, gw: 0, gh: 0 });
-  
-  // Frame throttling for mobile (30fps)
+  // ── Req 5: Lerp prev position ────────────────────────────────
+  const prevPosRef      = useRef(null);
+  // ── Req 8: FPS throttle ──────────────────────────────────────
   const lastFrameTimeRef = useRef(0);
-  const frameInterval = 1000 / 30; // ~33ms for 30fps
+  // ── Req 9: Swipe detection ───────────────────────────────────
+  const touchStartXRef  = useRef(null);
 
-  // --- Size selection state ---
-  const [selectedSizeKey, setSelectedSizeKey] = useState("M"); // "S", "M", "L", "XL"
+  const [glasses, setGlasses]           = useState("/glass1.png");
+  const [brightness, setBrightness]     = useState(100);
+  const [contrast, setContrast]         = useState(100);
+  const [saturate, setSaturate]         = useState(100);
+  const [glbLoading, setGlbLoading]     = useState(false);
+  const [showArms, setShowArms]         = useState(true);
+  const [cameraReady, setCameraReady]   = useState(false);
+  const cameraReadyRef = useRef(false);
+  const [selectedSizeKey, setSelectedSizeKey] = useState("M");
 
-  // Helper: get scale multiplier for current glass and selected size
-  const getCurrentSizeScale = useCallback(() => {
-    const currentGlass = GLASS_OPTIONS.find(g => g.id === glasses);
-    if (!currentGlass || !currentGlass.sizes) return 1.0;
-    const sizeObj = currentGlass.sizes.find(s => s.label === selectedSizeKey);
-    return sizeObj ? sizeObj.scale : 1.0;
-  }, [glasses, selectedSizeKey]);
-
-  // Choose smoother based on device
-  const smootherRef = useRef(null);
+  // ── Req 4: Mobile uses lower EMA alpha ───────────────────────
+  const smootherRef = useRef(new LandmarkSmoother(isMobile ? MOBILE_EMA_ALPHA : 0.45));
 
   const [adjustments, setAdjustments] = useState(() =>
     Object.fromEntries(
@@ -497,61 +286,34 @@ const TryOn = () => {
     )
   );
 
-  const brightnessRef = useRef(brightness);
-  const contrastRef = useRef(contrast);
-  const saturateRef = useRef(saturate);
-  const glassesRef = useRef(glasses);
-  const is3DRef = useRef(false);
-  const adjRef = useRef(adjustments);
-  const showArmsRef = useRef(showArms);
-  const isMobileRef = useRef(isMobile);
-  const baseEyeSpanRef = useRef(120);
+  // Refs for use inside RAF / MediaPipe callbacks
+  const brightnessRef  = useRef(brightness);
+  const contrastRef    = useRef(contrast);
+  const saturateRef    = useRef(saturate);
+  const glassesRef     = useRef(glasses);
+  const is3DRef        = useRef(false);
+  const adjRef         = useRef(adjustments);
+  const showArmsRef    = useRef(showArms);
 
   useEffect(() => { brightnessRef.current = brightness; }, [brightness]);
-  useEffect(() => { contrastRef.current = contrast; }, [contrast]);
-  useEffect(() => { saturateRef.current = saturate; }, [saturate]);
-  useEffect(() => { glassesRef.current = glasses; }, [glasses]);
-  useEffect(() => { is3DRef.current = glasses === "__3D__"; }, [glasses]);
-  useEffect(() => { adjRef.current = adjustments; }, [adjustments]);
-  useEffect(() => { showArmsRef.current = showArms; }, [showArms]);
-  useEffect(() => { isMobileRef.current = isMobile; }, [isMobile]);
+  useEffect(() => { contrastRef.current   = contrast;   }, [contrast]);
+  useEffect(() => { saturateRef.current   = saturate;   }, [saturate]);
+  useEffect(() => { glassesRef.current    = glasses;    }, [glasses]);
+  useEffect(() => { is3DRef.current       = glasses === "__3D__"; }, [glasses]);
+  useEffect(() => { adjRef.current        = adjustments; }, [adjustments]);
+  useEffect(() => { showArmsRef.current   = showArms;   }, [showArms]);
 
-  // Detect mobile on mount and window resize
-  useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(isMobileDevice());
-    };
-    checkMobile();
-    window.addEventListener('resize', checkMobile);
-    return () => window.removeEventListener('resize', checkMobile);
-  }, []);
-
-  // Initialize smoother based on mobile state
-  useEffect(() => {
-    if (isMobile) {
-      smootherRef.current = new MobileLandmarkSmoother(0.25);
-    } else {
-      smootherRef.current = new LandmarkSmoother(0.45);
-    }
-  }, [isMobile]);
-
-  const is3D = glasses === "__3D__";
+  const is3D   = glasses === "__3D__";
   const curAdj = adjustments[glasses] || DEFAULT_ADJ;
 
-  const setAdj = (key, val) =>
-    setAdjustments(prev => ({ ...prev, [glasses]: { ...prev[glasses], [key]: val } }));
-
+  const setAdj   = (key, val) => setAdjustments(prev => ({ ...prev, [glasses]: { ...prev[glasses], [key]: val } }));
   const resetAdj = () => {
-    if (glasses === "/glass2.png") {
-      setAdjustments(prev => ({ ...prev, [glasses]: { ...AVIATOR_ADJ } }));
-    } else if (glasses === "/glass4.png") {
-      setAdjustments(prev => ({ ...prev, [glasses]: { ...ROUND_ADJ } }));
-    } else {
-      setAdjustments(prev => ({ ...prev, [glasses]: { ...DEFAULT_ADJ } }));
-    }
+    if (glasses === "/glass2.png")      setAdjustments(prev => ({ ...prev, [glasses]: { ...AVIATOR_ADJ } }));
+    else if (glasses === "/glass4.png") setAdjustments(prev => ({ ...prev, [glasses]: { ...ROUND_ADJ } }));
+    else                                setAdjustments(prev => ({ ...prev, [glasses]: { ...DEFAULT_ADJ } }));
   };
 
-  // 3D scene init (unchanged)
+  // ── 3D scene init (unchanged for desktop; on mobile also unchanged) ──
   useEffect(() => {
     if (!is3D) {
       if (rendererRef.current) {
@@ -563,27 +325,19 @@ const TryOn = () => {
     const canvas = threeCanvasRef.current;
     if (!canvas) return;
     const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
-    const canvasWidth = isMobile ? mobileCanvasSize.width : 640;
-    const canvasHeight = isMobile ? mobileCanvasSize.height : 480;
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, isMobile ? 1.5 : 2));
-    renderer.setSize(canvasWidth, canvasHeight);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.setSize(CANVAS_W, CANVAS_H);
     renderer.setClearColor(0x000000, 0);
     rendererRef.current = renderer;
     const scene = new THREE.Scene();
     sceneRef.current = scene;
-    const cam = new THREE.OrthographicCamera(-canvasWidth/2, canvasWidth/2, canvasHeight/2, -canvasHeight/2, 0.1, 2000);
+    const cam = new THREE.OrthographicCamera(-CANVAS_W / 2, CANVAS_W / 2, CANVAS_H / 2, -CANVAS_H / 2, 0.1, 2000);
     cam.position.z = 500;
     cameraRef.current = cam;
     scene.add(new THREE.AmbientLight(0xffffff, 1.4));
-    const keyLight = new THREE.DirectionalLight(0xfff5e0, 1.3);
-    keyLight.position.set(2, 3, 4);
-    scene.add(keyLight);
-    const fillLight = new THREE.DirectionalLight(0xc9e0ff, 0.6);
-    fillLight.position.set(-2, 0, 2);
-    scene.add(fillLight);
-    const backLight = new THREE.DirectionalLight(0xffcc88, 0.4);
-    backLight.position.set(0, 1, -3);
-    scene.add(backLight);
+    const keyLight  = new THREE.DirectionalLight(0xfff5e0, 1.3); keyLight.position.set(2, 3, 4);  scene.add(keyLight);
+    const fillLight = new THREE.DirectionalLight(0xc9e0ff, 0.6); fillLight.position.set(-2, 0, 2); scene.add(fillLight);
+    const backLight = new THREE.DirectionalLight(0xffcc88, 0.4); backLight.position.set(0, 1, -3); scene.add(backLight);
     setGlbLoading(true);
     new GLTFLoader().load(
       "/glasses.glb",
@@ -600,114 +354,92 @@ const TryOn = () => {
       undefined,
       (err) => { console.error("GLB error:", err); setGlbLoading(false); }
     );
-    return () => {
-      renderer.dispose();
-      rendererRef.current = sceneRef.current = cameraRef.current = glassModel3dRef.current = null;
-    };
-  }, [is3D, isMobile, mobileCanvasSize]);
+    return () => { renderer.dispose(); rendererRef.current = sceneRef.current = cameraRef.current = glassModel3dRef.current = null; };
+  }, [is3D]);
 
-  // FaceMesh and main loop (with size multiplier applied)
+  // ── FaceMesh + main rendering loop ───────────────────────────
   useEffect(() => {
     const faceMesh = new window.FaceMesh({
       locateFile: f => `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${f}`,
     });
-    faceMesh.setOptions({ maxNumFaces: 1, refineLandmarks: true, minDetectionConfidence: 0.5, minTrackingConfidence: 0.5 });
+    faceMesh.setOptions({
+      maxNumFaces: 1,
+      refineLandmarks: true,
+      minDetectionConfidence: 0.5,
+      minTrackingConfidence: 0.5,
+    });
     faceMesh.onResults(onResults);
-    
-    const videoWidth = isMobile ? 480 : 640;
-    const videoHeight = isMobile ? 360 : 480;
-    
+
     const camera = new window.Camera(videoRef.current, {
       onFrame: async () => {
-        if (!cameraReadyRef.current) {
-          cameraReadyRef.current = true;
-          setCameraReady(true);
+        if (!cameraReadyRef.current) { cameraReadyRef.current = true; setCameraReady(true); }
+
+        // ── Req 8: Throttle to ~30fps on mobile ──────────────
+        if (isMobile) {
+          const now = performance.now();
+          if (now - lastFrameTimeRef.current < MOBILE_FRAME_INTERVAL) return;
+          lastFrameTimeRef.current = now;
         }
+
         await faceMesh.send({ image: videoRef.current });
       },
-      width: videoWidth, height: videoHeight,
+      // ── Req 8: Reduced resolution on mobile ──────────────────
+      width: CANVAS_W, height: CANVAS_H,
     });
     camera.start();
 
     function onResults(results) {
-      // Frame throttling for mobile (30fps)
-      if (isMobileRef.current) {
-        const now = performance.now();
-        if (now - lastFrameTimeRef.current < frameInterval) {
-          return;
-        }
-        lastFrameTimeRef.current = now;
-      }
-      
       const canvas = canvasRef.current;
-      const ctx = canvas.getContext("2d");
+      const ctx    = canvas.getContext("2d");
       const W = canvas.width, H = canvas.height;
       ctx.clearRect(0, 0, W, H);
       ctx.filter = `brightness(${brightnessRef.current}%) contrast(${contrastRef.current}%) saturate(${saturateRef.current}%)`;
       ctx.drawImage(results.image, 0, 0, W, H);
       ctx.filter = "none";
+
       const _is3D = is3DRef.current;
       if (_is3D && rendererRef.current && sceneRef.current && cameraRef.current) {
         rendererRef.current.render(sceneRef.current, cameraRef.current);
       }
-      if (!results.multiFaceLandmarks?.length) {
-        if (smootherRef.current) smootherRef.current.reset();
-        return;
-      }
-      const lm = results.multiFaceLandmarks[0];
-      let geo = extractFaceGeometry(lm, W, H);
-      
-      // Mobile-specific: normalize glasses size to reduce distance scaling
-      if (isMobileRef.current) {
-        const normalizedScale = normalizeGlassesSize(geo.glassesWidth, baseEyeSpanRef.current);
-        const originalWidth = geo.glassesWidth;
-        const originalHeight = geo.glassesHeight;
-        // Apply normalized scale (adjust relative to base)
-        geo.glassesWidth = originalWidth * normalizedScale;
-        geo.glassesHeight = originalHeight * normalizedScale;
-        
-        // Optional: slight adjustment based on z-depth (max ±10%)
-        const depthAdjust = Math.min(1.1, Math.max(0.9, 1 + (-geo.depthScale + 1) * 0.2));
-        geo.glassesWidth *= depthAdjust;
-        geo.glassesHeight *= depthAdjust;
-      }
-      
-      let smoothed = smootherRef.current ? smootherRef.current.smooth({
-        cx: geo.centerX, cy: geo.centerY, gw: geo.glassesWidth, gh: geo.glassesHeight,
-        angle: geo.angle, ds: geo.depthScale,
-      }) : geo;
-      
-      // Mobile-specific: apply linear interpolation for smoother motion
-      if (isMobileRef.current) {
-        if (interpolatedPosRef.current.cx === 0) {
-          interpolatedPosRef.current = { ...smoothed };
-        } else {
-          interpolatedPosRef.current.cx = lerp(interpolatedPosRef.current.cx, smoothed.cx, 0.2);
-          interpolatedPosRef.current.cy = lerp(interpolatedPosRef.current.cy, smoothed.cy, 0.2);
-          interpolatedPosRef.current.gw = lerp(interpolatedPosRef.current.gw, smoothed.gw, 0.2);
-          interpolatedPosRef.current.gh = lerp(interpolatedPosRef.current.gh, smoothed.gh, 0.2);
-          interpolatedPosRef.current.angle = lerp(interpolatedPosRef.current.angle, smoothed.angle, 0.2);
-          interpolatedPosRef.current.ds = lerp(interpolatedPosRef.current.ds, smoothed.ds, 0.2);
+      if (!results.multiFaceLandmarks?.length) { smootherRef.current.reset(); prevPosRef.current = null; return; }
+
+      const lm  = results.multiFaceLandmarks[0];
+      const geo = extractFaceGeometry(lm, W, H);
+
+      // ── Req 4: mobile uses deadzone; desktop uses 0 ──────────
+      const smoothed = smootherRef.current.smooth(
+        { cx: geo.centerX, cy: geo.centerY, gw: geo.glassesWidth, gh: geo.glassesHeight, angle: geo.angle, ds: geo.depthScale },
+        isMobile ? MOBILE_DEADZONE : 0
+      );
+
+      // ── Req 5: Lerp position on mobile ───────────────────────
+      if (isMobile) {
+        if (prevPosRef.current) {
+          smoothed.cx = lerp(prevPosRef.current.cx, smoothed.cx, MOBILE_LERP);
+          smoothed.cy = lerp(prevPosRef.current.cy, smoothed.cy, MOBILE_LERP);
         }
-        smoothed = interpolatedPosRef.current;
+        prevPosRef.current = { cx: smoothed.cx, cy: smoothed.cy };
       }
-      
-      // --- Obtain current size multiplier ---
+
+      // Size multiplier
       const currentGlassObj = GLASS_OPTIONS.find(g => g.id === glassesRef.current);
       let sizeScale = 1.0;
-      if (currentGlassObj && currentGlassObj.sizes) {
+      if (currentGlassObj?.sizes) {
         const sizeObj = currentGlassObj.sizes.find(s => s.label === selectedSizeKey);
         if (sizeObj) sizeScale = sizeObj.scale;
       }
-      
+
       if (_is3D) {
         const model = glassModel3dRef.current;
         const r = rendererRef.current, s = sceneRef.current, c = cameraRef.current;
         if (model && r && s && c) {
           model.position.x = smoothed.cx - W / 2;
           model.position.y = -(smoothed.cy - H / 2);
-          let scale3D = (smoothed.gw * smoothed.ds) / modelWidthRef.current;
-          scale3D *= sizeScale;  // apply size multiplier
+          // ── Req 3: No depthScale on mobile ───────────────────
+          let scale3D = isMobile
+            ? (smoothed.gw / modelWidthRef.current)
+            : (smoothed.gw * smoothed.ds) / modelWidthRef.current;
+          scale3D *= sizeScale;
           model.scale.setScalar(scale3D);
           model.rotation.z = -smoothed.angle;
           r.render(s, c);
@@ -716,13 +448,22 @@ const TryOn = () => {
         const img = imgRef.current;
         if (!img.complete || !img.src) return;
         const adj = adjRef.current[glassesRef.current] || DEFAULT_ADJ;
-        let w = smoothed.gw * adj.scaleW * smoothed.ds;
-        let h = smoothed.gh * adj.scaleH * smoothed.ds;
-        w *= sizeScale;   // apply size multiplier
+
+        // ── Req 3: No depthScale on mobile ───────────────────────
+        let w = isMobile
+          ? smoothed.gw * adj.scaleW
+          : smoothed.gw * adj.scaleW * smoothed.ds;
+        let h = isMobile
+          ? smoothed.gh * adj.scaleH
+          : smoothed.gh * adj.scaleH * smoothed.ds;
+
+        w *= sizeScale;
         h *= sizeScale;
+
         const finalAngle = smoothed.angle + (adj.rotate * Math.PI / 180);
         const fx = smoothed.cx + adj.offsetX;
         const fy = smoothed.cy + adj.offsetY;
+
         if (showArmsRef.current) {
           drawGlassesWithRealisticArms(ctx, img, fx, fy, w, h, finalAngle);
         } else {
@@ -735,7 +476,7 @@ const TryOn = () => {
       }
     }
     return () => { if (faceMesh) faceMesh.close(); };
-  }, [selectedSizeKey, isMobile, mobileCanvasSize]);
+  }, [selectedSizeKey]);
 
   useEffect(() => {
     if (!is3D && imgRef.current) {
@@ -747,405 +488,428 @@ const TryOn = () => {
   const capturePhoto = useCallback(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-    const link = document.createElement('a');
-    link.download = 'vroptics_tryon.png';
+    const link = document.createElement("a");
+    link.download = "vroptics_tryon.png";
     link.href = canvas.toDataURL();
     link.click();
   }, []);
 
-  // Swipe handling for filter switching (mobile only)
-  const [touchStart, setTouchStart] = useState(null);
-  const handleTouchStart = (e) => {
+  // ── Req 9: Swipe to change filter ────────────────────────────
+  const handleTouchStart = useCallback((e) => {
     if (!isMobile) return;
-    setTouchStart(e.touches[0].clientX);
-  };
-  const handleTouchEnd = (e) => {
-    if (!isMobile || touchStart === null) return;
-    const touchEnd = e.changedTouches[0].clientX;
-    const diff = touchStart - touchEnd;
-    const currentIndex = GLASS_OPTIONS.findIndex(g => g.id === glasses);
-    if (Math.abs(diff) > 50) {
-      if (diff > 0 && currentIndex < GLASS_OPTIONS.length - 1) {
-        setGlasses(GLASS_OPTIONS[currentIndex + 1].id);
-      } else if (diff < 0 && currentIndex > 0) {
-        setGlasses(GLASS_OPTIONS[currentIndex - 1].id);
+    touchStartXRef.current = e.touches[0].clientX;
+  }, []);
+
+  const handleTouchEnd = useCallback((e) => {
+    if (!isMobile || touchStartXRef.current === null) return;
+    const dx = e.changedTouches[0].clientX - touchStartXRef.current;
+    if (Math.abs(dx) > 50) {
+      const currentIdx = GLASS_OPTIONS.findIndex(g => g.id === glasses);
+      if (dx < 0 && currentIdx < GLASS_OPTIONS.length - 1) {
+        setGlasses(GLASS_OPTIONS[currentIdx + 1].id);
+      } else if (dx > 0 && currentIdx > 0) {
+        setGlasses(GLASS_OPTIONS[currentIdx - 1].id);
       }
     }
-    setTouchStart(null);
-  };
+    touchStartXRef.current = null;
+  }, [glasses]);
 
   const currentFrameSizes = GLASS_OPTIONS.find(g => g.id === glasses)?.sizes || [];
+  const currentGlassName  = GLASS_OPTIONS.find(g => g.id === glasses)?.name || "";
 
-  // Mobile-only: horizontal filter bar component
-  const MobileFilterBar = () => (
-    <div style={{
-      position: "fixed",
-      bottom: 0,
-      left: 0,
-      right: 0,
-      background: "rgba(0,0,0,0.75)",
-      backdropFilter: "blur(20px)",
-      borderTop: "1px solid rgba(201,168,76,0.2)",
-      padding: "12px 0",
-      paddingBottom: "max(12px, env(safe-area-inset-bottom))",
-      zIndex: 100,
-      overflowX: "auto",
-      overflowY: "hidden",
-      whiteSpace: "nowrap",
-      WebkitOverflowScrolling: "touch",
-    }}>
-      <div style={{ display: "inline-flex", gap: "12px", padding: "0 16px" }}>
-        {GLASS_OPTIONS.map((g, idx) => (
-          <button
-            key={g.id}
-            onClick={() => setGlasses(g.id)}
-            style={{
-              display: "inline-flex",
-              flexDirection: "column",
-              alignItems: "center",
-              gap: "6px",
-              background: glasses === g.id ? (g.is3d ? "linear-gradient(135deg, #1a2a3a, #0f1a2a)" : "linear-gradient(135deg, #2a241c, #1a1610)") : "rgba(30,30,40,0.8)",
-              border: `1.5px solid ${glasses === g.id ? (g.is3d ? "#64b4ff" : "#c9a84c") : "rgba(201,168,76,0.2)"}`,
-              borderRadius: "60px",
-              padding: "10px 16px",
-              cursor: "pointer",
-              transition: "all 0.2s ease",
-              minWidth: "70px",
-            }}
-          >
-            <span style={{ fontSize: "24px" }}>{g.emoji}</span>
-            <span style={{ fontSize: "11px", fontWeight: 600, color: glasses === g.id ? "#c9a84c" : "rgba(255,255,255,0.7)" }}>{g.name}</span>
-            <span style={{ fontSize: "9px", color: glasses === g.id ? "#c9a84c" : "rgba(255,255,255,0.4)" }}>{g.price}</span>
-          </button>
-        ))}
-      </div>
-    </div>
-  );
-
-  // Mobile-only: bottom action bar
-  const MobileActionBar = () => (
-    <div style={{
-      position: "fixed",
-      bottom: "80px",
-      left: "50%",
-      transform: "translateX(-50%)",
-      display: "flex",
-      gap: "20px",
-      zIndex: 100,
-      background: "rgba(0,0,0,0.6)",
-      backdropFilter: "blur(16px)",
-      padding: "8px 20px",
-      borderRadius: "100px",
-      border: "1px solid rgba(201,168,76,0.3)",
-    }}>
-      <button
-        onClick={() => setShowArms(!showArms)}
+  // ══════════════════════════════════════════════════════════════
+  // ── MOBILE LAYOUT (Req 2, 6, 7, 9, 10) ───────────────────────
+  // ══════════════════════════════════════════════════════════════
+  if (isMobile) {
+    return (
+      <div
         style={{
-          background: showArms ? "rgba(201,168,76,0.2)" : "rgba(255,255,255,0.1)",
-          border: `1px solid ${showArms ? "#c9a84c" : "rgba(255,255,255,0.2)"}`,
-          borderRadius: "44px",
-          padding: "12px",
-          width: "52px",
-          height: "52px",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          cursor: "pointer",
-          color: showArms ? "#c9a84c" : "#ffffff",
-          fontSize: "20px",
+          position: "fixed",
+          inset: 0,
+          background: "#000",
+          overflow: "hidden",
+          fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, sans-serif",
+          color: "#fff",
+          touchAction: "pan-y",
         }}
+        onTouchStart={handleTouchStart}
+        onTouchEnd={handleTouchEnd}
       >
-        🦾
-      </button>
-      <button
-        onClick={capturePhoto}
-        style={{
-          background: "linear-gradient(135deg, #c9a84c, #b38f3a)",
-          border: "none",
-          borderRadius: "44px",
-          padding: "12px 24px",
+        {/* ── Hidden video source ─────────────────────────────── */}
+        <video ref={videoRef} style={{ display: "none" }} autoPlay playsInline muted />
+
+        {/* ── Req 2: Fullscreen canvas ────────────────────────── */}
+        <canvas
+          ref={canvasRef}
+          width={CANVAS_W}
+          height={CANVAS_H}
+          style={{
+            position: "absolute",
+            inset: 0,
+            width: "100vw",
+            height: "100vh",
+            objectFit: "cover",   // Req 2
+            display: "block",
+          }}
+        />
+        <canvas
+          ref={threeCanvasRef}
+          width={CANVAS_W}
+          height={CANVAS_H}
+          style={{
+            position: "absolute",
+            inset: 0,
+            width: "100vw",
+            height: "100vh",
+            objectFit: "cover",
+            pointerEvents: "none",
+            opacity: is3D ? 1 : 0,
+          }}
+        />
+
+        {/* ── Top header overlay ──────────────────────────────── */}
+        <div style={{
+          position: "absolute",
+          top: 0,
+          left: 0,
+          right: 0,
+          paddingTop: "env(safe-area-inset-top, 12px)",
+          padding: "env(safe-area-inset-top, 12px) 20px 16px",
+          background: "linear-gradient(to bottom, rgba(0,0,0,0.65), transparent)",
           display: "flex",
           alignItems: "center",
-          justifyContent: "center",
-          cursor: "pointer",
-          color: "#0a0a0f",
+          justifyContent: "space-between",
+          zIndex: 20,
+        }}>
+          <div style={{
+            fontSize: "20px",
+            fontWeight: 800,
+            letterSpacing: "-0.5px",
+            background: "linear-gradient(135deg, #fff 0%, #c9a84c 100%)",
+            WebkitBackgroundClip: "text",
+            WebkitTextFillColor: "transparent",
+            backgroundClip: "text",
+          }}>
+            VR<span style={{ color: "#c9a84c", WebkitTextFillColor: "#c9a84c" }}>.</span>OPTICS
+          </div>
+          <div style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "6px",
+            fontSize: "10px",
+            fontWeight: 700,
+            letterSpacing: "1.5px",
+            color: "#c9a84c",
+            background: "rgba(0,0,0,0.55)",
+            border: "1px solid rgba(201,168,76,0.5)",
+            padding: "6px 14px",
+            borderRadius: "100px",
+            backdropFilter: "blur(8px)",
+          }}>
+            <div style={{ width: "6px", height: "6px", borderRadius: "50%", background: "#c9a84c", boxShadow: "0 0 8px #c9a84c", animation: "pulse 1.2s ease-in-out infinite" }} />
+            {is3D ? "3D" : "LIVE"}
+          </div>
+        </div>
+
+        {/* ── Loading overlay ─────────────────────────────────── */}
+        {!cameraReady && (
+          <div style={{
+            position: "absolute",
+            inset: 0,
+            background: "rgba(8,8,12,0.98)",
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: "24px",
+            zIndex: 50,
+          }}>
+            <div style={{
+              width: "56px",
+              height: "56px",
+              borderRadius: "50%",
+              border: "2px solid rgba(201,168,76,0.2)",
+              borderTop: "2px solid #c9a84c",
+              animation: "spinRing 0.9s linear infinite",
+            }} />
+            <div style={{ textAlign: "center" }}>
+              <div style={{ fontSize: "12px", fontWeight: 700, letterSpacing: "3px", color: "#c9a84c", marginBottom: "8px" }}>INITIALIZING</div>
+              <div style={{ fontSize: "11px", color: "rgba(255,255,255,0.4)" }}>Allow camera access to continue</div>
+            </div>
+          </div>
+        )}
+
+        {glbLoading && (
+          <div style={{
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%,-50%)",
+            fontSize: "12px",
+            fontWeight: 700,
+            letterSpacing: "2px",
+            background: "rgba(0,0,0,0.9)",
+            padding: "12px 24px",
+            borderRadius: "100px",
+            zIndex: 40,
+            border: "1px solid #c9a84c",
+            backdropFilter: "blur(12px)",
+          }}>
+            LOADING 3D…
+          </div>
+        )}
+
+        {/* ── Active filter name pill ─────────────────────────── */}
+        <div style={{
+          position: "absolute",
+          bottom: "calc(env(safe-area-inset-bottom, 16px) + 168px)",
+          left: "50%",
+          transform: "translateX(-50%)",
+          fontSize: "13px",
           fontWeight: 700,
-          fontSize: "14px",
-          gap: "8px",
-          minWidth: "120px",
-        }}
-      >
-        📸 CAPTURE
-      </button>
-    </div>
-  );
+          color: "#fff",
+          background: "rgba(0,0,0,0.5)",
+          backdropFilter: "blur(8px)",
+          padding: "6px 20px",
+          borderRadius: "100px",
+          border: "1px solid rgba(255,255,255,0.15)",
+          whiteSpace: "nowrap",
+          zIndex: 20,
+        }}>
+          {currentGlassName}
+        </div>
 
-  // Mobile camera container style
-  const mobileCameraStyle = {
-    position: "fixed",
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    width: "100vw",
-    height: "100vh",
-    backgroundColor: "#000",
-    zIndex: 1,
-  };
+        {/* ── Req 6 & 10: Bottom overlay — Snapchat-style filter bar ── */}
+        <div style={{
+          position: "absolute",
+          bottom: 0,
+          left: 0,
+          right: 0,
+          paddingBottom: "env(safe-area-inset-bottom, 16px)",  // Req 10
+          background: "linear-gradient(to top, rgba(0,0,0,0.88) 0%, rgba(0,0,0,0.6) 60%, transparent 100%)",
+          zIndex: 20,
+        }}>
+          {/* Req 6: Horizontal scrollable filter row ── */}
+          <div style={{
+            overflowX: "auto",                 // Req 6
+            display: "flex",                   // Req 6
+            gap: "12px",                       // Req 6
+            padding: "16px 20px 8px",
+            scrollSnapType: "x mandatory",
+            WebkitOverflowScrolling: "touch",
+            scrollbarWidth: "none",
+            msOverflowStyle: "none",
+          }}>
+            {GLASS_OPTIONS.map((g) => {
+              const isActive = glasses === g.id;
+              return (
+                <div
+                  key={g.id}
+                  onClick={() => setGlasses(g.id)}
+                  style={{
+                    flexShrink: 0,
+                    width: "64px",              // Req 9: min 44px tap target (64px)
+                    height: "64px",
+                    borderRadius: "50%",        // Req 6: circular card
+                    background: isActive
+                      ? (g.is3d ? "rgba(100,180,255,0.35)" : "rgba(201,168,76,0.35)")
+                      : "rgba(0,0,0,0.55)",
+                    border: `2.5px solid ${isActive ? (g.is3d ? "#64b4ff" : "#c9a84c") : "rgba(255,255,255,0.2)"}`,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    cursor: "pointer",
+                    fontSize: "26px",
+                    scrollSnapAlign: "start",
+                    transition: "all 0.2s cubic-bezier(0.2,0.9,0.4,1.1)",
+                    transform: isActive ? "scale(1.18)" : "scale(1)",
+                    backdropFilter: "blur(6px)",
+                    boxShadow: isActive
+                      ? `0 0 16px ${g.is3d ? "rgba(100,180,255,0.5)" : "rgba(201,168,76,0.45)"},inset 0 1px 0 rgba(255,255,255,0.15)`
+                      : "none",
+                    WebkitTapHighlightColor: "transparent",
+                  }}
+                >
+                  {g.emoji}
+                </div>
+              );
+            })}
+          </div>
 
-  const mobileCanvasStyle = {
-    width: "100vw",
-    height: "100vh",
-    objectFit: "cover",
-    borderRadius: 0,
-  };
+          {/* Controls row: Arms toggle | Capture | placeholder ── */}
+          <div style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-around",
+            padding: "12px 40px 16px",
+          }}>
+            {/* Arms toggle — Req 7: keep only essential controls */}
+            {!is3D ? (
+              <button
+                onClick={() => setShowArms(p => !p)}
+                style={{
+                  width: "52px",                   // Req 9: ≥44px tap target
+                  height: "52px",
+                  borderRadius: "50%",
+                  background: showArms ? "rgba(201,168,76,0.3)" : "rgba(255,255,255,0.12)",
+                  border: `2px solid ${showArms ? "#c9a84c" : "rgba(255,255,255,0.25)"}`,
+                  color: "#fff",
+                  fontSize: "22px",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  cursor: "pointer",
+                  backdropFilter: "blur(6px)",
+                  WebkitTapHighlightColor: "transparent",
+                  transition: "all 0.2s",
+                }}
+                aria-label="Toggle arms"
+              >
+                🦾
+              </button>
+            ) : <div style={{ width: "52px", height: "52px" }} />}
 
-  // Desktop UI (unchanged)
-  const DesktopUI = () => (
-    <div style={{ 
-      fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif", 
-      background: "radial-gradient(circle at 20% 30%, #0a0a0f, #000000)", 
-      color: "#ffffff", 
-      minHeight: "100vh", 
-      display: "flex", 
+            {/* Capture button ── */}
+            <button
+              onClick={capturePhoto}
+              style={{
+                width: "76px",                     // Req 9: large tap target
+                height: "76px",
+                borderRadius: "50%",
+                background: "#fff",
+                border: "5px solid rgba(255,255,255,0.4)",
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                fontSize: "26px",
+                boxShadow: "0 0 0 2px rgba(255,255,255,0.2), 0 4px 16px rgba(0,0,0,0.4)",
+                WebkitTapHighlightColor: "transparent",
+                transition: "transform 0.15s",
+                flexShrink: 0,
+              }}
+              onTouchStart={e => { e.currentTarget.style.transform = "scale(0.92)"; }}
+              onTouchEnd={e   => { e.currentTarget.style.transform = "scale(1)"; }}
+              aria-label="Capture photo"
+            >
+              📸
+            </button>
+
+            {/* Placeholder for layout symmetry ── */}
+            <div style={{ width: "52px", height: "52px" }} />
+          </div>
+        </div>
+
+        {/* ── Shared animations ─────────────────────────────── */}
+        <style>{`
+          @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.4;transform:scale(.8)} }
+          @keyframes spinRing { to{transform:rotate(360deg)} }
+          div::-webkit-scrollbar { display:none; }
+          * { box-sizing:border-box; }
+        `}</style>
+      </div>
+    );
+  }
+
+  // ══════════════════════════════════════════════════════════════
+  // ── DESKTOP LAYOUT (Req 11: completely unchanged) ─────────────
+  // ══════════════════════════════════════════════════════════════
+  return (
+    <div style={{
+      fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+      background: "radial-gradient(circle at 20% 30%, #0a0a0f, #000000)",
+      color: "#ffffff",
+      minHeight: "100vh",
+      display: "flex",
       flexDirection: "column",
       position: "relative",
-      overflowX: "hidden"
+      overflowX: "hidden",
     }}>
-      <div style={{
-        position: "fixed",
-        inset: 0,
-        backgroundImage: `radial-gradient(circle at 25% 40%, rgba(201,168,76,0.08) 0%, transparent 50%)`,
-        pointerEvents: "none",
-        zIndex: 0
-      }} />
-      <div style={{ position: "fixed", top: "-20%", right: "-10%", width: "70vw", height: "70vw", background: "radial-gradient(circle, rgba(201,168,76,0.08), transparent 70%)", borderRadius: "50%", pointerEvents: "none", zIndex: 0 }} />
-      <div style={{ position: "fixed", bottom: "-20%", left: "-10%", width: "70vw", height: "70vw", background: "radial-gradient(circle, rgba(100,180,255,0.06), transparent 70%)", borderRadius: "50%", pointerEvents: "none", zIndex: 0 }} />
+      <div style={{ position:"fixed", inset:0, backgroundImage:`radial-gradient(circle at 25% 40%, rgba(201,168,76,0.08) 0%, transparent 50%)`, pointerEvents:"none", zIndex:0 }} />
+      <div style={{ position:"fixed", top:"-20%", right:"-10%", width:"70vw", height:"70vw", background:"radial-gradient(circle, rgba(201,168,76,0.08), transparent 70%)", borderRadius:"50%", pointerEvents:"none", zIndex:0 }} />
+      <div style={{ position:"fixed", bottom:"-20%", left:"-10%", width:"70vw", height:"70vw", background:"radial-gradient(circle, rgba(100,180,255,0.06), transparent 70%)", borderRadius:"50%", pointerEvents:"none", zIndex:0 }} />
 
-      <div style={{ 
-        display: "flex", 
-        alignItems: "center", 
-        justifyContent: "space-between", 
-        padding: "20px 32px", 
-        borderBottom: "1px solid rgba(201,168,76,0.2)",
-        backdropFilter: "blur(20px)",
-        background: "rgba(0,0,0,0.4)",
-        zIndex: 2,
-        position: "relative"
-      }}>
-        <div style={{ 
-          fontFamily: "'Inter', sans-serif", 
-          fontSize: "28px", 
-          fontWeight: 700, 
-          letterSpacing: "-0.5px", 
-          background: "linear-gradient(135deg, #ffffff 0%, #c9a84c 100%)",
-          WebkitBackgroundClip: "text",
-          WebkitTextFillColor: "transparent",
-          backgroundClip: "text"
-        }}>
-          VR<span style={{ color: "#c9a84c", background: "none", WebkitTextFillColor: "#c9a84c" }}>.</span>OPTICS
+      {/* Header */}
+      <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", padding:"20px 32px", borderBottom:"1px solid rgba(201,168,76,0.2)", backdropFilter:"blur(20px)", background:"rgba(0,0,0,0.4)", zIndex:2, position:"relative" }}>
+        <div style={{ fontFamily:"'Inter', sans-serif", fontSize:"28px", fontWeight:700, letterSpacing:"-0.5px", background:"linear-gradient(135deg, #ffffff 0%, #c9a84c 100%)", WebkitBackgroundClip:"text", WebkitTextFillColor:"transparent", backgroundClip:"text" }}>
+          VR<span style={{ color:"#c9a84c", background:"none", WebkitTextFillColor:"#c9a84c" }}>.</span>OPTICS
         </div>
-        <div style={{ 
-          fontSize: "11px", 
-          letterSpacing: "3px", 
-          background: "rgba(201,168,76,0.12)",
-          border: "1px solid rgba(201,168,76,0.4)",
-          padding: "8px 20px", 
-          borderRadius: "100px",
-          backdropFilter: "blur(8px)",
-          fontWeight: 600,
-          textTransform: "uppercase"
-        }}>
+        <div style={{ fontSize:"11px", letterSpacing:"3px", background:"rgba(201,168,76,0.12)", border:"1px solid rgba(201,168,76,0.4)", padding:"8px 20px", borderRadius:"100px", backdropFilter:"blur(8px)", fontWeight:600, textTransform:"uppercase" }}>
           {is3D ? "3D MODE" : "LIVE TRY-ON"}
         </div>
       </div>
 
-      <div style={{ 
-        display: "flex", 
-        flexDirection: "column", 
-        gap: "24px", 
-        flex: 1, 
-        padding: "24px 32px 32px 32px", 
-        overflowY: "auto",
-        zIndex: 2,
-        position: "relative",
-        maxWidth: "1400px",
-        margin: "0 auto",
-        width: "100%"
-      }}>
-        <div style={{ 
-          background: "rgba(10, 10, 15, 0.6)",
-          backdropFilter: "blur(24px)",
-          borderRadius: "40px", 
-          padding: "16px", 
-          border: "1px solid rgba(201,168,76,0.2)",
-          boxShadow: "0 25px 50px -12px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.05)"
-        }}>
-          <div style={{ position: "relative", width: "100%", aspectRatio: "4/3", maxWidth: "100%", margin: "0 auto", borderRadius: "32px", overflow: "hidden" }}>
+      {/* Main content */}
+      <div style={{ display:"flex", flexDirection:"column", gap:"24px", flex:1, padding:"24px 32px 32px 32px", overflowY:"auto", zIndex:2, position:"relative", maxWidth:"1400px", margin:"0 auto", width:"100%" }}>
+
+        {/* Camera panel */}
+        <div style={{ background:"rgba(10,10,15,0.6)", backdropFilter:"blur(24px)", borderRadius:"40px", padding:"16px", border:"1px solid rgba(201,168,76,0.2)", boxShadow:"0 25px 50px -12px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.05)" }}>
+          <div style={{ position:"relative", width:"100%", aspectRatio:"4/3", maxWidth:"100%", margin:"0 auto", borderRadius:"32px", overflow:"hidden" }}>
             {[...Array(4)].map((_, i) => (
-              <div key={i} style={{
-                position: "absolute",
-                width: "24px",
-                height: "24px",
-                borderColor: "#c9a84c",
-                borderStyle: "solid",
-                zIndex: 10,
-                top: i < 2 ? "20px" : "auto",
-                bottom: i >= 2 ? "20px" : "auto",
-                left: i % 2 === 0 ? "20px" : "auto",
-                right: i % 2 === 1 ? "20px" : "auto",
-                borderWidth: i === 0 ? "2px 0 0 2px" : i === 1 ? "2px 2px 0 0" : i === 2 ? "0 0 2px 2px" : "0 2px 2px 0",
-                opacity: 0.6,
-                pointerEvents: "none"
-              }} />
+              <div key={i} style={{ position:"absolute", width:"24px", height:"24px", borderColor:"#c9a84c", borderStyle:"solid", zIndex:10, top:i<2?"20px":"auto", bottom:i>=2?"20px":"auto", left:i%2===0?"20px":"auto", right:i%2===1?"20px":"auto", borderWidth:i===0?"2px 0 0 2px":i===1?"2px 2px 0 0":i===2?"0 0 2px 2px":"0 2px 2px 0", opacity:0.6, pointerEvents:"none" }} />
             ))}
-            <div style={{ 
-              position: "absolute", 
-              top: "20px", 
-              right: "20px", 
-              display: "flex", 
-              alignItems: "center", 
-              gap: "10px", 
-              fontSize: "10px", 
-              fontWeight: 600,
-              letterSpacing: "1.5px", 
-              color: "#c9a84c", 
-              zIndex: 10, 
-              background: "rgba(0,0,0,0.7)", 
-              padding: "6px 16px", 
-              borderRadius: "100px",
-              backdropFilter: "blur(12px)",
-              border: "0.5px solid rgba(201,168,76,0.5)"
-            }}>
-              <div style={{ width: "6px", height: "6px", borderRadius: "50%", background: "#c9a84c", boxShadow: "0 0 8px #c9a84c", animation: "pulse 1.2s ease-in-out infinite" }} />
+            <div style={{ position:"absolute", top:"20px", right:"20px", display:"flex", alignItems:"center", gap:"10px", fontSize:"10px", fontWeight:600, letterSpacing:"1.5px", color:"#c9a84c", zIndex:10, background:"rgba(0,0,0,0.7)", padding:"6px 16px", borderRadius:"100px", backdropFilter:"blur(12px)", border:"0.5px solid rgba(201,168,76,0.5)" }}>
+              <div style={{ width:"6px", height:"6px", borderRadius:"50%", background:"#c9a84c", boxShadow:"0 0 8px #c9a84c", animation:"pulse 1.2s ease-in-out infinite" }} />
               {is3D ? "3D ACTIVE" : "TRACKING"}
             </div>
-            <div style={{ 
-              position: "absolute", 
-              bottom: "20px", 
-              left: "20px", 
-              display: "flex", 
-              gap: "10px", 
-              flexWrap: "wrap", 
-              zIndex: 10 
-            }}>
-              <span style={{ fontSize: "10px", fontWeight: 500, background: "rgba(0,0,0,0.7)", backdropFilter: "blur(8px)", border: "0.5px solid rgba(255,255,255,0.1)", padding: "5px 14px", borderRadius: "100px", letterSpacing: "0.3px" }}>💡 {brightness}%</span>
-              <span style={{ fontSize: "10px", fontWeight: 500, background: "rgba(0,0,0,0.7)", backdropFilter: "blur(8px)", border: "0.5px solid rgba(255,255,255,0.1)", padding: "5px 14px", borderRadius: "100px" }}>🎨 {contrast}%</span>
-              <span style={{ fontSize: "10px", fontWeight: 500, background: "rgba(0,0,0,0.7)", backdropFilter: "blur(8px)", border: "0.5px solid rgba(255,255,255,0.1)", padding: "5px 14px", borderRadius: "100px" }}>🌈 {saturate}%</span>
-              {showArms && !is3D && <span style={{ fontSize: "10px", background: "rgba(201,168,76,0.2)", borderColor: "#c9a84c", color: "#c9a84c", padding: "5px 14px", borderRadius: "100px" }}>🦾 ARMS</span>}
-              {is3D && <span style={{ fontSize: "10px", color: "#64b4ff", background: "rgba(100,180,255,0.15)", border: "0.5px solid rgba(100,180,255,0.4)", padding: "5px 14px", borderRadius: "100px" }}>✨ 3D MODEL</span>}
+            <div style={{ position:"absolute", bottom:"20px", left:"20px", display:"flex", gap:"10px", flexWrap:"wrap", zIndex:10 }}>
+              <span style={{ fontSize:"10px", fontWeight:500, background:"rgba(0,0,0,0.7)", backdropFilter:"blur(8px)", border:"0.5px solid rgba(255,255,255,0.1)", padding:"5px 14px", borderRadius:"100px", letterSpacing:"0.3px" }}>💡 {brightness}%</span>
+              <span style={{ fontSize:"10px", fontWeight:500, background:"rgba(0,0,0,0.7)", backdropFilter:"blur(8px)", border:"0.5px solid rgba(255,255,255,0.1)", padding:"5px 14px", borderRadius:"100px" }}>🎨 {contrast}%</span>
+              <span style={{ fontSize:"10px", fontWeight:500, background:"rgba(0,0,0,0.7)", backdropFilter:"blur(8px)", border:"0.5px solid rgba(255,255,255,0.1)", padding:"5px 14px", borderRadius:"100px" }}>🌈 {saturate}%</span>
+              {showArms && !is3D && <span style={{ fontSize:"10px", background:"rgba(201,168,76,0.2)", borderColor:"#c9a84c", color:"#c9a84c", padding:"5px 14px", borderRadius:"100px" }}>🦾 ARMS</span>}
+              {is3D && <span style={{ fontSize:"10px", color:"#64b4ff", background:"rgba(100,180,255,0.15)", border:"0.5px solid rgba(100,180,255,0.4)", padding:"5px 14px", borderRadius:"100px" }}>✨ 3D MODEL</span>}
             </div>
             {glbLoading && (
-              <div style={{ 
-                position: "absolute", 
-                top: "50%", 
-                left: "50%", 
-                transform: "translate(-50%,-50%)", 
-                fontSize: "12px", 
-                fontWeight: 600,
-                letterSpacing: "2px", 
-                background: "rgba(0,0,0,0.9)", 
-                padding: "10px 24px", 
-                borderRadius: "100px", 
-                zIndex: 20, 
-                border: "1px solid #c9a84c",
-                backdropFilter: "blur(12px)"
-              }}>
+              <div style={{ position:"absolute", top:"50%", left:"50%", transform:"translate(-50%,-50%)", fontSize:"12px", fontWeight:600, letterSpacing:"2px", background:"rgba(0,0,0,0.9)", padding:"10px 24px", borderRadius:"100px", zIndex:20, border:"1px solid #c9a84c", backdropFilter:"blur(12px)" }}>
                 LOADING 3D...
               </div>
             )}
             {!cameraReady && (
-              <div style={{
-                position: "absolute",
-                inset: 0,
-                borderRadius: "32px",
-                background: "rgba(8, 8, 12, 0.98)",
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                justifyContent: "center",
-                gap: "24px",
-                zIndex: 30,
-              }}>
-                <div style={{
-                  width: "56px",
-                  height: "56px",
-                  borderRadius: "50%",
-                  border: "2px solid rgba(201,168,76,0.2)",
-                  borderTop: "2px solid #c9a84c",
-                  animation: "spinRing 0.9s linear infinite"
-                }} />
-                <div style={{ textAlign: "center" }}>
-                  <div style={{ fontSize: "12px", fontWeight: 600, letterSpacing: "3px", color: "#c9a84c", marginBottom: "8px" }}>INITIALIZING</div>
-                  <div style={{ fontSize: "11px", color: "rgba(255,255,255,0.4)", letterSpacing: "0.5px" }}>Please allow camera access</div>
+              <div style={{ position:"absolute", inset:0, borderRadius:"32px", background:"rgba(8,8,12,0.98)", display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", gap:"24px", zIndex:30 }}>
+                <div style={{ width:"56px", height:"56px", borderRadius:"50%", border:"2px solid rgba(201,168,76,0.2)", borderTop:"2px solid #c9a84c", animation:"spinRing 0.9s linear infinite" }} />
+                <div style={{ textAlign:"center" }}>
+                  <div style={{ fontSize:"12px", fontWeight:600, letterSpacing:"3px", color:"#c9a84c", marginBottom:"8px" }}>INITIALIZING</div>
+                  <div style={{ fontSize:"11px", color:"rgba(255,255,255,0.4)", letterSpacing:"0.5px" }}>Please allow camera access</div>
                 </div>
               </div>
             )}
-            <video ref={videoRef} style={{ display: "none" }} autoPlay playsInline muted />
-            <canvas ref={canvasRef} width={640} height={480} style={{ display: "block", width: "100%", height: "100%", borderRadius: "32px", objectFit: "cover", boxShadow: "inset 0 0 20px rgba(0,0,0,0.2)" }} />
-            <canvas ref={threeCanvasRef} width={640} height={480} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", pointerEvents: "none", opacity: is3D ? 1 : 0, borderRadius: "32px" }} />
+            <video ref={videoRef} style={{ display:"none" }} autoPlay playsInline muted />
+            <canvas ref={canvasRef} width={640} height={480} style={{ display:"block", width:"100%", height:"100%", borderRadius:"32px", objectFit:"cover", boxShadow:"inset 0 0 20px rgba(0,0,0,0.2)" }} />
+            <canvas ref={threeCanvasRef} width={640} height={480} style={{ position:"absolute", inset:0, width:"100%", height:"100%", pointerEvents:"none", opacity:is3D?1:0, borderRadius:"32px" }} />
           </div>
         </div>
 
-        <div style={{ 
-          background: "rgba(10, 10, 15, 0.6)",
-          backdropFilter: "blur(24px)",
-          borderRadius: "40px", 
-          padding: "28px", 
-          display: "flex", 
-          flexDirection: "column", 
-          gap: "28px", 
-          border: "1px solid rgba(201,168,76,0.15)",
-          boxShadow: "0 8px 32px rgba(0,0,0,0.3)"
-        }}>
+        {/* Controls panel */}
+        <div style={{ background:"rgba(10,10,15,0.6)", backdropFilter:"blur(24px)", borderRadius:"40px", padding:"28px", display:"flex", flexDirection:"column", gap:"28px", border:"1px solid rgba(201,168,76,0.15)", boxShadow:"0 8px 32px rgba(0,0,0,0.3)" }}>
+
+          {/* Frame selector */}
           <div>
-            <div style={{ fontSize: "11px", letterSpacing: "3px", color: "#c9a84c", marginBottom: "16px", fontWeight: 600, display: "flex", alignItems: "center", gap: "10px" }}>
-              <span style={{ width: "24px", height: "1px", background: "#c9a84c" }}></span>
+            <div style={{ fontSize:"11px", letterSpacing:"3px", color:"#c9a84c", marginBottom:"16px", fontWeight:600, display:"flex", alignItems:"center", gap:"10px" }}>
+              <span style={{ width:"24px", height:"1px", background:"#c9a84c" }}></span>
               SELECT FRAME
             </div>
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))", gap: "16px" }}>
+            <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fit, minmax(140px, 1fr))", gap:"16px" }}>
               {GLASS_OPTIONS.map(g => (
-                <div key={g.id} onClick={() => setGlasses(g.id)} style={{
-                  background: glasses === g.id ? (g.is3d ? "linear-gradient(135deg, #0f1828, #0a0f1a)" : "linear-gradient(135deg, #1e1a10, #14110a)") : "rgba(20,20,28,0.5)",
-                  border: `1.5px solid ${glasses === g.id ? (g.is3d ? "#64b4ff" : "#c9a84c") : "rgba(201,168,76,0.15)"}`,
-                  borderRadius: "28px", padding: "20px 12px", display: "flex", flexDirection: "column", alignItems: "center", gap: "8px", cursor: "pointer", transition: "all 0.3s cubic-bezier(0.2, 0.9, 0.4, 1.1)", transform: glasses === g.id ? "translateY(-2px)" : "translateY(0)", boxShadow: glasses === g.id ? `0 8px 20px ${g.is3d ? "rgba(100,180,255,0.2)" : "rgba(201,168,76,0.15)"}` : "none", position: "relative"
-                }}>
-                  {g.is3d && <span style={{ position: "absolute", top: "12px", right: "12px", fontSize: "9px", fontWeight: 700, color: "#64b4ff", background: "rgba(100,180,255,0.15)", padding: "3px 10px", borderRadius: "100px", border: "0.5px solid rgba(100,180,255,0.4)" }}>3D</span>}
-                  <div style={{ fontSize: "40px", filter: "drop-shadow(0 4px 6px rgba(0,0,0,0.3))" }}>{g.emoji}</div>
-                  <div style={{ fontSize: "14px", fontWeight: 600, color: "rgba(255,255,255,0.9)" }}>{g.name}</div>
-                  <div style={{ fontSize: "15px", color: g.is3d ? "#64b4ff" : "#c9a84c", fontWeight: 700 }}>{g.price}</div>
+                <div key={g.id} onClick={() => setGlasses(g.id)} style={{ background:glasses===g.id?(g.is3d?"linear-gradient(135deg,#0f1828,#0a0f1a)":"linear-gradient(135deg,#1e1a10,#14110a)"):"rgba(20,20,28,0.5)", border:`1.5px solid ${glasses===g.id?(g.is3d?"#64b4ff":"#c9a84c"):"rgba(201,168,76,0.15)"}`, borderRadius:"28px", padding:"20px 12px", display:"flex", flexDirection:"column", alignItems:"center", gap:"8px", cursor:"pointer", transition:"all 0.3s cubic-bezier(0.2,0.9,0.4,1.1)", transform:glasses===g.id?"translateY(-2px)":"translateY(0)", boxShadow:glasses===g.id?`0 8px 20px ${g.is3d?"rgba(100,180,255,0.2)":"rgba(201,168,76,0.15)"}`:"none", position:"relative" }}>
+                  {g.is3d && <span style={{ position:"absolute", top:"12px", right:"12px", fontSize:"9px", fontWeight:700, color:"#64b4ff", background:"rgba(100,180,255,0.15)", padding:"3px 10px", borderRadius:"100px", border:"0.5px solid rgba(100,180,255,0.4)" }}>3D</span>}
+                  <div style={{ fontSize:"40px", filter:"drop-shadow(0 4px 6px rgba(0,0,0,0.3))" }}>{g.emoji}</div>
+                  <div style={{ fontSize:"14px", fontWeight:600, color:"rgba(255,255,255,0.9)" }}>{g.name}</div>
+                  <div style={{ fontSize:"15px", color:g.is3d?"#64b4ff":"#c9a84c", fontWeight:700 }}>{g.price}</div>
                 </div>
               ))}
             </div>
           </div>
 
-          {/* Size Selector UI (Desktop) */}
+          {/* Size selector */}
           {currentFrameSizes.length > 0 && (
             <div>
-              <div style={{ fontSize: "11px", letterSpacing: "3px", color: "#c9a84c", marginBottom: "16px", fontWeight: 600, display: "flex", alignItems: "center", gap: "10px" }}>
-                <span style={{ width: "24px", height: "1px", background: "#c9a84c" }}></span>
+              <div style={{ fontSize:"11px", letterSpacing:"3px", color:"#c9a84c", marginBottom:"16px", fontWeight:600, display:"flex", alignItems:"center", gap:"10px" }}>
+                <span style={{ width:"24px", height:"1px", background:"#c9a84c" }}></span>
                 FRAME SIZE
               </div>
-              <div style={{ display: "flex", gap: "12px", justifyContent: "stretch" }}>
+              <div style={{ display:"flex", gap:"12px", justifyContent:"stretch" }}>
                 {currentFrameSizes.map(size => (
-                  <button
-                    key={size.label}
-                    onClick={() => setSelectedSizeKey(size.label)}
-                    style={{
-                      flex: 1,
-                      background: selectedSizeKey === size.label ? "linear-gradient(135deg, #c9a84c, #b38f3a)" : "rgba(20,20,28,0.8)",
-                      border: `1px solid ${selectedSizeKey === size.label ? "#c9a84c" : "rgba(201,168,76,0.2)"}`,
-                      color: selectedSizeKey === size.label ? "#0a0a0f" : "#ffffff",
-                      fontSize: "13px",
-                      fontWeight: 700,
-                      padding: "12px 0",
-                      borderRadius: "100px",
-                      cursor: "pointer",
-                      transition: "all 0.2s ease",
-                      letterSpacing: "0.5px",
-                      textTransform: "uppercase"
-                    }}
-                  >
+                  <button key={size.label} onClick={() => setSelectedSizeKey(size.label)} style={{ flex:1, background:selectedSizeKey===size.label?"linear-gradient(135deg,#c9a84c,#b38f3a)":"rgba(20,20,28,0.8)", border:`1px solid ${selectedSizeKey===size.label?"#c9a84c":"rgba(201,168,76,0.2)"}`, color:selectedSizeKey===size.label?"#0a0a0f":"#ffffff", fontSize:"13px", fontWeight:700, padding:"12px 0", borderRadius:"100px", cursor:"pointer", transition:"all 0.2s ease", letterSpacing:"0.5px", textTransform:"uppercase" }}>
                     {size.label}
                   </button>
                 ))}
@@ -1153,247 +917,88 @@ const TryOn = () => {
             </div>
           )}
 
+          {/* Arms toggle */}
           {!is3D && (
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "8px 0" }}>
-              <span style={{ fontSize: "13px", fontWeight: 500, color: "rgba(255,255,255,0.7)", letterSpacing: "0.3px" }}>🦾 Realistic Arms (Behind Ears)</span>
-              <label style={{ position: "relative", display: "inline-block", width: "52px", height: "26px" }}>
-                <input type="checkbox" checked={showArms} onChange={(e) => setShowArms(e.target.checked)} style={{ opacity: 0, width: 0, height: 0 }} />
-                <span style={{ position: "absolute", cursor: "pointer", top: 0, left: 0, right: 0, bottom: 0, backgroundColor: "rgba(30,30,38,0.8)", transition: "0.3s", borderRadius: "26px", border: "0.5px solid rgba(201,168,76,0.3)" }}>
-                  <span style={{ position: "absolute", height: "20px", width: "20px", left: "3px", bottom: "2px", backgroundColor: "#c9a84c", transition: "0.3s", borderRadius: "50%", transform: showArms ? "translateX(26px)" : "none" }} />
+            <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", padding:"8px 0" }}>
+              <span style={{ fontSize:"13px", fontWeight:500, color:"rgba(255,255,255,0.7)", letterSpacing:"0.3px" }}>🦾 Realistic Arms (Behind Ears)</span>
+              <label style={{ position:"relative", display:"inline-block", width:"52px", height:"26px" }}>
+                <input type="checkbox" checked={showArms} onChange={e => setShowArms(e.target.checked)} style={{ opacity:0, width:0, height:0 }} />
+                <span style={{ position:"absolute", cursor:"pointer", top:0, left:0, right:0, bottom:0, backgroundColor:"rgba(30,30,38,0.8)", transition:"0.3s", borderRadius:"26px", border:"0.5px solid rgba(201,168,76,0.3)" }}>
+                  <span style={{ position:"absolute", height:"20px", width:"20px", left:"3px", bottom:"2px", backgroundColor:"#c9a84c", transition:"0.3s", borderRadius:"50%", transform:showArms?"translateX(26px)":"none" }} />
                 </span>
               </label>
             </div>
           )}
 
+          {/* Frame adjustment sliders */}
           {!is3D && (
-            <div style={{ background: "rgba(0,0,0,0.3)", borderRadius: "28px", padding: "20px", border: "0.5px solid rgba(201,168,76,0.15)" }}>
-              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "20px", alignItems: "center" }}>
-                <span style={{ fontSize: "11px", letterSpacing: "3px", color: "#c9a84c", fontWeight: 600 }}>⚙️ FRAME ADJUSTMENT</span>
-                <button onClick={resetAdj} style={{ fontSize: "10px", fontWeight: 600, color: "#c9a84c", background: "rgba(201,168,76,0.1)", border: "0.5px solid rgba(201,168,76,0.3)", padding: "5px 16px", borderRadius: "100px", cursor: "pointer", transition: "all 0.2s" }}>RESET</button>
+            <div style={{ background:"rgba(0,0,0,0.3)", borderRadius:"28px", padding:"20px", border:"0.5px solid rgba(201,168,76,0.15)" }}>
+              <div style={{ display:"flex", justifyContent:"space-between", marginBottom:"20px", alignItems:"center" }}>
+                <span style={{ fontSize:"11px", letterSpacing:"3px", color:"#c9a84c", fontWeight:600 }}>⚙️ FRAME ADJUSTMENT</span>
+                <button onClick={resetAdj} style={{ fontSize:"10px", fontWeight:600, color:"#c9a84c", background:"rgba(201,168,76,0.1)", border:"0.5px solid rgba(201,168,76,0.3)", padding:"5px 16px", borderRadius:"100px", cursor:"pointer", transition:"all 0.2s" }}>RESET</button>
               </div>
               {[
-                { label: "WIDTH", key: "scaleW", min: 0.3, max: 3, step: 0.05, fmt: v => `${v.toFixed(2)}×` },
-                { label: "HEIGHT", key: "scaleH", min: 0.3, max: 3, step: 0.05, fmt: v => `${v.toFixed(2)}×` },
-                { label: "MOVE L/R", key: "offsetX", min: -150, max: 150, step: 1, fmt: v => `${v > 0 ? "+" : ""}${v}px` },
-                { label: "MOVE U/D", key: "offsetY", min: -150, max: 150, step: 1, fmt: v => `${v > 0 ? "+" : ""}${v}px` },
-                { label: "ROTATION", key: "rotate", min: -30, max: 30, step: 0.5, fmt: v => `${v > 0 ? "+" : ""}${v.toFixed(1)}°` },
+                { label:"WIDTH",    key:"scaleW",  min:0.3,  max:3,   step:0.05, fmt: v => `${v.toFixed(2)}×` },
+                { label:"HEIGHT",   key:"scaleH",  min:0.3,  max:3,   step:0.05, fmt: v => `${v.toFixed(2)}×` },
+                { label:"MOVE L/R", key:"offsetX", min:-150, max:150, step:1,    fmt: v => `${v>0?"+":""}${v}px` },
+                { label:"MOVE U/D", key:"offsetY", min:-150, max:150, step:1,    fmt: v => `${v>0?"+":""}${v}px` },
+                { label:"ROTATION", key:"rotate",  min:-30,  max:30,  step:0.5,  fmt: v => `${v>0?"+":""}${v.toFixed(1)}°` },
               ].map(({ label, key, min, max, step, fmt }) => (
-                <div key={key} style={{ marginBottom: "18px" }}>
-                  <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "10px" }}>
-                    <span style={{ fontSize: "12px", color: "rgba(255,255,255,0.5)", fontWeight: 500 }}>{label}</span>
-                    <span style={{ fontSize: "12px", color: "#c9a84c", fontWeight: 600 }}>{fmt(curAdj[key])}</span>
+                <div key={key} style={{ marginBottom:"18px" }}>
+                  <div style={{ display:"flex", justifyContent:"space-between", marginBottom:"10px" }}>
+                    <span style={{ fontSize:"12px", color:"rgba(255,255,255,0.5)", fontWeight:500 }}>{label}</span>
+                    <span style={{ fontSize:"12px", color:"#c9a84c", fontWeight:600 }}>{fmt(curAdj[key])}</span>
                   </div>
-                  <input type="range" min={min} max={max} step={step} value={curAdj[key]} onChange={e => setAdj(key, Number(e.target.value))} style={{ width: "100%", height: "4px", background: "rgba(201,168,76,0.2)", borderRadius: "4px" }} />
+                  <input type="range" min={min} max={max} step={step} value={curAdj[key]} onChange={e => setAdj(key, Number(e.target.value))} style={{ width:"100%", height:"4px", background:"rgba(201,168,76,0.2)", borderRadius:"4px" }} />
                 </div>
               ))}
             </div>
           )}
 
+          {/* Scene filters */}
           <div>
-            <div style={{ fontSize: "11px", letterSpacing: "3px", color: "#c9a84c", marginBottom: "16px", fontWeight: 600, display: "flex", alignItems: "center", gap: "10px" }}>
-              <span style={{ width: "24px", height: "1px", background: "#c9a84c" }}></span>
+            <div style={{ fontSize:"11px", letterSpacing:"3px", color:"#c9a84c", marginBottom:"16px", fontWeight:600, display:"flex", alignItems:"center", gap:"10px" }}>
+              <span style={{ width:"24px", height:"1px", background:"#c9a84c" }}></span>
               SCENE FILTERS
             </div>
             {[
-              { label: "BRIGHTNESS", val: brightness, set: setBrightness, icon: "☀️" },
-              { label: "CONTRAST", val: contrast, set: setContrast, icon: "🎚️" },
-              { label: "SATURATION", val: saturate, set: setSaturate, icon: "🎨" },
+              { label:"BRIGHTNESS", val:brightness, set:setBrightness, icon:"☀️" },
+              { label:"CONTRAST",   val:contrast,   set:setContrast,   icon:"🎚️" },
+              { label:"SATURATION", val:saturate,   set:setSaturate,   icon:"🎨" },
             ].map(({ label, val, set, icon }) => (
-              <div key={label} style={{ marginBottom: "18px" }}>
-                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "10px" }}>
-                  <span style={{ fontSize: "12px", color: "rgba(255,255,255,0.5)", fontWeight: 500 }}>{icon} {label}</span>
-                  <span style={{ fontSize: "12px", color: "#c9a84c", fontWeight: 600 }}>{val}%</span>
+              <div key={label} style={{ marginBottom:"18px" }}>
+                <div style={{ display:"flex", justifyContent:"space-between", marginBottom:"10px" }}>
+                  <span style={{ fontSize:"12px", color:"rgba(255,255,255,0.5)", fontWeight:500 }}>{icon} {label}</span>
+                  <span style={{ fontSize:"12px", color:"#c9a84c", fontWeight:600 }}>{val}%</span>
                 </div>
-                <input type="range" min="0" max="200" step="1" value={val} onChange={e => set(Number(e.target.value))} style={{ width: "100%", height: "4px", background: "rgba(201,168,76,0.2)", borderRadius: "4px" }} />
+                <input type="range" min="0" max="200" step="1" value={val} onChange={e => set(Number(e.target.value))} style={{ width:"100%", height:"4px", background:"rgba(201,168,76,0.2)", borderRadius:"4px" }} />
               </div>
             ))}
           </div>
 
-          <button onClick={capturePhoto} style={{ width: "100%", background: "linear-gradient(135deg, rgba(201,168,76,0.15), rgba(201,168,76,0.05))", border: "1px solid rgba(201,168,76,0.4)", color: "#c9a84c", fontSize: "13px", letterSpacing: "2px", padding: "16px", borderRadius: "100px", cursor: "pointer", fontWeight: 700, transition: "all 0.3s ease", backdropFilter: "blur(8px)" }} onMouseEnter={e => { e.currentTarget.style.background = "linear-gradient(135deg, rgba(201,168,76,0.25), rgba(201,168,76,0.1))"; e.currentTarget.style.transform = "translateY(-1px)"; e.currentTarget.style.boxShadow = "0 8px 20px rgba(201,168,76,0.2)"; }} onMouseLeave={e => { e.currentTarget.style.background = "linear-gradient(135deg, rgba(201,168,76,0.15), rgba(201,168,76,0.05))"; e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.boxShadow = "none"; }}>📸 CAPTURE LOOK</button>
+          {/* Capture button */}
+          <button onClick={capturePhoto} style={{ width:"100%", background:"linear-gradient(135deg,rgba(201,168,76,0.15),rgba(201,168,76,0.05))", border:"1px solid rgba(201,168,76,0.4)", color:"#c9a84c", fontSize:"13px", letterSpacing:"2px", padding:"16px", borderRadius:"100px", cursor:"pointer", fontWeight:700, transition:"all 0.3s ease", backdropFilter:"blur(8px)" }} onMouseEnter={e => { e.currentTarget.style.background="linear-gradient(135deg,rgba(201,168,76,0.25),rgba(201,168,76,0.1))"; e.currentTarget.style.transform="translateY(-1px)"; e.currentTarget.style.boxShadow="0 8px 20px rgba(201,168,76,0.2)"; }} onMouseLeave={e => { e.currentTarget.style.background="linear-gradient(135deg,rgba(201,168,76,0.15),rgba(201,168,76,0.05))"; e.currentTarget.style.transform="translateY(0)"; e.currentTarget.style.boxShadow="none"; }}>
+            📸 CAPTURE LOOK
+          </button>
         </div>
       </div>
 
       <style>{`
-        @keyframes pulse { 
-          0%, 100% { opacity: 1; transform: scale(1); } 
-          50% { opacity: 0.4; transform: scale(0.8); } 
-        }
-        @keyframes spinRing { 
-          to { transform: rotate(360deg); } 
-        }
-        input[type="range"] { 
-          -webkit-appearance: none; 
-          background: transparent; 
-        }
-        input[type="range"]:focus { 
-          outline: none; 
-        }
-        input[type="range"]::-webkit-slider-thumb { 
-          -webkit-appearance: none; 
-          width: 18px; 
-          height: 18px; 
-          border-radius: 50%; 
-          background: #c9a84c; 
-          cursor: pointer; 
-          border: 2px solid #0a0a0f; 
-          box-shadow: 0 0 8px #c9a84c; 
-          transition: all 0.2s ease;
-        }
-        input[type="range"]::-webkit-slider-thumb:hover {
-          transform: scale(1.2);
-          box-shadow: 0 0 12px #c9a84c;
-        }
-        input[type="range"]::-moz-range-thumb { 
-          width: 18px; 
-          height: 18px; 
-          border-radius: 50%; 
-          background: #c9a84c; 
-          cursor: pointer; 
-          border: 2px solid #0a0a0f; 
-        }
-        button { 
-          transition: all 0.3s ease; 
-        }
-        ::-webkit-scrollbar { 
-          width: 4px; 
-        }
-        ::-webkit-scrollbar-track { 
-          background: rgba(20,20,28,0.5); 
-          border-radius: 4px; 
-        }
-        ::-webkit-scrollbar-thumb { 
-          background: #c9a84c; 
-          border-radius: 4px; 
-        }
-        * {
-          box-sizing: border-box;
-        }
+        @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.4;transform:scale(.8)} }
+        @keyframes spinRing { to{transform:rotate(360deg)} }
+        input[type="range"] { -webkit-appearance:none; background:transparent; }
+        input[type="range"]:focus { outline:none; }
+        input[type="range"]::-webkit-slider-thumb { -webkit-appearance:none; width:18px; height:18px; border-radius:50%; background:#c9a84c; cursor:pointer; border:2px solid #0a0a0f; box-shadow:0 0 8px #c9a84c; transition:all 0.2s ease; }
+        input[type="range"]::-webkit-slider-thumb:hover { transform:scale(1.2); box-shadow:0 0 12px #c9a84c; }
+        input[type="range"]::-moz-range-thumb { width:18px; height:18px; border-radius:50%; background:#c9a84c; cursor:pointer; border:2px solid #0a0a0f; }
+        button { transition:all 0.3s ease; }
+        ::-webkit-scrollbar { width:4px; }
+        ::-webkit-scrollbar-track { background:rgba(20,20,28,0.5); border-radius:4px; }
+        ::-webkit-scrollbar-thumb { background:#c9a84c; border-radius:4px; }
+        * { box-sizing:border-box; }
       `}</style>
     </div>
   );
-
-  // Mobile UI (Snapchat-like experience)
-  const MobileUI = () => (
-    <div
-      style={mobileCameraStyle}
-      onTouchStart={handleTouchStart}
-      onTouchEnd={handleTouchEnd}
-    >
-      {/* Camera container fullscreen */}
-      <div style={{ position: "relative", width: "100%", height: "100%", overflow: "hidden", background: "#000" }}>
-        <video ref={videoRef} style={{ display: "none" }} autoPlay playsInline muted />
-        <canvas
-          ref={canvasRef}
-          width={mobileCanvasSize.width}
-          height={mobileCanvasSize.height}
-          style={mobileCanvasStyle}
-        />
-        <canvas
-          ref={threeCanvasRef}
-          width={mobileCanvasSize.width}
-          height={mobileCanvasSize.height}
-          style={{ position: "absolute", inset: 0, width: "100%", height: "100%", pointerEvents: "none", opacity: is3D ? 1 : 0, objectFit: "cover" }}
-        />
-        
-        {/* Loading indicator */}
-        {!cameraReady && (
-          <div style={{
-            position: "absolute",
-            inset: 0,
-            background: "rgba(0,0,0,0.9)",
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            justifyContent: "center",
-            gap: "16px",
-            zIndex: 20,
-          }}>
-            <div style={{
-              width: "48px",
-              height: "48px",
-              borderRadius: "50%",
-              border: "2px solid rgba(201,168,76,0.2)",
-              borderTop: "2px solid #c9a84c",
-              animation: "spinRing 0.9s linear infinite"
-            }} />
-            <div style={{ fontSize: "12px", fontWeight: 600, letterSpacing: "2px", color: "#c9a84c" }}>INITIALIZING</div>
-          </div>
-        )}
-        
-        {glbLoading && (
-          <div style={{
-            position: "absolute",
-            top: "50%",
-            left: "50%",
-            transform: "translate(-50%,-50%)",
-            background: "rgba(0,0,0,0.8)",
-            padding: "8px 20px",
-            borderRadius: "100px",
-            fontSize: "12px",
-            color: "#c9a84c",
-            zIndex: 25,
-          }}>
-            LOADING 3D...
-          </div>
-        )}
-        
-        {/* Top status bar */}
-        <div style={{
-          position: "absolute",
-          top: "max(12px, env(safe-area-inset-top))",
-          left: "16px",
-          right: "16px",
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          zIndex: 15,
-        }}>
-          <div style={{
-            background: "rgba(0,0,0,0.5)",
-            backdropFilter: "blur(10px)",
-            padding: "6px 14px",
-            borderRadius: "100px",
-            fontSize: "11px",
-            fontWeight: 600,
-            color: "#c9a84c",
-            border: "0.5px solid rgba(201,168,76,0.3)",
-          }}>
-            {is3D ? "3D MODE" : "LIVE"}
-          </div>
-          <div style={{
-            background: "rgba(0,0,0,0.5)",
-            backdropFilter: "blur(10px)",
-            padding: "6px 14px",
-            borderRadius: "100px",
-            fontSize: "11px",
-            fontWeight: 600,
-            color: "#ffffff",
-          }}>
-            {glasses.split('/').pop()?.replace('.png', '') || glasses}
-          </div>
-        </div>
-      </div>
-      
-      {/* Horizontal filter bar (bottom) */}
-      <MobileFilterBar />
-      
-      {/* Action buttons */}
-      <MobileActionBar />
-      
-      <style>{`
-        @keyframes spinRing { 
-          to { transform: rotate(360deg); } 
-        }
-        * {
-          user-select: none;
-          -webkit-tap-highlight-color: transparent;
-        }
-      `}</style>
-    </div>
-  );
-
-  // Render based on device detection
-  return isMobile ? <MobileUI /> : <DesktopUI />;
 };
 
 export default TryOn;

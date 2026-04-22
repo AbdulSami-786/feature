@@ -46,6 +46,60 @@ const GLASS_OPTIONS = [
     ]
   },
   {
+    id: "/glass5.png", name: "Wayfarer", price: "PKR 4,900", emoji: "🪬",
+    sizes: [
+      { label: "S", scale: 0.85 },
+      { label: "M", scale: 1.0 },
+      { label: "L", scale: 1.15 },
+      { label: "XL", scale: 1.3 }
+    ]
+  },
+  {
+    id: "/glass6.png", name: "Round", price: "PKR 4,900", emoji: "🪬",
+    sizes: [
+      { label: "S", scale: 0.85 },
+      { label: "M", scale: 1.0 },
+      { label: "L", scale: 1.15 },
+      { label: "XL", scale: 1.3 }
+    ]
+  },
+  {
+    id: "/glass7.png", name: "Round", price: "PKR 4,900", emoji: "🪬",
+    sizes: [
+      { label: "S", scale: 0.85 },
+      { label: "M", scale: 1.0 },
+      { label: "L", scale: 1.15 },
+      { label: "XL", scale: 1.3 }
+    ]
+  },
+  {
+    id: "/glass8.png", name: "Round", price: "PKR 4,900", emoji: "🪬",
+    sizes: [
+      { label: "S", scale: 0.85 },
+      { label: "M", scale: 1.0 },
+      { label: "L", scale: 1.15 },
+      { label: "XL", scale: 1.3 }
+    ]
+  },
+  {
+    id: "/glass9.png", name: "Round", price: "PKR 4,900", emoji: "🪬",
+    sizes: [
+      { label: "S", scale: 0.85 },
+      { label: "M", scale: 1.0 },
+      { label: "L", scale: 1.15 },
+      { label: "XL", scale: 1.3 }
+    ]
+  },
+  {
+    id: "/glass10.png", name: "Round", price: "PKR 4,900", emoji: "🪬",
+    sizes: [
+      { label: "S", scale: 0.85 },
+      { label: "M", scale: 1.0 },
+      { label: "L", scale: 1.15 },
+      { label: "XL", scale: 1.3 }
+    ]
+  },
+  {
     id: "__3D__", name: "3D Frame", price: "PKR 6,500", emoji: "✨", is3d: true,
     sizes: [
       { label: "S", scale: 0.85 },

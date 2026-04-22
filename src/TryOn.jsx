@@ -403,6 +403,45 @@ const drawGlassesWithRealisticArms = (ctx, img, x, y, w, h, angle) => {
   ctx.restore();
 };
 
+// Mobile detection helper
+const isMobileDevice = () => {
+  return window.innerWidth < 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+};
+
+// Linear interpolation helper
+const lerp = (start, end, factor) => start + (end - start) * factor;
+
+// Mobile-specific smoother with lower alpha and deadzone
+class MobileLandmarkSmoother {
+  constructor(alpha = 0.25) {
+    this.alpha = alpha;
+    this.prev = null;
+    this.deadzone = 0.5; // Ignore movements smaller than this threshold
+  }
+  smooth(current) {
+    if (!this.prev) {
+      this.prev = { ...current };
+      return current;
+    }
+    const result = {};
+    for (const key of Object.keys(current)) {
+      const delta = current[key] - this.prev[key];
+      // Apply deadzone: ignore small movements
+      const effectiveDelta = Math.abs(delta) < this.deadzone ? 0 : delta;
+      result[key] = this.prev[key] + this.alpha * effectiveDelta;
+    }
+    this.prev = { ...result };
+    return result;
+  }
+  reset() { this.prev = null; }
+}
+
+// Mobile-specific frame size normalization
+const normalizeGlassesSize = (eyeSpan, baseEyeSpan = 120) => {
+  const rawScale = eyeSpan / baseEyeSpan;
+  return Math.min(1.1, Math.max(0.9, rawScale));
+};
+
 const TryOn = () => {
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
@@ -422,6 +461,17 @@ const TryOn = () => {
   const [showArms, setShowArms] = useState(true);
   const [cameraReady, setCameraReady] = useState(false);
   const cameraReadyRef = useRef(false);
+  
+  // Mobile detection state
+  const [isMobile, setIsMobile] = useState(false);
+  const [mobileCanvasSize, setMobileCanvasSize] = useState({ width: 480, height: 360 });
+  
+  // Interpolated position for smooth motion (mobile only)
+  const interpolatedPosRef = useRef({ cx: 0, cy: 0, angle: 0, gw: 0, gh: 0 });
+  
+  // Frame throttling for mobile (30fps)
+  const lastFrameTimeRef = useRef(0);
+  const frameInterval = 1000 / 30; // ~33ms for 30fps
 
   // --- Size selection state ---
   const [selectedSizeKey, setSelectedSizeKey] = useState("M"); // "S", "M", "L", "XL"
@@ -434,7 +484,8 @@ const TryOn = () => {
     return sizeObj ? sizeObj.scale : 1.0;
   }, [glasses, selectedSizeKey]);
 
-  const smootherRef = useRef(new LandmarkSmoother(0.45));
+  // Choose smoother based on device
+  const smootherRef = useRef(null);
 
   const [adjustments, setAdjustments] = useState(() =>
     Object.fromEntries(
@@ -453,6 +504,8 @@ const TryOn = () => {
   const is3DRef = useRef(false);
   const adjRef = useRef(adjustments);
   const showArmsRef = useRef(showArms);
+  const isMobileRef = useRef(isMobile);
+  const baseEyeSpanRef = useRef(120);
 
   useEffect(() => { brightnessRef.current = brightness; }, [brightness]);
   useEffect(() => { contrastRef.current = contrast; }, [contrast]);
@@ -461,6 +514,26 @@ const TryOn = () => {
   useEffect(() => { is3DRef.current = glasses === "__3D__"; }, [glasses]);
   useEffect(() => { adjRef.current = adjustments; }, [adjustments]);
   useEffect(() => { showArmsRef.current = showArms; }, [showArms]);
+  useEffect(() => { isMobileRef.current = isMobile; }, [isMobile]);
+
+  // Detect mobile on mount and window resize
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(isMobileDevice());
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  // Initialize smoother based on mobile state
+  useEffect(() => {
+    if (isMobile) {
+      smootherRef.current = new MobileLandmarkSmoother(0.25);
+    } else {
+      smootherRef.current = new LandmarkSmoother(0.45);
+    }
+  }, [isMobile]);
 
   const is3D = glasses === "__3D__";
   const curAdj = adjustments[glasses] || DEFAULT_ADJ;
@@ -490,13 +563,15 @@ const TryOn = () => {
     const canvas = threeCanvasRef.current;
     if (!canvas) return;
     const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-    renderer.setSize(640, 480);
+    const canvasWidth = isMobile ? mobileCanvasSize.width : 640;
+    const canvasHeight = isMobile ? mobileCanvasSize.height : 480;
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, isMobile ? 1.5 : 2));
+    renderer.setSize(canvasWidth, canvasHeight);
     renderer.setClearColor(0x000000, 0);
     rendererRef.current = renderer;
     const scene = new THREE.Scene();
     sceneRef.current = scene;
-    const cam = new THREE.OrthographicCamera(-320, 320, 240, -240, 0.1, 2000);
+    const cam = new THREE.OrthographicCamera(-canvasWidth/2, canvasWidth/2, canvasHeight/2, -canvasHeight/2, 0.1, 2000);
     cam.position.z = 500;
     cameraRef.current = cam;
     scene.add(new THREE.AmbientLight(0xffffff, 1.4));
@@ -529,7 +604,7 @@ const TryOn = () => {
       renderer.dispose();
       rendererRef.current = sceneRef.current = cameraRef.current = glassModel3dRef.current = null;
     };
-  }, [is3D]);
+  }, [is3D, isMobile, mobileCanvasSize]);
 
   // FaceMesh and main loop (with size multiplier applied)
   useEffect(() => {
@@ -538,6 +613,10 @@ const TryOn = () => {
     });
     faceMesh.setOptions({ maxNumFaces: 1, refineLandmarks: true, minDetectionConfidence: 0.5, minTrackingConfidence: 0.5 });
     faceMesh.onResults(onResults);
+    
+    const videoWidth = isMobile ? 480 : 640;
+    const videoHeight = isMobile ? 360 : 480;
+    
     const camera = new window.Camera(videoRef.current, {
       onFrame: async () => {
         if (!cameraReadyRef.current) {
@@ -546,11 +625,20 @@ const TryOn = () => {
         }
         await faceMesh.send({ image: videoRef.current });
       },
-      width: 640, height: 480,
+      width: videoWidth, height: videoHeight,
     });
     camera.start();
 
     function onResults(results) {
+      // Frame throttling for mobile (30fps)
+      if (isMobileRef.current) {
+        const now = performance.now();
+        if (now - lastFrameTimeRef.current < frameInterval) {
+          return;
+        }
+        lastFrameTimeRef.current = now;
+      }
+      
       const canvas = canvasRef.current;
       const ctx = canvas.getContext("2d");
       const W = canvas.width, H = canvas.height;
@@ -563,15 +651,46 @@ const TryOn = () => {
         rendererRef.current.render(sceneRef.current, cameraRef.current);
       }
       if (!results.multiFaceLandmarks?.length) {
-        smootherRef.current.reset();
+        if (smootherRef.current) smootherRef.current.reset();
         return;
       }
       const lm = results.multiFaceLandmarks[0];
-      const geo = extractFaceGeometry(lm, W, H);
-      const smoothed = smootherRef.current.smooth({
+      let geo = extractFaceGeometry(lm, W, H);
+      
+      // Mobile-specific: normalize glasses size to reduce distance scaling
+      if (isMobileRef.current) {
+        const normalizedScale = normalizeGlassesSize(geo.glassesWidth, baseEyeSpanRef.current);
+        const originalWidth = geo.glassesWidth;
+        const originalHeight = geo.glassesHeight;
+        // Apply normalized scale (adjust relative to base)
+        geo.glassesWidth = originalWidth * normalizedScale;
+        geo.glassesHeight = originalHeight * normalizedScale;
+        
+        // Optional: slight adjustment based on z-depth (max ±10%)
+        const depthAdjust = Math.min(1.1, Math.max(0.9, 1 + (-geo.depthScale + 1) * 0.2));
+        geo.glassesWidth *= depthAdjust;
+        geo.glassesHeight *= depthAdjust;
+      }
+      
+      let smoothed = smootherRef.current ? smootherRef.current.smooth({
         cx: geo.centerX, cy: geo.centerY, gw: geo.glassesWidth, gh: geo.glassesHeight,
         angle: geo.angle, ds: geo.depthScale,
-      });
+      }) : geo;
+      
+      // Mobile-specific: apply linear interpolation for smoother motion
+      if (isMobileRef.current) {
+        if (interpolatedPosRef.current.cx === 0) {
+          interpolatedPosRef.current = { ...smoothed };
+        } else {
+          interpolatedPosRef.current.cx = lerp(interpolatedPosRef.current.cx, smoothed.cx, 0.2);
+          interpolatedPosRef.current.cy = lerp(interpolatedPosRef.current.cy, smoothed.cy, 0.2);
+          interpolatedPosRef.current.gw = lerp(interpolatedPosRef.current.gw, smoothed.gw, 0.2);
+          interpolatedPosRef.current.gh = lerp(interpolatedPosRef.current.gh, smoothed.gh, 0.2);
+          interpolatedPosRef.current.angle = lerp(interpolatedPosRef.current.angle, smoothed.angle, 0.2);
+          interpolatedPosRef.current.ds = lerp(interpolatedPosRef.current.ds, smoothed.ds, 0.2);
+        }
+        smoothed = interpolatedPosRef.current;
+      }
       
       // --- Obtain current size multiplier ---
       const currentGlassObj = GLASS_OPTIONS.find(g => g.id === glassesRef.current);
@@ -616,7 +735,7 @@ const TryOn = () => {
       }
     }
     return () => { if (faceMesh) faceMesh.close(); };
-  }, [selectedSizeKey]); // re-run effect when size changes (ensures smoother closure captures latest size)
+  }, [selectedSizeKey, isMobile, mobileCanvasSize]);
 
   useEffect(() => {
     if (!is3D && imgRef.current) {
@@ -634,10 +753,155 @@ const TryOn = () => {
     link.click();
   }, []);
 
-  // UI (unchanged except added size selector)
+  // Swipe handling for filter switching (mobile only)
+  const [touchStart, setTouchStart] = useState(null);
+  const handleTouchStart = (e) => {
+    if (!isMobile) return;
+    setTouchStart(e.touches[0].clientX);
+  };
+  const handleTouchEnd = (e) => {
+    if (!isMobile || touchStart === null) return;
+    const touchEnd = e.changedTouches[0].clientX;
+    const diff = touchStart - touchEnd;
+    const currentIndex = GLASS_OPTIONS.findIndex(g => g.id === glasses);
+    if (Math.abs(diff) > 50) {
+      if (diff > 0 && currentIndex < GLASS_OPTIONS.length - 1) {
+        setGlasses(GLASS_OPTIONS[currentIndex + 1].id);
+      } else if (diff < 0 && currentIndex > 0) {
+        setGlasses(GLASS_OPTIONS[currentIndex - 1].id);
+      }
+    }
+    setTouchStart(null);
+  };
+
   const currentFrameSizes = GLASS_OPTIONS.find(g => g.id === glasses)?.sizes || [];
 
-  return (
+  // Mobile-only: horizontal filter bar component
+  const MobileFilterBar = () => (
+    <div style={{
+      position: "fixed",
+      bottom: 0,
+      left: 0,
+      right: 0,
+      background: "rgba(0,0,0,0.75)",
+      backdropFilter: "blur(20px)",
+      borderTop: "1px solid rgba(201,168,76,0.2)",
+      padding: "12px 0",
+      paddingBottom: "max(12px, env(safe-area-inset-bottom))",
+      zIndex: 100,
+      overflowX: "auto",
+      overflowY: "hidden",
+      whiteSpace: "nowrap",
+      WebkitOverflowScrolling: "touch",
+    }}>
+      <div style={{ display: "inline-flex", gap: "12px", padding: "0 16px" }}>
+        {GLASS_OPTIONS.map((g, idx) => (
+          <button
+            key={g.id}
+            onClick={() => setGlasses(g.id)}
+            style={{
+              display: "inline-flex",
+              flexDirection: "column",
+              alignItems: "center",
+              gap: "6px",
+              background: glasses === g.id ? (g.is3d ? "linear-gradient(135deg, #1a2a3a, #0f1a2a)" : "linear-gradient(135deg, #2a241c, #1a1610)") : "rgba(30,30,40,0.8)",
+              border: `1.5px solid ${glasses === g.id ? (g.is3d ? "#64b4ff" : "#c9a84c") : "rgba(201,168,76,0.2)"}`,
+              borderRadius: "60px",
+              padding: "10px 16px",
+              cursor: "pointer",
+              transition: "all 0.2s ease",
+              minWidth: "70px",
+            }}
+          >
+            <span style={{ fontSize: "24px" }}>{g.emoji}</span>
+            <span style={{ fontSize: "11px", fontWeight: 600, color: glasses === g.id ? "#c9a84c" : "rgba(255,255,255,0.7)" }}>{g.name}</span>
+            <span style={{ fontSize: "9px", color: glasses === g.id ? "#c9a84c" : "rgba(255,255,255,0.4)" }}>{g.price}</span>
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+
+  // Mobile-only: bottom action bar
+  const MobileActionBar = () => (
+    <div style={{
+      position: "fixed",
+      bottom: "80px",
+      left: "50%",
+      transform: "translateX(-50%)",
+      display: "flex",
+      gap: "20px",
+      zIndex: 100,
+      background: "rgba(0,0,0,0.6)",
+      backdropFilter: "blur(16px)",
+      padding: "8px 20px",
+      borderRadius: "100px",
+      border: "1px solid rgba(201,168,76,0.3)",
+    }}>
+      <button
+        onClick={() => setShowArms(!showArms)}
+        style={{
+          background: showArms ? "rgba(201,168,76,0.2)" : "rgba(255,255,255,0.1)",
+          border: `1px solid ${showArms ? "#c9a84c" : "rgba(255,255,255,0.2)"}`,
+          borderRadius: "44px",
+          padding: "12px",
+          width: "52px",
+          height: "52px",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          cursor: "pointer",
+          color: showArms ? "#c9a84c" : "#ffffff",
+          fontSize: "20px",
+        }}
+      >
+        🦾
+      </button>
+      <button
+        onClick={capturePhoto}
+        style={{
+          background: "linear-gradient(135deg, #c9a84c, #b38f3a)",
+          border: "none",
+          borderRadius: "44px",
+          padding: "12px 24px",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          cursor: "pointer",
+          color: "#0a0a0f",
+          fontWeight: 700,
+          fontSize: "14px",
+          gap: "8px",
+          minWidth: "120px",
+        }}
+      >
+        📸 CAPTURE
+      </button>
+    </div>
+  );
+
+  // Mobile camera container style
+  const mobileCameraStyle = {
+    position: "fixed",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    width: "100vw",
+    height: "100vh",
+    backgroundColor: "#000",
+    zIndex: 1,
+  };
+
+  const mobileCanvasStyle = {
+    width: "100vw",
+    height: "100vh",
+    objectFit: "cover",
+    borderRadius: 0,
+  };
+
+  // Desktop UI (unchanged)
+  const DesktopUI = () => (
     <div style={{ 
       fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif", 
       background: "radial-gradient(circle at 20% 30%, #0a0a0f, #000000)", 
@@ -855,7 +1119,7 @@ const TryOn = () => {
             </div>
           </div>
 
-          {/* --- New Size Selector UI --- */}
+          {/* Size Selector UI (Desktop) */}
           {currentFrameSizes.length > 0 && (
             <div>
               <div style={{ fontSize: "11px", letterSpacing: "3px", color: "#c9a84c", marginBottom: "16px", fontWeight: 600, display: "flex", alignItems: "center", gap: "10px" }}>
@@ -1007,6 +1271,129 @@ const TryOn = () => {
       `}</style>
     </div>
   );
+
+  // Mobile UI (Snapchat-like experience)
+  const MobileUI = () => (
+    <div
+      style={mobileCameraStyle}
+      onTouchStart={handleTouchStart}
+      onTouchEnd={handleTouchEnd}
+    >
+      {/* Camera container fullscreen */}
+      <div style={{ position: "relative", width: "100%", height: "100%", overflow: "hidden", background: "#000" }}>
+        <video ref={videoRef} style={{ display: "none" }} autoPlay playsInline muted />
+        <canvas
+          ref={canvasRef}
+          width={mobileCanvasSize.width}
+          height={mobileCanvasSize.height}
+          style={mobileCanvasStyle}
+        />
+        <canvas
+          ref={threeCanvasRef}
+          width={mobileCanvasSize.width}
+          height={mobileCanvasSize.height}
+          style={{ position: "absolute", inset: 0, width: "100%", height: "100%", pointerEvents: "none", opacity: is3D ? 1 : 0, objectFit: "cover" }}
+        />
+        
+        {/* Loading indicator */}
+        {!cameraReady && (
+          <div style={{
+            position: "absolute",
+            inset: 0,
+            background: "rgba(0,0,0,0.9)",
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: "16px",
+            zIndex: 20,
+          }}>
+            <div style={{
+              width: "48px",
+              height: "48px",
+              borderRadius: "50%",
+              border: "2px solid rgba(201,168,76,0.2)",
+              borderTop: "2px solid #c9a84c",
+              animation: "spinRing 0.9s linear infinite"
+            }} />
+            <div style={{ fontSize: "12px", fontWeight: 600, letterSpacing: "2px", color: "#c9a84c" }}>INITIALIZING</div>
+          </div>
+        )}
+        
+        {glbLoading && (
+          <div style={{
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%,-50%)",
+            background: "rgba(0,0,0,0.8)",
+            padding: "8px 20px",
+            borderRadius: "100px",
+            fontSize: "12px",
+            color: "#c9a84c",
+            zIndex: 25,
+          }}>
+            LOADING 3D...
+          </div>
+        )}
+        
+        {/* Top status bar */}
+        <div style={{
+          position: "absolute",
+          top: "max(12px, env(safe-area-inset-top))",
+          left: "16px",
+          right: "16px",
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          zIndex: 15,
+        }}>
+          <div style={{
+            background: "rgba(0,0,0,0.5)",
+            backdropFilter: "blur(10px)",
+            padding: "6px 14px",
+            borderRadius: "100px",
+            fontSize: "11px",
+            fontWeight: 600,
+            color: "#c9a84c",
+            border: "0.5px solid rgba(201,168,76,0.3)",
+          }}>
+            {is3D ? "3D MODE" : "LIVE"}
+          </div>
+          <div style={{
+            background: "rgba(0,0,0,0.5)",
+            backdropFilter: "blur(10px)",
+            padding: "6px 14px",
+            borderRadius: "100px",
+            fontSize: "11px",
+            fontWeight: 600,
+            color: "#ffffff",
+          }}>
+            {glasses.split('/').pop()?.replace('.png', '') || glasses}
+          </div>
+        </div>
+      </div>
+      
+      {/* Horizontal filter bar (bottom) */}
+      <MobileFilterBar />
+      
+      {/* Action buttons */}
+      <MobileActionBar />
+      
+      <style>{`
+        @keyframes spinRing { 
+          to { transform: rotate(360deg); } 
+        }
+        * {
+          user-select: none;
+          -webkit-tap-highlight-color: transparent;
+        }
+      `}</style>
+    </div>
+  );
+
+  // Render based on device detection
+  return isMobile ? <MobileUI /> : <DesktopUI />;
 };
 
 export default TryOn;

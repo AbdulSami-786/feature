@@ -7,57 +7,218 @@ const DEFAULT_ADJ = { scaleW: 1, scaleH: 1, offsetX: 0, offsetY: 8, rotate: 0 };
 const AVIATOR_ADJ = { scaleW: 1, scaleH: 1.18, offsetX: 0, offsetY: 18, rotate: 0 };
 const ROUND_ADJ   = { scaleW: 1, scaleH: 0.85, offsetX: 0, offsetY: 6, rotate: 0 };
 
+// ══════════════════════════════════════════════════════════════════
+// ── UPDATED GLASS OPTIONS WITH MOBILE SCALES ──────────────────────
+// ══════════════════════════════════════════════════════════════════
+// Each size now includes mobileScale for precise mobile control
 const GLASS_OPTIONS = [
-  { id: "/glass1.png",  name: "Classic",  price: "PKR 4,500", emoji: "👓", sizes: [{ label:"S",scale:0.80},{ label:"M",scale:0.90},{ label:"L",scale:1},{ label:"XL",scale:1.1}] },
-  { id: "/glass2.png",  name: "Aviator",  price: "PKR 5,200", emoji: "🕶️", sizes: [{ label:"S",scale:0.85},{ label:"M",scale:1.0},{ label:"L",scale:1.15},{ label:"XL",scale:1.3}] },
-  { id: "/glass3.png",  name: "Sport",    price: "PKR 3,800", emoji: "🥽", sizes: [{ label:"S",scale:0.85},{ label:"M",scale:1.0},{ label:"L",scale:1.15},{ label:"XL",scale:1.3}] },
-  { id: "/glass4.png",  name: "Round",    price: "PKR 4,900", emoji: "🪬", sizes: [{ label:"S",scale:0.85},{ label:"M",scale:1.0},{ label:"L",scale:1.15},{ label:"XL",scale:1.3}] },
-  { id: "/glass5.png",  name: "Wayfarer", price: "PKR 4,900", emoji: "🪬", sizes: [{ label:"S",scale:0.85},{ label:"M",scale:1.0},{ label:"L",scale:1.15},{ label:"XL",scale:1.3}] },
-  { id: "/glass6.png",  name: "Round",    price: "PKR 4,900", emoji: "🪬", sizes: [{ label:"S",scale:0.85},{ label:"M",scale:1.0},{ label:"L",scale:1.15},{ label:"XL",scale:1.3}] },
-  { id: "/glass7.png",  name: "Round",    price: "PKR 4,900", emoji: "🪬", sizes: [{ label:"S",scale:0.85},{ label:"M",scale:1.0},{ label:"L",scale:1.15},{ label:"XL",scale:1.3}] },
-  { id: "/glass8.png",  name: "Round",    price: "PKR 4,900", emoji: "🪬", sizes: [{ label:"S",scale:0.85},{ label:"M",scale:1.0},{ label:"L",scale:1.15},{ label:"XL",scale:1.3}] },
-  { id: "/glass9.png",  name: "Round",    price: "PKR 4,900", emoji: "🪬", sizes: [{ label:"S",scale:0.85},{ label:"M",scale:1.0},{ label:"L",scale:1.15},{ label:"XL",scale:1.3}] },
-  { id: "/glass10.png", name: "Round",    price: "PKR 4,900", emoji: "🪬", sizes: [{ label:"S",scale:0.85},{ label:"M",scale:1.0},{ label:"L",scale:1.15},{ label:"XL",scale:1.3}] },
-  { id: "/glass11.png", name: "Round",    price: "PKR 4,900", emoji: "🪬", sizes: [{ label:"S",scale:0.85},{ label:"M",scale:1.0},{ label:"L",scale:1.15},{ label:"XL",scale:1.3}] },
-  { id: "/glass12.png", name: "Round",    price: "PKR 4,900", emoji: "🪬", sizes: [{ label:"S",scale:0.85},{ label:"M",scale:1.0},{ label:"L",scale:1.15},{ label:"XL",scale:1.3}] },
-  { id: "/glass13.png", name: "Round",    price: "PKR 4,900", emoji: "🪬", sizes: [{ label:"S",scale:0.85},{ label:"M",scale:1.0},{ label:"L",scale:1.15},{ label:"XL",scale:1.3}] },
-  { id: "/glass14.png", name: "Round",    price: "PKR 4,900", emoji: "🪬", sizes: [{ label:"S",scale:0.85},{ label:"M",scale:1.0},{ label:"L",scale:1.15},{ label:"XL",scale:1.3}] },
-  { id: "/glass15.png", name: "Round",    price: "PKR 4,900", emoji: "🪬", sizes: [{ label:"S",scale:0.85},{ label:"M",scale:1.0},{ label:"L",scale:1.15},{ label:"XL",scale:1.3}] },
-  { id: "/glass16.png", name: "Round",    price: "PKR 4,900", emoji: "🪬", sizes: [{ label:"S",scale:0.85},{ label:"M",scale:1.0},{ label:"L",scale:1.15},{ label:"XL",scale:1.3}] },
-  { id: "/glass17.png", name: "Round",    price: "PKR 4,900", emoji: "🪬", sizes: [{ label:"S",scale:0.85},{ label:"M",scale:1.0},{ label:"L",scale:1.15},{ label:"XL",scale:1.3}] },
-  { id: "/glass18.png", name: "Round",    price: "PKR 4,900", emoji: "🪬", sizes: [{ label:"S",scale:0.85},{ label:"M",scale:1.0},{ label:"L",scale:1.15},{ label:"XL",scale:1.3}] },
-  { id: "/glass19.png", name: "Round",    price: "PKR 4,900", emoji: "🪬", sizes: [{ label:"S",scale:0.85},{ label:"M",scale:1.0},{ label:"L",scale:1.15},{ label:"XL",scale:1.3}] },
-  { id: "/glass20.png", name: "Round",    price: "PKR 4,900", emoji: "🪬", sizes: [{ label:"S",scale:0.85},{ label:"M",scale:1.0},{ label:"L",scale:1.15},{ label:"XL",scale:1.3}] },
-  { id: "__3D__", name: "3D Frame", price: "PKR 6,500", emoji: "✨", is3d: true, sizes: [{ label:"S",scale:0.85},{ label:"M",scale:1.0},{ label:"L",scale:1.15},{ label:"XL",scale:1.3}] },
+  { id: "/glass1.png",  name: "Classic",  price: "PKR 4,500", emoji: "👓", 
+    sizes: [
+      { label:"S", scale:0.80, mobileScale:0.50 },
+      { label:"M", scale:0.90, mobileScale:0.75 },
+      { label:"L", scale:1.00, mobileScale:0.90 },
+      { label:"XL", scale:1.10, mobileScale:1.05 }
+    ] 
+  },
+  { id: "/glass2.png",  name: "Aviator",  price: "PKR 5,200", emoji: "🕶️", 
+    sizes: [
+      { label:"S", scale:0.85, mobileScale:0.55 },
+      { label:"M", scale:1.00, mobileScale:0.80 },
+      { label:"L", scale:1.15, mobileScale:1.00 },
+      { label:"XL", scale:1.30, mobileScale:1.15 }
+    ] 
+  },
+  { id: "/glass3.png",  name: "Sport",    price: "PKR 3,800", emoji: "🥽", 
+    sizes: [
+      { label:"S", scale:0.85, mobileScale:0.55 },
+      { label:"M", scale:1.00, mobileScale:0.80 },
+      { label:"L", scale:1.15, mobileScale:1.00 },
+      { label:"XL", scale:1.30, mobileScale:1.15 }
+    ] 
+  },
+  { id: "/glass4.png",  name: "Round",    price: "PKR 4,900", emoji: "🪬", 
+    sizes: [
+      { label:"S", scale:0.85, mobileScale:0.50 },
+      { label:"M", scale:1.00, mobileScale:0.75 },
+      { label:"L", scale:1.15, mobileScale:0.95 },
+      { label:"XL", scale:1.30, mobileScale:1.10 }
+    ] 
+  },
+  { id: "/glass5.png",  name: "Wayfarer", price: "PKR 4,900", emoji: "🪬", 
+    sizes: [
+      { label:"S", scale:0.85, mobileScale:0.52 },
+      { label:"M", scale:1.00, mobileScale:0.78 },
+      { label:"L", scale:1.15, mobileScale:0.98 },
+      { label:"XL", scale:1.30, mobileScale:1.12 }
+    ] 
+  },
+  { id: "/glass6.png",  name: "Vintage",   price: "PKR 4,900", emoji: "🪬", 
+    sizes: [
+      { label:"S", scale:0.85, mobileScale:0.50 },
+      { label:"M", scale:1.00, mobileScale:0.75 },
+      { label:"L", scale:1.15, mobileScale:0.95 },
+      { label:"XL", scale:1.30, mobileScale:1.10 }
+    ] 
+  },
+  { id: "/glass7.png",  name: "Clubmaster", price: "PKR 4,900", emoji: "🪬", 
+    sizes: [
+      { label:"S", scale:0.85, mobileScale:0.50 },
+      { label:"M", scale:1.00, mobileScale:0.75 },
+      { label:"L", scale:1.15, mobileScale:0.95 },
+      { label:"XL", scale:1.30, mobileScale:1.10 }
+    ] 
+  },
+  { id: "/glass8.png",  name: "Cat Eye",   price: "PKR 4,900", emoji: "🪬", 
+    sizes: [
+      { label:"S", scale:0.85, mobileScale:0.50 },
+      { label:"M", scale:1.00, mobileScale:0.75 },
+      { label:"L", scale:1.15, mobileScale:0.95 },
+      { label:"XL", scale:1.30, mobileScale:1.10 }
+    ] 
+  },
+  { id: "/glass9.png",  name: "Shield",    price: "PKR 4,900", emoji: "🪬", 
+    sizes: [
+      { label:"S", scale:0.85, mobileScale:0.50 },
+      { label:"M", scale:1.00, mobileScale:0.75 },
+      { label:"L", scale:1.15, mobileScale:0.95 },
+      { label:"XL", scale:1.30, mobileScale:1.10 }
+    ] 
+  },
+  { id: "/glass10.png", name: "Oval",      price: "PKR 4,900", emoji: "🪬", 
+    sizes: [
+      { label:"S", scale:0.85, mobileScale:0.50 },
+      { label:"M", scale:1.00, mobileScale:0.75 },
+      { label:"L", scale:1.15, mobileScale:0.95 },
+      { label:"XL", scale:1.30, mobileScale:1.10 }
+    ] 
+  },
+  { id: "/glass11.png", name: "Square",    price: "PKR 4,900", emoji: "🪬", 
+    sizes: [
+      { label:"S", scale:0.85, mobileScale:0.50 },
+      { label:"M", scale:1.00, mobileScale:0.75 },
+      { label:"L", scale:1.15, mobileScale:0.95 },
+      { label:"XL", scale:1.30, mobileScale:1.10 }
+    ] 
+  },
+  { id: "/glass12.png", name: "Hexagonal", price: "PKR 4,900", emoji: "🪬", 
+    sizes: [
+      { label:"S", scale:0.85, mobileScale:0.50 },
+      { label:"M", scale:1.00, mobileScale:0.75 },
+      { label:"L", scale:1.15, mobileScale:0.95 },
+      { label:"XL", scale:1.30, mobileScale:1.10 }
+    ] 
+  },
+  { id: "/glass13.png", name: "Geometric", price: "PKR 4,900", emoji: "🪬", 
+    sizes: [
+      { label:"S", scale:0.85, mobileScale:0.50 },
+      { label:"M", scale:1.00, mobileScale:0.75 },
+      { label:"L", scale:1.15, mobileScale:0.95 },
+      { label:"XL", scale:1.30, mobileScale:1.10 }
+    ] 
+  },
+  { id: "/glass14.png", name: "Steampunk", price: "PKR 4,900", emoji: "🪬", 
+    sizes: [
+      { label:"S", scale:0.85, mobileScale:0.50 },
+      { label:"M", scale:1.00, mobileScale:0.75 },
+      { label:"L", scale:1.15, mobileScale:0.95 },
+      { label:"XL", scale:1.30, mobileScale:1.10 }
+    ] 
+  },
+  { id: "/glass15.png", name: "Sports",    price: "PKR 4,900", emoji: "🪬", 
+    sizes: [
+      { label:"S", scale:0.85, mobileScale:0.50 },
+      { label:"M", scale:1.00, mobileScale:0.75 },
+      { label:"L", scale:1.15, mobileScale:0.95 },
+      { label:"XL", scale:1.30, mobileScale:1.10 }
+    ] 
+  },
+  { id: "/glass16.png", name: "Retro",     price: "PKR 4,900", emoji: "🪬", 
+    sizes: [
+      { label:"S", scale:0.85, mobileScale:0.50 },
+      { label:"M", scale:1.00, mobileScale:0.75 },
+      { label:"L", scale:1.15, mobileScale:0.95 },
+      { label:"XL", scale:1.30, mobileScale:1.10 }
+    ] 
+  },
+  { id: "/glass17.png", name: "Modern",    price: "PKR 4,900", emoji: "🪬", 
+    sizes: [
+      { label:"S", scale:0.85, mobileScale:0.50 },
+      { label:"M", scale:1.00, mobileScale:0.75 },
+      { label:"L", scale:1.15, mobileScale:0.95 },
+      { label:"XL", scale:1.30, mobileScale:1.10 }
+    ] 
+  },
+  { id: "/glass18.png", name: "Luxury",    price: "PKR 4,900", emoji: "🪬", 
+    sizes: [
+      { label:"S", scale:0.85, mobileScale:0.50 },
+      { label:"M", scale:1.00, mobileScale:0.75 },
+      { label:"L", scale:1.15, mobileScale:0.95 },
+      { label:"XL", scale:1.30, mobileScale:1.10 }
+    ] 
+  },
+  { id: "/glass19.png", name: "Designer",  price: "PKR 4,900", emoji: "🪬", 
+    sizes: [
+      { label:"S", scale:0.85, mobileScale:0.50 },
+      { label:"M", scale:1.00, mobileScale:0.75 },
+      { label:"L", scale:1.15, mobileScale:0.95 },
+      { label:"XL", scale:1.30, mobileScale:1.10 }
+    ] 
+  },
+  { id: "/glass20.png", name: "Classic",   price: "PKR 4,900", emoji: "🪬", 
+    sizes: [
+      { label:"S", scale:0.85, mobileScale:0.50 },
+      { label:"M", scale:1.00, mobileScale:0.75 },
+      { label:"L", scale:1.15, mobileScale:0.95 },
+      { label:"XL", scale:1.30, mobileScale:1.10 }
+    ] 
+  },
+  { id: "__3D__", name: "3D Frame", price: "PKR 6,500", emoji: "✨", is3d: true, 
+    sizes: [
+      { label:"S", scale:0.85, mobileScale:0.55 },
+      { label:"M", scale:1.00, mobileScale:0.80 },
+      { label:"L", scale:1.15, mobileScale:1.00 },
+      { label:"XL", scale:1.30, mobileScale:1.15 }
+    ] 
+  },
 ];
 
 // ══════════════════════════════════════════════════════════════════
-// ── MOBILE DETECTION (Req 1) ──────────────────────────────────────
+// ── MOBILE DETECTION ──────────────────────────────────────────────
 // ══════════════════════════════════════════════════════════════════
 const isMobile = typeof window !== "undefined" &&
   (window.innerWidth < 768 || /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent));
 
+// ══════════════════════════════════════════════════════════════════
+// ── HELPER: GET SIZE SCALE WITH MOBILE FALLBACK ──────────────────
+// ══════════════════════════════════════════════════════════════════
+// This is the key function that implements the dual-scale system
+const getSizeScale = (sizeObj) => {
+  if (!sizeObj) return 1;
+  // Mobile uses mobileScale with fallback to scale
+  // Desktop always uses scale (unchanged behavior)
+  return isMobile
+    ? (sizeObj.mobileScale ?? sizeObj.scale)
+    : sizeObj.scale;
+};
+
 // ── MOBILE-SPECIFIC CONSTANTS ─────────────────────────────────────
-const BASE_EYE_SPAN       = 120;                        // tunable (Req 3)
-const BASE_GLASSES_WIDTH  = BASE_EYE_SPAN * 1.7;       // 204px at baseline
-const MOBILE_EMA_ALPHA    = 0.25;                       // Req 4: reduced from 0.45
-const MOBILE_DEADZONE     = 1.5;                        // Req 4: ignore tiny jitter
-const MOBILE_LERP         = 0.2;                        // Req 5: smooth interpolation
-const MOBILE_CANVAS_W     = 480;                        // Req 8: reduced resolution
+const BASE_EYE_SPAN       = 120;
+const BASE_GLASSES_WIDTH  = BASE_EYE_SPAN * 1.7;
+const MOBILE_EMA_ALPHA    = 0.25;
+const MOBILE_DEADZONE     = 1.5;
+const MOBILE_LERP         = 0.2;
+const MOBILE_CANVAS_W     = 480;
 const MOBILE_CANVAS_H     = 360;
 const DESKTOP_CANVAS_W    = 640;
 const DESKTOP_CANVAS_H    = 480;
 const CANVAS_W            = isMobile ? MOBILE_CANVAS_W : DESKTOP_CANVAS_W;
 const CANVAS_H            = isMobile ? MOBILE_CANVAS_H : DESKTOP_CANVAS_H;
-const MOBILE_FPS          = 30;                         // Req 8: throttle to 30fps
+const MOBILE_FPS          = 30;
 const MOBILE_FRAME_INTERVAL = 1000 / MOBILE_FPS;
 
-// ── LERP HELPER ───────────────────────────────────────────────────
 const lerp = (a, b, t) => a + (b - a) * t;
 
-// ══════════════════════════════════════════════════════════════════
 // ── FACE LANDMARK INDICES ─────────────────────────────────────────
-// ══════════════════════════════════════════════════════════════════
 const LANDMARKS = {
   LEFT_IRIS_CENTER: 468, RIGHT_IRIS_CENTER: 473,
   LEFT_EYE_INNER: 133,   LEFT_EYE_OUTER: 33,
@@ -77,9 +238,7 @@ const LANDMARKS = {
   LEFT_LOWER_LID: 145, RIGHT_LOWER_LID: 374,
 };
 
-// ══════════════════════════════════════════════════════════════════
-// ── EMA SMOOTHER with optional deadzone (Req 4) ──────────────────
-// ══════════════════════════════════════════════════════════════════
+// ── EMA SMOOTHER ──────────────────────────────────────────────────
 class LandmarkSmoother {
   constructor(alpha = 0.45) {
     this.alpha = alpha;
@@ -90,7 +249,6 @@ class LandmarkSmoother {
     const result = {};
     for (const key of Object.keys(current)) {
       const delta = current[key] - this.prev[key];
-      // Req 4: deadzone — ignore micro-movements
       result[key] = (deadzone > 0 && Math.abs(delta) < deadzone)
         ? this.prev[key]
         : this.prev[key] + this.alpha * delta;
@@ -101,9 +259,7 @@ class LandmarkSmoother {
   reset() { this.prev = null; }
 }
 
-// ══════════════════════════════════════════════════════════════════
-// ── FACE GEOMETRY EXTRACTOR (mobile normalized scale — Req 3) ────
-// ══════════════════════════════════════════════════════════════════
+// ── FACE GEOMETRY EXTRACTOR ───────────────────────────────────────
 function extractFaceGeometry(lm, W, H) {
   const px    = (idx)     => ({ x: lm[idx].x * W, y: lm[idx].y * H, z: lm[idx].z });
   const avgPx = (indices) => {
@@ -138,7 +294,6 @@ function extractFaceGeometry(lm, W, H) {
   const centerX   = (leftIris.x + rightIris.x) / 2;
   const centerY   = browMidLower.y * 0.35 + noseBridgeTop.y * 0.45 + ((leftIris.y + rightIris.y) / 2) * 0.20;
 
-  // ── Req 3: Normalized scale on mobile — clamp to prevent dramatic size change ──
   let glassesWidth;
   if (isMobile) {
     const normalizedScale = Math.max(0.9, Math.min(1.1, eyeSpan / BASE_EYE_SPAN));
@@ -154,18 +309,7 @@ function extractFaceGeometry(lm, W, H) {
   return { centerX, centerY, angle, glassesWidth, glassesHeight, depthScale };
 }
 
-// ── MOBILE FRAME SIZE SCALING HELPER ──────────────────────────────
-const getMobileAdjustedScale = (scale, isMobileDevice) => {
-  if (!isMobileDevice) return scale;
-  
-  // Fine-tuned scaling per size category for better realism on mobile
-  if (scale <= 0.85) return scale * 0.75;  // Small frames (S)
-  if (scale <= 1.0) return scale * 0.85;   // Medium frames (M)  
-  if (scale <= 1.15) return scale * 0.9;   // Large frames (L)
-  return scale * 0.92;                     // Extra large frames (XL)
-};
-
-// ── REALISTIC GLASSES WITH SIDE ARMS (unchanged) ─────────────────
+// ── REALISTIC GLASSES WITH SIDE ARMS ──────────────────────────────
 const drawGlassesWithRealisticArms = (ctx, img, x, y, w, h, angle) => {
   ctx.save();
   ctx.translate(x, y);
@@ -254,7 +398,7 @@ const drawGlassesWithRealisticArms = (ctx, img, x, y, w, h, angle) => {
 };
 
 // ══════════════════════════════════════════════════════════════════
-// ── COMPONENT ────────────────────────────────────────────────────
+// ── MAIN COMPONENT ────────────────────────────────────────────────
 // ══════════════════════════════════════════════════════════════════
 const TryOn = () => {
   const videoRef       = useRef(null);
@@ -267,11 +411,8 @@ const TryOn = () => {
   const glassModel3dRef = useRef(null);
   const modelWidthRef  = useRef(1);
 
-  // ── Req 5: Lerp prev position ────────────────────────────────
   const prevPosRef      = useRef(null);
-  // ── Req 8: FPS throttle ──────────────────────────────────────
   const lastFrameTimeRef = useRef(0);
-  // ── Req 9: Swipe detection ───────────────────────────────────
   const touchStartXRef  = useRef(null);
 
   const [glasses, setGlasses]           = useState("/glass1.png");
@@ -284,7 +425,6 @@ const TryOn = () => {
   const cameraReadyRef = useRef(false);
   const [selectedSizeKey, setSelectedSizeKey] = useState("M");
 
-  // ── Req 4: Mobile uses lower EMA alpha ───────────────────────
   const smootherRef = useRef(new LandmarkSmoother(isMobile ? MOBILE_EMA_ALPHA : 0.45));
 
   const [adjustments, setAdjustments] = useState(() =>
@@ -297,7 +437,6 @@ const TryOn = () => {
     )
   );
 
-  // Refs for use inside RAF / MediaPipe callbacks
   const brightnessRef  = useRef(brightness);
   const contrastRef    = useRef(contrast);
   const saturateRef    = useRef(saturate);
@@ -324,7 +463,7 @@ const TryOn = () => {
     else                                setAdjustments(prev => ({ ...prev, [glasses]: { ...DEFAULT_ADJ } }));
   };
 
-  // ── 3D scene init (unchanged for desktop; on mobile also unchanged) ──
+  // 3D scene init
   useEffect(() => {
     if (!is3D) {
       if (rendererRef.current) {
@@ -368,7 +507,7 @@ const TryOn = () => {
     return () => { renderer.dispose(); rendererRef.current = sceneRef.current = cameraRef.current = glassModel3dRef.current = null; };
   }, [is3D]);
 
-  // ── FaceMesh + main rendering loop ───────────────────────────
+  // FaceMesh + main rendering loop
   useEffect(() => {
     const faceMesh = new window.FaceMesh({
       locateFile: f => `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/${f}`,
@@ -384,17 +523,13 @@ const TryOn = () => {
     const camera = new window.Camera(videoRef.current, {
       onFrame: async () => {
         if (!cameraReadyRef.current) { cameraReadyRef.current = true; setCameraReady(true); }
-
-        // ── Req 8: Throttle to ~30fps on mobile ──────────────
         if (isMobile) {
           const now = performance.now();
           if (now - lastFrameTimeRef.current < MOBILE_FRAME_INTERVAL) return;
           lastFrameTimeRef.current = now;
         }
-
         await faceMesh.send({ image: videoRef.current });
       },
-      // ── Req 8: Reduced resolution on mobile ──────────────────
       width: CANVAS_W, height: CANVAS_H,
     });
     camera.start();
@@ -417,13 +552,11 @@ const TryOn = () => {
       const lm  = results.multiFaceLandmarks[0];
       const geo = extractFaceGeometry(lm, W, H);
 
-      // ── Req 4: mobile uses deadzone; desktop uses 0 ──────────
       const smoothed = smootherRef.current.smooth(
         { cx: geo.centerX, cy: geo.centerY, gw: geo.glassesWidth, gh: geo.glassesHeight, angle: geo.angle, ds: geo.depthScale },
         isMobile ? MOBILE_DEADZONE : 0
       );
 
-      // ── Req 5: Lerp position on mobile ───────────────────────
       if (isMobile) {
         if (prevPosRef.current) {
           smoothed.cx = lerp(prevPosRef.current.cx, smoothed.cx, MOBILE_LERP);
@@ -432,15 +565,15 @@ const TryOn = () => {
         prevPosRef.current = { cx: smoothed.cx, cy: smoothed.cy };
       }
 
-      // Size multiplier with mobile adjustment
+      // ═══════════════════════════════════════════════════════════════
+      // ── KEY CHANGE: Get size scale using mobile-aware function ────
+      // ═══════════════════════════════════════════════════════════════
       const currentGlassObj = GLASS_OPTIONS.find(g => g.id === glassesRef.current);
       let sizeScale = 1.0;
       if (currentGlassObj?.sizes) {
         const sizeObj = currentGlassObj.sizes.find(s => s.label === selectedSizeKey);
-        if (sizeObj) {
-          // Apply mobile-specific scaling adjustment
-          sizeScale = getMobileAdjustedScale(sizeObj.scale, isMobile);
-        }
+        // Use the getSizeScale helper - desktop always uses .scale, mobile uses .mobileScale with fallback
+        sizeScale = getSizeScale(sizeObj);
       }
 
       if (_is3D) {
@@ -449,7 +582,6 @@ const TryOn = () => {
         if (model && r && s && c) {
           model.position.x = smoothed.cx - W / 2;
           model.position.y = -(smoothed.cy - H / 2);
-          // ── Req 3: No depthScale on mobile ───────────────────
           let scale3D = isMobile
             ? (smoothed.gw / modelWidthRef.current)
             : (smoothed.gw * smoothed.ds) / modelWidthRef.current;
@@ -463,7 +595,6 @@ const TryOn = () => {
         if (!img.complete || !img.src) return;
         const adj = adjRef.current[glassesRef.current] || DEFAULT_ADJ;
 
-        // ── Req 3: No depthScale on mobile ───────────────────────
         let w = isMobile
           ? smoothed.gw * adj.scaleW
           : smoothed.gw * adj.scaleW * smoothed.ds;
@@ -508,7 +639,6 @@ const TryOn = () => {
     link.click();
   }, []);
 
-  // ── Req 9: Swipe to change filter ────────────────────────────
   const handleTouchStart = useCallback((e) => {
     if (!isMobile) return;
     touchStartXRef.current = e.touches[0].clientX;
@@ -531,9 +661,7 @@ const TryOn = () => {
   const currentFrameSizes = GLASS_OPTIONS.find(g => g.id === glasses)?.sizes || [];
   const currentGlassName  = GLASS_OPTIONS.find(g => g.id === glasses)?.name || "";
 
-  // ══════════════════════════════════════════════════════════════
-  // ── MOBILE LAYOUT (Req 2, 6, 7, 9, 10) ───────────────────────
-  // ══════════════════════════════════════════════════════════════
+  // Mobile layout
   if (isMobile) {
     return (
       <div
@@ -549,10 +677,7 @@ const TryOn = () => {
         onTouchStart={handleTouchStart}
         onTouchEnd={handleTouchEnd}
       >
-        {/* ── Hidden video source ─────────────────────────────── */}
         <video ref={videoRef} style={{ display: "none" }} autoPlay playsInline muted />
-
-        {/* ── Req 2: Fullscreen canvas ────────────────────────── */}
         <canvas
           ref={canvasRef}
           width={CANVAS_W}
@@ -562,7 +687,7 @@ const TryOn = () => {
             inset: 0,
             width: "100vw",
             height: "100vh",
-            objectFit: "cover",   // Req 2
+            objectFit: "cover",
             display: "block",
           }}
         />
@@ -581,7 +706,6 @@ const TryOn = () => {
           }}
         />
 
-        {/* ── Top header overlay ──────────────────────────────── */}
         <div style={{
           position: "absolute",
           top: 0,
@@ -625,7 +749,6 @@ const TryOn = () => {
           </div>
         </div>
 
-        {/* ── Loading overlay ─────────────────────────────────── */}
         {!cameraReady && (
           <div style={{
             position: "absolute",
@@ -673,10 +796,9 @@ const TryOn = () => {
           </div>
         )}
 
-        {/* ── Active filter name pill ─────────────────────────── */}
         <div style={{
           position: "absolute",
-          bottom: "calc(env(safe-area-inset-bottom, 16px) + 240px)", // Increased to accommodate size row
+          bottom: "calc(env(safe-area-inset-bottom, 16px) + 240px)",
           left: "50%",
           transform: "translateX(-50%)",
           fontSize: "13px",
@@ -693,17 +815,15 @@ const TryOn = () => {
           {currentGlassName}
         </div>
 
-        {/* ── Req 6 & 10: Bottom overlay — Snapchat-style filter bar ── */}
         <div style={{
           position: "absolute",
           bottom: 0,
           left: 0,
           right: 0,
-          paddingBottom: "env(safe-area-inset-bottom, 16px)",  // Req 10
+          paddingBottom: "env(safe-area-inset-bottom, 16px)",
           background: "linear-gradient(to top, rgba(0,0,0,0.88) 0%, rgba(0,0,0,0.6) 60%, transparent 100%)",
           zIndex: 20,
         }}>
-          {/* Req: FRAME SIZE OPTIONS - Horizontal scroll on mobile */}
           {currentFrameSizes.length > 0 && (
             <div style={{
               padding: "12px 20px 8px",
@@ -760,11 +880,10 @@ const TryOn = () => {
             </div>
           )}
 
-          {/* Req 6: Horizontal scrollable filter row ── */}
           <div style={{
-            overflowX: "auto",                 // Req 6
-            display: "flex",                   // Req 6
-            gap: "12px",                       // Req 6
+            overflowX: "auto",
+            display: "flex",
+            gap: "12px",
             padding: "16px 20px 8px",
             scrollSnapType: "x mandatory",
             WebkitOverflowScrolling: "touch",
@@ -779,9 +898,9 @@ const TryOn = () => {
                   onClick={() => setGlasses(g.id)}
                   style={{
                     flexShrink: 0,
-                    width: "64px",              // Req 9: min 44px tap target (64px)
+                    width: "64px",
                     height: "64px",
-                    borderRadius: "50%",        // Req 6: circular card
+                    borderRadius: "50%",
                     background: isActive
                       ? (g.is3d ? "rgba(100,180,255,0.35)" : "rgba(201,168,76,0.35)")
                       : "rgba(0,0,0,0.55)",
@@ -807,19 +926,17 @@ const TryOn = () => {
             })}
           </div>
 
-          {/* Controls row: Arms toggle | Capture | placeholder ── */}
           <div style={{
             display: "flex",
             alignItems: "center",
             justifyContent: "space-around",
             padding: "12px 40px 16px",
           }}>
-            {/* Arms toggle — Req 7: keep only essential controls */}
             {!is3D ? (
               <button
                 onClick={() => setShowArms(p => !p)}
                 style={{
-                  width: "52px",                   // Req 9: ≥44px tap target
+                  width: "52px",
                   height: "52px",
                   borderRadius: "50%",
                   background: showArms ? "rgba(201,168,76,0.3)" : "rgba(255,255,255,0.12)",
@@ -840,11 +957,10 @@ const TryOn = () => {
               </button>
             ) : <div style={{ width: "52px", height: "52px" }} />}
 
-            {/* Capture button ── */}
             <button
               onClick={capturePhoto}
               style={{
-                width: "76px",                     // Req 9: large tap target
+                width: "76px",
                 height: "76px",
                 borderRadius: "50%",
                 background: "#fff",
@@ -866,12 +982,10 @@ const TryOn = () => {
               📸
             </button>
 
-            {/* Placeholder for layout symmetry ── */}
             <div style={{ width: "52px", height: "52px" }} />
           </div>
         </div>
 
-        {/* ── Shared animations ─────────────────────────────── */}
         <style>{`
           @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.4;transform:scale(.8)} }
           @keyframes spinRing { to{transform:rotate(360deg)} }
@@ -883,7 +997,7 @@ const TryOn = () => {
   }
 
   // ══════════════════════════════════════════════════════════════
-  // ── DESKTOP LAYOUT (Req 11: completely unchanged) ─────────────
+  // ── DESKTOP LAYOUT (completely unchanged) ─────────────────────
   // ══════════════════════════════════════════════════════════════
   return (
     <div style={{
@@ -900,7 +1014,6 @@ const TryOn = () => {
       <div style={{ position:"fixed", top:"-20%", right:"-10%", width:"70vw", height:"70vw", background:"radial-gradient(circle, rgba(201,168,76,0.08), transparent 70%)", borderRadius:"50%", pointerEvents:"none", zIndex:0 }} />
       <div style={{ position:"fixed", bottom:"-20%", left:"-10%", width:"70vw", height:"70vw", background:"radial-gradient(circle, rgba(100,180,255,0.06), transparent 70%)", borderRadius:"50%", pointerEvents:"none", zIndex:0 }} />
 
-      {/* Header */}
       <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", padding:"20px 32px", borderBottom:"1px solid rgba(201,168,76,0.2)", backdropFilter:"blur(20px)", background:"rgba(0,0,0,0.4)", zIndex:2, position:"relative" }}>
         <div style={{ fontFamily:"'Inter', sans-serif", fontSize:"28px", fontWeight:700, letterSpacing:"-0.5px", background:"linear-gradient(135deg, #ffffff 0%, #c9a84c 100%)", WebkitBackgroundClip:"text", WebkitTextFillColor:"transparent", backgroundClip:"text" }}>
           VR<span style={{ color:"#c9a84c", background:"none", WebkitTextFillColor:"#c9a84c" }}>.</span>OPTICS
@@ -910,10 +1023,8 @@ const TryOn = () => {
         </div>
       </div>
 
-      {/* Main content */}
       <div style={{ display:"flex", flexDirection:"column", gap:"24px", flex:1, padding:"24px 32px 32px 32px", overflowY:"auto", zIndex:2, position:"relative", maxWidth:"1400px", margin:"0 auto", width:"100%" }}>
 
-        {/* Camera panel */}
         <div style={{ background:"rgba(10,10,15,0.6)", backdropFilter:"blur(24px)", borderRadius:"40px", padding:"16px", border:"1px solid rgba(201,168,76,0.2)", boxShadow:"0 25px 50px -12px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.05)" }}>
           <div style={{ position:"relative", width:"100%", aspectRatio:"4/3", maxWidth:"100%", margin:"0 auto", borderRadius:"32px", overflow:"hidden" }}>
             {[...Array(4)].map((_, i) => (
@@ -950,10 +1061,8 @@ const TryOn = () => {
           </div>
         </div>
 
-        {/* Controls panel */}
         <div style={{ background:"rgba(10,10,15,0.6)", backdropFilter:"blur(24px)", borderRadius:"40px", padding:"28px", display:"flex", flexDirection:"column", gap:"28px", border:"1px solid rgba(201,168,76,0.15)", boxShadow:"0 8px 32px rgba(0,0,0,0.3)" }}>
 
-          {/* Frame selector */}
           <div>
             <div style={{ fontSize:"11px", letterSpacing:"3px", color:"#c9a84c", marginBottom:"16px", fontWeight:600, display:"flex", alignItems:"center", gap:"10px" }}>
               <span style={{ width:"24px", height:"1px", background:"#c9a84c" }}></span>
@@ -971,7 +1080,6 @@ const TryOn = () => {
             </div>
           </div>
 
-          {/* Size selector */}
           {currentFrameSizes.length > 0 && (
             <div>
               <div style={{ fontSize:"11px", letterSpacing:"3px", color:"#c9a84c", marginBottom:"16px", fontWeight:600, display:"flex", alignItems:"center", gap:"10px" }}>
@@ -988,7 +1096,6 @@ const TryOn = () => {
             </div>
           )}
 
-          {/* Arms toggle */}
           {!is3D && (
             <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", padding:"8px 0" }}>
               <span style={{ fontSize:"13px", fontWeight:500, color:"rgba(255,255,255,0.7)", letterSpacing:"0.3px" }}>🦾 Realistic Arms (Behind Ears)</span>
@@ -1001,7 +1108,6 @@ const TryOn = () => {
             </div>
           )}
 
-          {/* Frame adjustment sliders */}
           {!is3D && (
             <div style={{ background:"rgba(0,0,0,0.3)", borderRadius:"28px", padding:"20px", border:"0.5px solid rgba(201,168,76,0.15)" }}>
               <div style={{ display:"flex", justifyContent:"space-between", marginBottom:"20px", alignItems:"center" }}>
@@ -1026,7 +1132,6 @@ const TryOn = () => {
             </div>
           )}
 
-          {/* Scene filters */}
           <div>
             <div style={{ fontSize:"11px", letterSpacing:"3px", color:"#c9a84c", marginBottom:"16px", fontWeight:600, display:"flex", alignItems:"center", gap:"10px" }}>
               <span style={{ width:"24px", height:"1px", background:"#c9a84c" }}></span>
@@ -1047,7 +1152,6 @@ const TryOn = () => {
             ))}
           </div>
 
-          {/* Capture button */}
           <button onClick={capturePhoto} style={{ width:"100%", background:"linear-gradient(135deg,rgba(201,168,76,0.15),rgba(201,168,76,0.05))", border:"1px solid rgba(201,168,76,0.4)", color:"#c9a84c", fontSize:"13px", letterSpacing:"2px", padding:"16px", borderRadius:"100px", cursor:"pointer", fontWeight:700, transition:"all 0.3s ease", backdropFilter:"blur(8px)" }} onMouseEnter={e => { e.currentTarget.style.background="linear-gradient(135deg,rgba(201,168,76,0.25),rgba(201,168,76,0.1))"; e.currentTarget.style.transform="translateY(-1px)"; e.currentTarget.style.boxShadow="0 8px 20px rgba(201,168,76,0.2)"; }} onMouseLeave={e => { e.currentTarget.style.background="linear-gradient(135deg,rgba(201,168,76,0.15),rgba(201,168,76,0.05))"; e.currentTarget.style.transform="translateY(0)"; e.currentTarget.style.boxShadow="none"; }}>
             📸 CAPTURE LOOK
           </button>

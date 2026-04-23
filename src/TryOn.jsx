@@ -14,10 +14,10 @@ const ROUND_ADJ   = { scaleW: 1, scaleH: 0.85, offsetX: 0, offsetY: 6, rotate: 0
 const GLASS_OPTIONS = [
   { id: "/glass1.png",  name: "Classic",  price: "PKR 4,500", emoji: "👓", 
     sizes: [
-      { label:"S", scale:0.80, mobileScale:0.50 },
-      { label:"M", scale:0.90, mobileScale:0.75 },
-      { label:"L", scale:1.00, mobileScale:0.90 },
-      { label:"XL", scale:1.10, mobileScale:1.05 }
+      { label:"S", scale:0.80, mobileScale:0.40 },
+      { label:"M", scale:0.90, mobileScale:0.55 },
+      { label:"L", scale:1.00, mobileScale:0.60 },
+      { label:"XL", scale:1.10, mobileScale:0.75 }
     ] 
   },
   { id: "/glass2.png",  name: "Aviator",  price: "PKR 5,200", emoji: "🕶️", 

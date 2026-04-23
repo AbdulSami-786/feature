@@ -662,7 +662,7 @@ const TryOn = () => {
         {/* ── Active filter name pill ─────────────────────────── */}
         <div style={{
           position: "absolute",
-          bottom: "calc(env(safe-area-inset-bottom, 16px) + 168px)",
+          bottom: "calc(env(safe-area-inset-bottom, 16px) + 240px)", // Increased to accommodate size row
           left: "50%",
           transform: "translateX(-50%)",
           fontSize: "13px",
@@ -689,6 +689,63 @@ const TryOn = () => {
           background: "linear-gradient(to top, rgba(0,0,0,0.88) 0%, rgba(0,0,0,0.6) 60%, transparent 100%)",
           zIndex: 20,
         }}>
+          {/* Req: FRAME SIZE OPTIONS - Horizontal scroll on mobile */}
+          {currentFrameSizes.length > 0 && (
+            <div style={{
+              padding: "12px 20px 8px",
+              borderBottom: "1px solid rgba(255,255,255,0.1)",
+            }}>
+              <div style={{
+                fontSize: "10px",
+                fontWeight: 600,
+                letterSpacing: "1px",
+                color: "#c9a84c",
+                marginBottom: "10px",
+                paddingLeft: "4px",
+              }}>
+                FRAME SIZE
+              </div>
+              <div style={{
+                display: "flex",
+                gap: "12px",
+                overflowX: "auto",
+                scrollSnapType: "x mandatory",
+                WebkitOverflowScrolling: "touch",
+                scrollbarWidth: "none",
+                msOverflowStyle: "none",
+                paddingBottom: "8px",
+              }}>
+                {currentFrameSizes.map(size => (
+                  <button
+                    key={size.label}
+                    onClick={() => setSelectedSizeKey(size.label)}
+                    style={{
+                      flexShrink: 0,
+                      minWidth: "70px",
+                      background: selectedSizeKey === size.label
+                        ? "linear-gradient(135deg, #c9a84c, #b38f3a)"
+                        : "rgba(20,20,28,0.8)",
+                      border: `1px solid ${selectedSizeKey === size.label ? "#c9a84c" : "rgba(201,168,76,0.3)"}`,
+                      color: selectedSizeKey === size.label ? "#0a0a0f" : "#ffffff",
+                      fontSize: "14px",
+                      fontWeight: 700,
+                      padding: "10px 0",
+                      borderRadius: "40px",
+                      cursor: "pointer",
+                      transition: "all 0.2s ease",
+                      letterSpacing: "0.5px",
+                      textTransform: "uppercase",
+                      scrollSnapAlign: "start",
+                      WebkitTapHighlightColor: "transparent",
+                    }}
+                  >
+                    {size.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
           {/* Req 6: Horizontal scrollable filter row ── */}
           <div style={{
             overflowX: "auto",                 // Req 6

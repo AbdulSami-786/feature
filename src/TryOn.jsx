@@ -172,6 +172,86 @@ const GLASS_OPTIONS = [
       { label:"XL", scale:1.30, mobileScale:1.10 }
     ] 
   },
+  { id: "/glass21.png", name: "Classic",   price: "PKR 4,900", emoji: "🪬", 
+    sizes: [
+      { label:"S", scale:0.85, mobileScale:0.50 },
+      { label:"M", scale:1.00, mobileScale:0.75 },
+      { label:"L", scale:1.15, mobileScale:0.95 },
+      { label:"XL", scale:1.30, mobileScale:1.10 }
+    ] 
+  },
+  { id: "/glass22.png", name: "Classic",   price: "PKR 4,900", emoji: "🪬", 
+    sizes: [
+      { label:"S", scale:0.85, mobileScale:0.50 },
+      { label:"M", scale:1.00, mobileScale:0.75 },
+      { label:"L", scale:1.15, mobileScale:0.95 },
+      { label:"XL", scale:1.30, mobileScale:1.10 }
+    ] 
+  },
+  { id: "/glass23.png", name: "Classic",   price: "PKR 4,900", emoji: "🪬", 
+    sizes: [
+      { label:"S", scale:0.85, mobileScale:0.50 },
+      { label:"M", scale:1.00, mobileScale:0.75 },
+      { label:"L", scale:1.15, mobileScale:0.95 },
+      { label:"XL", scale:1.30, mobileScale:1.10 }
+    ] 
+  },
+  { id: "/glass24.png", name: "Classic",   price: "PKR 4,900", emoji: "🪬", 
+    sizes: [
+      { label:"S", scale:0.85, mobileScale:0.50 },
+      { label:"M", scale:1.00, mobileScale:0.75 },
+      { label:"L", scale:1.15, mobileScale:0.95 },
+      { label:"XL", scale:1.30, mobileScale:1.10 }
+    ] 
+  },
+  { id: "/glass25.png", name: "Classic",   price: "PKR 4,900", emoji: "🪬", 
+    sizes: [
+      { label:"S", scale:0.85, mobileScale:0.50 },
+      { label:"M", scale:1.00, mobileScale:0.75 },
+      { label:"L", scale:1.15, mobileScale:0.95 },
+      { label:"XL", scale:1.30, mobileScale:1.10 }
+    ] 
+  },
+  { id: "/glass26.png", name: "Classic",   price: "PKR 4,900", emoji: "🪬", 
+    sizes: [
+      { label:"S", scale:0.85, mobileScale:0.50 },
+      { label:"M", scale:1.00, mobileScale:0.75 },
+      { label:"L", scale:1.15, mobileScale:0.95 },
+      { label:"XL", scale:1.30, mobileScale:1.10 }
+    ] 
+  },
+  { id: "/glass27.png", name: "Classic",   price: "PKR 4,900", emoji: "🪬", 
+    sizes: [
+      { label:"S", scale:0.85, mobileScale:0.50 },
+      { label:"M", scale:1.00, mobileScale:0.75 },
+      { label:"L", scale:1.15, mobileScale:0.95 },
+      { label:"XL", scale:1.30, mobileScale:1.10 }
+    ] 
+  },
+  { id: "/glass28.png", name: "Classic",   price: "PKR 4,900", emoji: "🪬", 
+    sizes: [
+      { label:"S", scale:0.85, mobileScale:0.50 },
+      { label:"M", scale:1.00, mobileScale:0.75 },
+      { label:"L", scale:1.15, mobileScale:0.95 },
+      { label:"XL", scale:1.30, mobileScale:1.10 }
+    ] 
+  },
+  { id: "/glass29.png", name: "Classic",   price: "PKR 4,900", emoji: "🪬", 
+    sizes: [
+      { label:"S", scale:0.85, mobileScale:0.50 },
+      { label:"M", scale:1.00, mobileScale:0.75 },
+      { label:"L", scale:1.15, mobileScale:0.95 },
+      { label:"XL", scale:1.30, mobileScale:1.10 }
+    ] 
+  },
+  { id: "/glass30.png", name: "Classic",   price: "PKR 4,900", emoji: "🪬", 
+    sizes: [
+      { label:"S", scale:0.85, mobileScale:0.50 },
+      { label:"M", scale:1.00, mobileScale:0.75 },
+      { label:"L", scale:1.15, mobileScale:0.95 },
+      { label:"XL", scale:1.30, mobileScale:1.10 }
+    ] 
+  },
   { id: "__3D__", name: "3D Frame", price: "PKR 6,500", emoji: "✨", is3d: true, 
     sizes: [
       { label:"S", scale:0.85, mobileScale:0.55 },

@@ -154,6 +154,17 @@ function extractFaceGeometry(lm, W, H) {
   return { centerX, centerY, angle, glassesWidth, glassesHeight, depthScale };
 }
 
+// ── MOBILE FRAME SIZE SCALING HELPER ──────────────────────────────
+const getMobileAdjustedScale = (scale, isMobileDevice) => {
+  if (!isMobileDevice) return scale;
+  
+  // Fine-tuned scaling per size category for better realism on mobile
+  if (scale <= 0.85) return scale * 0.75;  // Small frames (S)
+  if (scale <= 1.0) return scale * 0.85;   // Medium frames (M)  
+  if (scale <= 1.15) return scale * 0.9;   // Large frames (L)
+  return scale * 0.92;                     // Extra large frames (XL)
+};
+
 // ── REALISTIC GLASSES WITH SIDE ARMS (unchanged) ─────────────────
 const drawGlassesWithRealisticArms = (ctx, img, x, y, w, h, angle) => {
   ctx.save();
@@ -421,12 +432,15 @@ const TryOn = () => {
         prevPosRef.current = { cx: smoothed.cx, cy: smoothed.cy };
       }
 
-      // Size multiplier
+      // Size multiplier with mobile adjustment
       const currentGlassObj = GLASS_OPTIONS.find(g => g.id === glassesRef.current);
       let sizeScale = 1.0;
       if (currentGlassObj?.sizes) {
         const sizeObj = currentGlassObj.sizes.find(s => s.label === selectedSizeKey);
-        if (sizeObj) sizeScale = sizeObj.scale;
+        if (sizeObj) {
+          // Apply mobile-specific scaling adjustment
+          sizeScale = getMobileAdjustedScale(sizeObj.scale, isMobile);
+        }
       }
 
       if (_is3D) {

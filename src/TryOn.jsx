@@ -396,6 +396,14 @@ const GLASS_OPTIONS = [
       { label:"XL", scale:1.30, mobileScale:1.10 }
     ] 
   },
+  { id: "/glass49.png", name: "Classic",   price: "PKR 4,900", emoji: "🪬", 
+    sizes: [
+      { label:"S", scale:0.85, mobileScale:0.50 },
+      { label:"M", scale:1.00, mobileScale:0.75 },
+      { label:"L", scale:1.15, mobileScale:0.95 },
+      { label:"XL", scale:1.30, mobileScale:1.10 }
+    ] 
+  },
   { id: "__3D__", name: "3D Frame", price: "PKR 6,500", emoji: "✨", is3d: true, 
     sizes: [
       { label:"S", scale:0.85, mobileScale:0.55 },

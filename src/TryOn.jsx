@@ -62,6 +62,7 @@ const clamp = (value, min, max) => Math.min(Math.max(value, min), max);
 function loadScript(src) {
   return new Promise((resolve, reject) => {
     const oldScript = document.querySelector(`script[src="${src}"]`);
+
     if (oldScript) {
       resolve();
       return;
@@ -105,64 +106,97 @@ function getIrisData(landmarks, irisIndexes, width, height) {
   return {
     x: center.x,
     y: center.y,
-    radius: clamp(maxDistance * 1.9, 9, 38),
+    radius: clamp(maxDistance * 1.9, 5, 42),
   };
 }
 
-function drawLens(ctx, iris, lens, settings) {
+function drawLens(ctx, iris, lens, settings, side = "left") {
   if (!iris) return;
 
-  const radius = iris.radius * settings.size;
+  const sideSize = side === "left" ? settings.leftSize : settings.rightSize;
+  const sideOffsetX = side === "left" ? settings.leftOffsetX : settings.rightOffsetX;
+  const sideOffsetY = side === "left" ? settings.leftOffsetY : settings.rightOffsetY;
+
+  const autoFitBoost = settings.autoFit ? clamp(iris.radius / 22, 0.55, 1.45) : 1;
+
+  const x = iris.x + sideOffsetX;
+  const y = iris.y + sideOffsetY;
+
+  const radiusX =
+    iris.radius *
+    settings.size *
+    sideSize *
+    autoFitBoost *
+    settings.stretchX;
+
+  const radiusY =
+    iris.radius *
+    settings.size *
+    sideSize *
+    autoFitBoost *
+    settings.stretchY;
+
+  const safeRadiusX = clamp(radiusX, 2, 95);
+  const safeRadiusY = clamp(radiusY, 2, 95);
+  const baseRadius = Math.max(safeRadiusX, safeRadiusY);
+
   const gradient = ctx.createRadialGradient(
-    iris.x,
-    iris.y,
-    radius * 0.08,
-    iris.x,
-    iris.y,
-    radius
+    x,
+    y,
+    baseRadius * 0.04,
+    x,
+    y,
+    baseRadius
   );
 
-  gradient.addColorStop(0, "rgba(255,255,255,0.16)");
-  gradient.addColorStop(0.28, lens.color);
+  gradient.addColorStop(0, "rgba(255,255,255,0.12)");
+  gradient.addColorStop(0.18, lens.color);
   gradient.addColorStop(0.72, lens.color);
   gradient.addColorStop(1, lens.ring);
 
   ctx.save();
+
+  ctx.translate(x, y);
+  ctx.scale(safeRadiusX / safeRadiusY, 1);
+  ctx.translate(-x, -y);
+
   ctx.globalAlpha = settings.opacity;
-  ctx.globalCompositeOperation = "multiply";
+  ctx.globalCompositeOperation = settings.blendMode;
 
   ctx.beginPath();
-  ctx.arc(iris.x, iris.y, radius, 0, Math.PI * 2);
+  ctx.arc(x, y, safeRadiusY, 0, Math.PI * 2);
   ctx.fillStyle = gradient;
   ctx.fill();
 
   ctx.globalCompositeOperation = "source-over";
-  ctx.globalAlpha = settings.opacity * 0.75;
+  ctx.globalAlpha = settings.opacity * settings.ringOpacity;
 
   ctx.beginPath();
-  ctx.arc(iris.x, iris.y, radius, 0, Math.PI * 2);
-  ctx.lineWidth = Math.max(1.5, radius * 0.11);
+  ctx.arc(x, y, safeRadiusY, 0, Math.PI * 2);
+  ctx.lineWidth = Math.max(0.5, safeRadiusY * settings.ringThickness);
   ctx.strokeStyle = lens.ring;
   ctx.stroke();
 
-  ctx.globalAlpha = settings.opacity * 0.5;
-  for (let i = 0; i < 26; i += 1) {
-    const angle = (Math.PI * 2 * i) / 26;
-    const inner = radius * 0.28;
-    const outer = radius * 0.88;
+  ctx.globalAlpha = settings.opacity * settings.patternOpacity;
+
+  for (let i = 0; i < settings.patternLines; i += 1) {
+    const angle = (Math.PI * 2 * i) / settings.patternLines;
+    const inner = safeRadiusY * settings.patternInner;
+    const outer = safeRadiusY * settings.patternOuter;
 
     ctx.beginPath();
-    ctx.moveTo(iris.x + Math.cos(angle) * inner, iris.y + Math.sin(angle) * inner);
-    ctx.lineTo(iris.x + Math.cos(angle) * outer, iris.y + Math.sin(angle) * outer);
-    ctx.lineWidth = 0.9;
-    ctx.strokeStyle = "rgba(255,255,255,0.18)";
+    ctx.moveTo(x + Math.cos(angle) * inner, y + Math.sin(angle) * inner);
+    ctx.lineTo(x + Math.cos(angle) * outer, y + Math.sin(angle) * outer);
+    ctx.lineWidth = Math.max(0.3, safeRadiusY * 0.018);
+    ctx.strokeStyle = "rgba(255,255,255,0.22)";
     ctx.stroke();
   }
 
-  ctx.globalAlpha = 0.95;
+  ctx.globalAlpha = settings.pupilCutoutOpacity;
   ctx.globalCompositeOperation = "destination-out";
+
   ctx.beginPath();
-  ctx.arc(iris.x, iris.y, radius * settings.pupil, 0, Math.PI * 2);
+  ctx.arc(x, y, safeRadiusY * settings.pupil, 0, Math.PI * 2);
   ctx.fill();
 
   ctx.restore();
@@ -181,13 +215,40 @@ export default function TryOn() {
   const [modelReady, setModelReady] = useState(false);
   const [cameraError, setCameraError] = useState("");
   const [selectedLensId, setSelectedLensId] = useState(LENS_OPTIONS[0].id);
+
   const [settings, setSettings] = useState({
+    autoFit: 1,
+
     size: 1,
+    leftSize: 1,
+    rightSize: 1,
+
+    stretchX: 1,
+    stretchY: 1,
+
+    leftOffsetX: 0,
+    leftOffsetY: 0,
+    rightOffsetX: 0,
+    rightOffsetY: 0,
+
     opacity: 0.72,
     pupil: 0.34,
+
+    ringThickness: 0.11,
+    ringOpacity: 0.75,
+
+    patternOpacity: 0.5,
+    patternLines: 26,
+    patternInner: 0.28,
+    patternOuter: 0.88,
+
+    pupilCutoutOpacity: 0.95,
+
     brightness: 100,
     contrast: 108,
     saturation: 112,
+
+    blendMode: "multiply",
   });
 
   const selectedLens = useMemo(
@@ -198,18 +259,44 @@ export default function TryOn() {
   const updateSetting = useCallback((key, value) => {
     setSettings((current) => ({
       ...current,
-      [key]: Number(value),
+      [key]: key === "blendMode" ? value : Number(value),
     }));
   }, []);
 
   const resetSettings = useCallback(() => {
     setSettings({
+      autoFit: 1,
+
       size: 1,
+      leftSize: 1,
+      rightSize: 1,
+
+      stretchX: 1,
+      stretchY: 1,
+
+      leftOffsetX: 0,
+      leftOffsetY: 0,
+      rightOffsetX: 0,
+      rightOffsetY: 0,
+
       opacity: 0.72,
       pupil: 0.34,
+
+      ringThickness: 0.11,
+      ringOpacity: 0.75,
+
+      patternOpacity: 0.5,
+      patternLines: 26,
+      patternInner: 0.28,
+      patternOuter: 0.88,
+
+      pupilCutoutOpacity: 0.95,
+
       brightness: 100,
       contrast: 108,
       saturation: 112,
+
+      blendMode: "multiply",
     });
   }, []);
 
@@ -327,10 +414,11 @@ export default function TryOn() {
 
         if (faceMeshRef.current && modelReady && time - lastSendRef.current > 45) {
           lastSendRef.current = time;
+
           try {
             await faceMeshRef.current.send({ image: video });
           } catch (error) {
-            // Ignore dropped frames.
+            // Dropped frames are normal on weaker devices.
           }
         }
 
@@ -356,8 +444,8 @@ export default function TryOn() {
             CANVAS_HEIGHT
           );
 
-          drawLens(ctx, leftIris, selectedLens, settings);
-          drawLens(ctx, rightIris, selectedLens, settings);
+          drawLens(ctx, leftIris, selectedLens, settings, "left");
+          drawLens(ctx, rightIris, selectedLens, settings, "right");
         }
       } else {
         ctx.restore();
@@ -392,7 +480,7 @@ export default function TryOn() {
           <div style={styles.topBar}>
             <div>
               <div style={styles.brand}>Lens Studio</div>
-              <div style={styles.subBrand}>Virtual contact lens try-on</div>
+              <div style={styles.subBrand}>Custom contact lens try-on</div>
             </div>
 
             <div style={styles.status}>
@@ -414,7 +502,10 @@ export default function TryOn() {
                 onClick={() => setSelectedLensId(lens.id)}
                 style={{
                   ...styles.mobileLensButton,
-                  borderColor: selectedLensId === lens.id ? "#ffffff" : "rgba(255,255,255,.22)",
+                  borderColor:
+                    selectedLensId === lens.id
+                      ? "#ffffff"
+                      : "rgba(255,255,255,.22)",
                 }}
               >
                 <span style={{ ...styles.colorDot, background: lens.color }} />
@@ -439,11 +530,11 @@ export default function TryOn() {
 
         <aside style={styles.controlPanel}>
           <div>
-            <p style={styles.eyebrow}>SELECT LENS</p>
-            <h1 style={styles.title}>Choose your lens color</h1>
+            <p style={styles.eyebrow}>CUSTOM FIT</p>
+            <h1 style={styles.title}>Adjust lens for every eye</h1>
             <p style={styles.description}>
-              Clean UI, fast camera preview, adjustable opacity, size, pupil cutout,
-              and scene filters.
+              Use eye-based controls, not race or country. The right fit depends on
+              iris size, camera distance, eye shape, and face angle.
             </p>
           </div>
 
@@ -481,66 +572,256 @@ export default function TryOn() {
           </div>
 
           <div style={styles.controls}>
+            <SectionTitle title="Fit Controls" />
+
+            <ToggleSlider
+              label="Auto eye fit"
+              value={settings.autoFit}
+              display={settings.autoFit ? "On" : "Off"}
+              onChange={(value) => updateSetting("autoFit", value)}
+            />
+
             <Slider
-              label="Lens size"
+              label="Overall lens size"
               value={settings.size}
-              min="0.7"
-              max="1.45"
+              min="0.25"
+              max="2.6"
               step="0.01"
               display={`${Math.round(settings.size * 100)}%`}
               onChange={(value) => updateSetting("size", value)}
             />
+
+            <Slider
+              label="Left lens size"
+              value={settings.leftSize}
+              min="0.25"
+              max="2.6"
+              step="0.01"
+              display={`${Math.round(settings.leftSize * 100)}%`}
+              onChange={(value) => updateSetting("leftSize", value)}
+            />
+
+            <Slider
+              label="Right lens size"
+              value={settings.rightSize}
+              min="0.25"
+              max="2.6"
+              step="0.01"
+              display={`${Math.round(settings.rightSize * 100)}%`}
+              onChange={(value) => updateSetting("rightSize", value)}
+            />
+
+            <Slider
+              label="Horizontal stretch"
+              value={settings.stretchX}
+              min="0.35"
+              max="2"
+              step="0.01"
+              display={`${Math.round(settings.stretchX * 100)}%`}
+              onChange={(value) => updateSetting("stretchX", value)}
+            />
+
+            <Slider
+              label="Vertical stretch"
+              value={settings.stretchY}
+              min="0.35"
+              max="2"
+              step="0.01"
+              display={`${Math.round(settings.stretchY * 100)}%`}
+              onChange={(value) => updateSetting("stretchY", value)}
+            />
+
+            <SectionTitle title="Position Fine-Tuning" />
+
+            <Slider
+              label="Left lens horizontal"
+              value={settings.leftOffsetX}
+              min="-35"
+              max="35"
+              step="1"
+              display={`${settings.leftOffsetX}px`}
+              onChange={(value) => updateSetting("leftOffsetX", value)}
+            />
+
+            <Slider
+              label="Left lens vertical"
+              value={settings.leftOffsetY}
+              min="-35"
+              max="35"
+              step="1"
+              display={`${settings.leftOffsetY}px`}
+              onChange={(value) => updateSetting("leftOffsetY", value)}
+            />
+
+            <Slider
+              label="Right lens horizontal"
+              value={settings.rightOffsetX}
+              min="-35"
+              max="35"
+              step="1"
+              display={`${settings.rightOffsetX}px`}
+              onChange={(value) => updateSetting("rightOffsetX", value)}
+            />
+
+            <Slider
+              label="Right lens vertical"
+              value={settings.rightOffsetY}
+              min="-35"
+              max="35"
+              step="1"
+              display={`${settings.rightOffsetY}px`}
+              onChange={(value) => updateSetting("rightOffsetY", value)}
+            />
+
+            <SectionTitle title="Lens Appearance" />
+
             <Slider
               label="Lens opacity"
               value={settings.opacity}
-              min="0.25"
+              min="0.05"
               max="1"
               step="0.01"
               display={`${Math.round(settings.opacity * 100)}%`}
               onChange={(value) => updateSetting("opacity", value)}
             />
+
             <Slider
               label="Pupil opening"
               value={settings.pupil}
-              min="0.22"
-              max="0.5"
+              min="0.1"
+              max="0.65"
               step="0.01"
               display={`${Math.round(settings.pupil * 100)}%`}
               onChange={(value) => updateSetting("pupil", value)}
             />
+
+            <Slider
+              label="Pupil cutout strength"
+              value={settings.pupilCutoutOpacity}
+              min="0.25"
+              max="1"
+              step="0.01"
+              display={`${Math.round(settings.pupilCutoutOpacity * 100)}%`}
+              onChange={(value) => updateSetting("pupilCutoutOpacity", value)}
+            />
+
+            <Slider
+              label="Outer ring thickness"
+              value={settings.ringThickness}
+              min="0"
+              max="0.28"
+              step="0.01"
+              display={`${Math.round(settings.ringThickness * 100)}%`}
+              onChange={(value) => updateSetting("ringThickness", value)}
+            />
+
+            <Slider
+              label="Outer ring opacity"
+              value={settings.ringOpacity}
+              min="0"
+              max="1"
+              step="0.01"
+              display={`${Math.round(settings.ringOpacity * 100)}%`}
+              onChange={(value) => updateSetting("ringOpacity", value)}
+            />
+
+            <Slider
+              label="Pattern opacity"
+              value={settings.patternOpacity}
+              min="0"
+              max="1"
+              step="0.01"
+              display={`${Math.round(settings.patternOpacity * 100)}%`}
+              onChange={(value) => updateSetting("patternOpacity", value)}
+            />
+
+            <Slider
+              label="Pattern lines"
+              value={settings.patternLines}
+              min="0"
+              max="64"
+              step="1"
+              display={`${settings.patternLines}`}
+              onChange={(value) => updateSetting("patternLines", value)}
+            />
+
+            <Slider
+              label="Pattern inner radius"
+              value={settings.patternInner}
+              min="0.05"
+              max="0.65"
+              step="0.01"
+              display={`${Math.round(settings.patternInner * 100)}%`}
+              onChange={(value) => updateSetting("patternInner", value)}
+            />
+
+            <Slider
+              label="Pattern outer radius"
+              value={settings.patternOuter}
+              min="0.4"
+              max="1"
+              step="0.01"
+              display={`${Math.round(settings.patternOuter * 100)}%`}
+              onChange={(value) => updateSetting("patternOuter", value)}
+            />
+
+            <SectionTitle title="Camera Image" />
+
             <Slider
               label="Brightness"
               value={settings.brightness}
-              min="70"
-              max="140"
+              min="50"
+              max="170"
               step="1"
               display={`${settings.brightness}%`}
               onChange={(value) => updateSetting("brightness", value)}
             />
+
             <Slider
               label="Contrast"
               value={settings.contrast}
-              min="70"
-              max="150"
+              min="50"
+              max="180"
               step="1"
               display={`${settings.contrast}%`}
               onChange={(value) => updateSetting("contrast", value)}
             />
+
             <Slider
               label="Saturation"
               value={settings.saturation}
-              min="70"
-              max="160"
+              min="40"
+              max="200"
               step="1"
               display={`${settings.saturation}%`}
               onChange={(value) => updateSetting("saturation", value)}
             />
+
+            <label style={styles.selectWrap}>
+              <div style={styles.sliderTop}>
+                <span>Blend mode</span>
+                <strong>{settings.blendMode}</strong>
+              </div>
+
+              <select
+                value={settings.blendMode}
+                onChange={(event) => updateSetting("blendMode", event.target.value)}
+                style={styles.select}
+              >
+                <option value="multiply">multiply</option>
+                <option value="source-over">normal</option>
+                <option value="overlay">overlay</option>
+                <option value="soft-light">soft-light</option>
+                <option value="color">color</option>
+              </select>
+            </label>
           </div>
 
           <div style={styles.actions}>
             <button type="button" onClick={resetSettings} style={styles.secondaryButton}>
               Reset
             </button>
+
             <button type="button" onClick={capturePhoto} style={styles.primaryButton}>
               Capture
             </button>
@@ -562,7 +843,8 @@ export default function TryOn() {
           accent-color: #ffffff;
         }
 
-        button {
+        button,
+        select {
           font-family: inherit;
         }
 
@@ -572,14 +854,44 @@ export default function TryOn() {
           }
         }
 
-        @media (max-width: 920px) {
-          .desktop-only {
-            display: none;
+        @media (max-width: 980px) {
+          main {
+            grid-template-columns: 1fr !important;
+            overflow: auto !important;
+          }
+
+          aside {
+            max-height: none !important;
+            min-height: auto !important;
+          }
+
+          canvas {
+            min-height: 64vh !important;
+          }
+
+          section {
+            min-height: 64vh !important;
+          }
+        }
+
+        @media (max-width: 560px) {
+          main {
+            padding: 10px !important;
+            gap: 10px !important;
+          }
+
+          section,
+          aside {
+            border-radius: 24px !important;
           }
         }
       `}</style>
     </div>
   );
+}
+
+function SectionTitle({ title }) {
+  return <div style={styles.sectionTitle}>{title}</div>;
 }
 
 function Slider({ label, value, min, max, step, display, onChange }) {
@@ -589,12 +901,33 @@ function Slider({ label, value, min, max, step, display, onChange }) {
         <span>{label}</span>
         <strong>{display}</strong>
       </div>
+
       <input
         type="range"
         value={value}
         min={min}
         max={max}
         step={step}
+        onChange={(event) => onChange(event.target.value)}
+      />
+    </label>
+  );
+}
+
+function ToggleSlider({ label, value, display, onChange }) {
+  return (
+    <label style={styles.sliderWrap}>
+      <div style={styles.sliderTop}>
+        <span>{label}</span>
+        <strong>{display}</strong>
+      </div>
+
+      <input
+        type="range"
+        value={value}
+        min="0"
+        max="1"
+        step="1"
         onChange={(event) => onChange(event.target.value)}
       />
     </label>
@@ -618,7 +951,7 @@ const styles = {
   shell: {
     minHeight: "100vh",
     display: "grid",
-    gridTemplateColumns: "minmax(0, 1fr) 420px",
+    gridTemplateColumns: "minmax(0, 1fr) 430px",
     gap: 20,
     padding: 20,
   },
@@ -846,6 +1179,15 @@ const styles = {
     background: "rgba(0,0,0,.18)",
     border: "1px solid rgba(255,255,255,.1)",
   },
+  sectionTitle: {
+    marginTop: 4,
+    paddingTop: 4,
+    color: "rgba(255,255,255,.9)",
+    fontSize: 13,
+    fontWeight: 950,
+    letterSpacing: 1.2,
+    textTransform: "uppercase",
+  },
   sliderWrap: {
     display: "grid",
     gap: 8,
@@ -856,6 +1198,20 @@ const styles = {
     gap: 12,
     color: "rgba(255,255,255,.72)",
     fontSize: 13,
+    fontWeight: 800,
+  },
+  selectWrap: {
+    display: "grid",
+    gap: 8,
+  },
+  select: {
+    width: "100%",
+    border: "1px solid rgba(255,255,255,.18)",
+    borderRadius: 14,
+    padding: "12px 14px",
+    background: "rgba(255,255,255,.1)",
+    color: "#ffffff",
+    outline: "none",
     fontWeight: 800,
   },
   actions: {

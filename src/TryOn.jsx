@@ -2930,12 +2930,10 @@
 
 import React, { useRef, useEffect, useState, useCallback } from "react";
 
-// ── Per-frame default adjustments ─────────────────────────────────
 const DEFAULT_ADJ = { scaleW: 1,   scaleH: 1,    offsetX: 0, offsetY: 8,  rotate: 0 };
 const AVIATOR_ADJ = { scaleW: 1,   scaleH: 1.18, offsetX: 0, offsetY: 18, rotate: 0 };
 const ROUND_ADJ   = { scaleW: 1,   scaleH: 0.85, offsetX: 0, offsetY: 6,  rotate: 0 };
 
-// ── Full glass catalogue ───────────────────────────────────────────
 const GLASS_OPTIONS = [
   { id: "/glass1.png",  name: "Classic",      price: "PKR 4,500", emoji: "👓", sizes: [{ label:"XL", scale:1.10, mobileScale:0.65 }] },
   { id: "/glass2.png",  name: "Aviator",      price: "PKR 5,200", emoji: "🕶️", sizes: [{ label:"L",  scale:1.15, mobileScale:1.00 }] },
@@ -2988,7 +2986,6 @@ const GLASS_OPTIONS = [
   { id: "/glass49.png", name: "Classic 49",   price: "PKR 4,900", emoji: "👓", sizes: [{ label:"L",  scale:1.15, mobileScale:0.95 }] },
 ];
 
-// ── FIX: Reactive isMobile using state + resize listener ──────────
 const getIsMobile = () =>
   typeof window !== "undefined" &&
   (window.innerWidth < 768 || /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent));
@@ -2998,26 +2995,33 @@ const getSizeScale = (sizeObj, mobile) => {
   return mobile ? (sizeObj.mobileScale ?? sizeObj.scale) : sizeObj.scale;
 };
 
-// ── Constants ─────────────────────────────────────────────────────
+// ── Mobile: smaller canvas = less GPU work
+const MOBILE_CAM_W     = 320;
+const MOBILE_CAM_H     = 240;
+const MOBILE_CANVAS_W  = 320;
+const MOBILE_CANVAS_H  = 480;
+
+// ── Desktop: HD for crisp output
+const DESKTOP_CAM_W    = 1280;
+const DESKTOP_CAM_H    = 720;
+const DESKTOP_CANVAS_W = 1280;
+const DESKTOP_CANVAS_H = 720;
+
+// ── FPS caps
+const MOBILE_FPS       = 24;
+const MOBILE_FRAME_INT = 1000 / MOBILE_FPS;
+
 const BASE_EYE_SPAN      = 120;
 const BASE_GLASSES_WIDTH = BASE_EYE_SPAN * 1.7;
-const MOBILE_DEADZONE    = 0.8;
-// FIX: Single EMA smoother only — removed double smoothing (EMA + lerp)
-const MOBILE_EMA_ALPHA   = 0.40;
+const MOBILE_DEADZONE    = 1.2;
+const MOBILE_EMA_ALPHA   = 0.35;
 const DESKTOP_EMA_ALPHA  = 0.50;
-const MOBILE_FPS         = 30;
-const MOBILE_FRAME_INT   = 1000 / MOBILE_FPS;
-const PHONE_CANVAS_W     = 340;
-const PHONE_CANVAS_H     = 680;
-const DESKTOP_CANVAS_W   = 640;
-const DESKTOP_CANVAS_H   = 480;
 
-// ── Beauty filter constants ────────────────────────────────────────
-const BEAUTY_B = 108;
-const BEAUTY_C = 96;
-const BEAUTY_S = 105;
+// Desktop beauty (subtle)
+const BEAUTY_B = 105;
+const BEAUTY_C = 98;
+const BEAUTY_S = 102;
 
-// ── Landmark indices ──────────────────────────────────────────────
 const LANDMARKS = {
   LEFT_IRIS_CENTER:    468,
   RIGHT_IRIS_CENTER:   473,
@@ -3030,7 +3034,6 @@ const LANDMARKS = {
   RIGHT_FACE_EDGE:     454,
 };
 
-// ── Single EMA smoother — no more double smoothing lag ────────────
 class LandmarkSmoother {
   constructor(posAlpha = 0.45, rotAlpha = 0.35) {
     this.posAlpha = posAlpha;
@@ -3053,7 +3056,6 @@ class LandmarkSmoother {
   reset() { this.prev = null; }
 }
 
-// ── Face geometry extraction ──────────────────────────────────────
 function extractFaceGeometry(lm, W, H, isMobile) {
   const px = (idx) => ({ x: lm[idx].x * W, y: lm[idx].y * H, z: lm[idx].z });
   const avgPx = (indices) => {
@@ -3110,7 +3112,6 @@ function extractFaceGeometry(lm, W, H, isMobile) {
   return { centerX, centerY, angle, glassesWidth, glassesHeight, depthScale };
 }
 
-// ── Color tokens ──────────────────────────────────────────────────
 const C = {
   primary:        "#E87F24",
   accent:         "#73A5CA",
@@ -3149,7 +3150,6 @@ const glassPill = {
   WebkitBackdropFilter: "blur(14px)",
 };
 
-// ── Section accordion ─────────────────────────────────────────────
 const Section = ({ title, icon, defaultOpen = false, children }) => {
   const [open, setOpen] = useState(defaultOpen);
   return (
@@ -3171,21 +3171,17 @@ const Section = ({ title, icon, defaultOpen = false, children }) => {
         <span style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 10, fontWeight: 700, letterSpacing: "2px", color: C.primary }}>
           <span style={{ fontSize: 13 }} aria-hidden="true">{icon}</span>{title}
         </span>
-        <span
-          aria-hidden="true"
-          style={{
-            fontSize: 9, color: C.text55,
-            transform: open ? "rotate(180deg)" : "rotate(0)",
-            transition: "transform 0.22s ease", display: "inline-block",
-          }}
-        >▼</span>
+        <span aria-hidden="true" style={{
+          fontSize: 9, color: C.text55,
+          transform: open ? "rotate(180deg)" : "rotate(0)",
+          transition: "transform 0.22s ease", display: "inline-block",
+        }}>▼</span>
       </button>
       {open && <div style={{ padding: "16px", background: "rgba(245,243,199,0.40)" }}>{children}</div>}
     </div>
   );
 };
 
-// ── Slider row ────────────────────────────────────────────────────
 const SliderRow = ({ label, value, min, max, step, onChange, fmt }) => (
   <div style={{ marginBottom: 18 }}>
     <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 7 }}>
@@ -3195,8 +3191,7 @@ const SliderRow = ({ label, value, min, max, step, onChange, fmt }) => (
       </span>
     </div>
     <input
-      type="range"
-      min={min} max={max} step={step} value={value}
+      type="range" min={min} max={max} step={step} value={value}
       aria-label={label}
       onChange={e => onChange(Number(e.target.value))}
       style={{ width: "100%", height: 3, background: C.primary20, borderRadius: 4, appearance: "none", WebkitAppearance: "none", cursor: "pointer" }}
@@ -3204,9 +3199,6 @@ const SliderRow = ({ label, value, min, max, step, onChange, fmt }) => (
   </div>
 );
 
-// ─────────────────────────────────────────────────────────────────
-// MAIN COMPONENT
-// ─────────────────────────────────────────────────────────────────
 const TryOn = () => {
   const videoRef         = useRef(null);
   const canvasRef        = useRef(null);
@@ -3220,11 +3212,11 @@ const TryOn = () => {
   const glassesRef       = useRef("/glass1.png");
   const adjRef           = useRef({});
   const pendingResultRef = useRef(null);
-  // FIX: Store camera stream ref for proper cleanup on unmount
   const camStreamRef     = useRef(null);
   const camInstanceRef   = useRef(null);
+  // Cached per-frame draw values — avoid recalculating in hot path
+  const cachedGlassObjRef = useRef(null);
 
-  // FIX: Reactive isMobile — updates on resize
   const [isMobile, setIsMobile] = useState(() => getIsMobile());
   const isMobileRef = useRef(isMobile);
   useEffect(() => {
@@ -3237,19 +3229,17 @@ const TryOn = () => {
     return () => window.removeEventListener("resize", onResize);
   }, []);
 
-  // FIX: Smoother init uses isMobileRef so it stays accurate
   const smootherRef = useRef(null);
   if (!smootherRef.current) {
     smootherRef.current = new LandmarkSmoother(
       isMobile ? MOBILE_EMA_ALPHA : DESKTOP_EMA_ALPHA,
-      isMobile ? 0.30 : 0.40
+      isMobile ? 0.28 : 0.40
     );
   }
 
   const [glasses, setGlasses]         = useState("/glass1.png");
   const [cameraReady, setCameraReady] = useState(false);
 
-  // FIX: brightness/contrast/saturate moved to refs to avoid re-renders on slider drag
   const [brightness, setBrightness] = useState(100);
   const [contrast,   setContrast]   = useState(100);
   const [saturate,   setSaturate]   = useState(100);
@@ -3259,12 +3249,10 @@ const TryOn = () => {
   const contrastRef   = useRef(100);
   const saturateRef   = useRef(100);
 
-  // Sync state → ref without triggering canvas re-render
   useEffect(() => { brightnessRef.current = brightness; }, [brightness]);
   useEffect(() => { contrastRef.current   = contrast;   }, [contrast]);
   useEffect(() => { saturateRef.current   = saturate;   }, [saturate]);
 
-  // FIX: adjustments stored in ref (reads from RAF) + state only for UI display
   const adjustmentsRef = useRef(
     Object.fromEntries(GLASS_OPTIONS.map(g => {
       if (g.id === "/glass2.png") return [g.id, { ...AVIATOR_ADJ }];
@@ -3272,13 +3260,13 @@ const TryOn = () => {
       return [g.id, { ...DEFAULT_ADJ }];
     }))
   );
-  // Separate UI state for sliders — only triggers re-render when needed
   const [adjUIState, setAdjUIState] = useState(() => adjustmentsRef.current["/glass1.png"]);
 
   useEffect(() => {
-    glassesRef.current = glasses;
-    adjRef.current     = adjustmentsRef.current;
-    // Sync UI state when glasses change
+    glassesRef.current  = glasses;
+    adjRef.current      = adjustmentsRef.current;
+    // Cache glass object to avoid find() inside RAF
+    cachedGlassObjRef.current = GLASS_OPTIONS.find(g => g.id === glasses) || null;
     setAdjUIState({ ...(adjustmentsRef.current[glasses] || DEFAULT_ADJ) });
   }, [glasses]);
 
@@ -3289,7 +3277,6 @@ const TryOn = () => {
       [id]: { ...(adjustmentsRef.current[id] || DEFAULT_ADJ), [key]: val },
     };
     adjRef.current = adjustmentsRef.current;
-    // Only update UI state (no RAF-affecting re-render needed)
     setAdjUIState(prev => ({ ...prev, [key]: val }));
   }, []);
 
@@ -3303,7 +3290,6 @@ const TryOn = () => {
     setAdjUIState({ ...defaults });
   }, []);
 
-  // FIX: CORS on glasses image — crossOrigin set before src
   useEffect(() => {
     const img = new Image();
     img.crossOrigin = "anonymous";
@@ -3311,15 +3297,15 @@ const TryOn = () => {
     imgRef.current = img;
   }, [glasses]);
 
-  // ── RAF draw loop ─────────────────────────────────────────────
+  // ── Optimized RAF draw loop ───────────────────────────────────
   const drawLoop = useCallback(() => {
     rafIdRef.current = requestAnimationFrame(drawLoop);
 
     const mobile = isMobileRef.current;
+    const now = performance.now();
 
-    // Mobile FPS throttle
+    // FPS throttle on mobile — skip frames aggressively
     if (mobile) {
-      const now = performance.now();
       if (now - lastFrameRef.current < MOBILE_FRAME_INT) return;
       lastFrameRef.current = now;
     }
@@ -3327,36 +3313,42 @@ const TryOn = () => {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    const ctx = canvas.getContext("2d");
-    const W = canvas.width, H = canvas.height;
     const result = pendingResultRef.current;
     if (!result?.image) return;
 
-    // ── Beauty + user filter stack ────────────────────────────────
-    const userB   = brightnessRef.current;
-    const userC   = contrastRef.current;
-    const userS   = saturateRef.current;
-    const blurVal = mobile ? "0px" : "0.4px";
+    const ctx = canvas.getContext("2d", { alpha: false, willReadFrequently: false });
+    const W = canvas.width, H = canvas.height;
 
-    ctx.filter = [
-      `brightness(${BEAUTY_B}%)`,
-      `contrast(${BEAUTY_C}%)`,
-      `saturate(${BEAUTY_S}%)`,
-      `blur(${blurVal})`,
-      `brightness(${userB}%)`,
-      `contrast(${userC}%)`,
-      `saturate(${userS}%)`,
-    ].join(" ");
+    if (mobile) {
+      // Mobile: no beauty filter — raw draw only
+      ctx.filter = "none";
+      ctx.save();
+      ctx.translate(W, 0);
+      ctx.scale(-1, 1);
+      ctx.drawImage(result.image, 0, 0, W, H);
+      ctx.restore();
+    } else {
+      // Desktop: subtle beauty + user filters, no blur
+      const userB = brightnessRef.current;
+      const userC = contrastRef.current;
+      const userS = saturateRef.current;
 
-    // FIX: Mirror canvas horizontally (front-camera selfie flip)
-    ctx.save();
-    ctx.translate(W, 0);
-    ctx.scale(-1, 1);
-    ctx.drawImage(result.image, 0, 0, W, H);
-    ctx.restore();
+      const needsFilter = userB !== 100 || userC !== 100 || userS !== 100
+        || BEAUTY_B !== 100 || BEAUTY_C !== 100 || BEAUTY_S !== 100;
 
-    // Reset filter BEFORE drawing glasses
-    ctx.filter = "none";
+      if (needsFilter) {
+        ctx.filter = `brightness(${BEAUTY_B}%) contrast(${BEAUTY_C}%) saturate(${BEAUTY_S}%) brightness(${userB}%) contrast(${userC}%) saturate(${userS}%)`;
+      } else {
+        ctx.filter = "none";
+      }
+
+      ctx.save();
+      ctx.translate(W, 0);
+      ctx.scale(-1, 1);
+      ctx.drawImage(result.image, 0, 0, W, H);
+      ctx.restore();
+      ctx.filter = "none";
+    }
 
     if (!result.multiFaceLandmarks?.length) {
       smootherRef.current.reset();
@@ -3366,18 +3358,14 @@ const TryOn = () => {
 
     const lm  = result.multiFaceLandmarks[0];
     const geo = extractFaceGeometry(lm, W, H, mobile);
-
-    // FIX: Mirror landmark X coordinate to match flipped video
     const mirroredCx = W - geo.centerX;
 
-    // FIX: Single EMA smoothing only — removed secondary lerp pass
     const sm = smootherRef.current.smooth(
       {
         cx: mirroredCx,
         cy: geo.centerY,
         gw: geo.glassesWidth,
         gh: geo.glassesHeight,
-        // Mirror angle for mirrored view
         angle: -geo.angle,
         ds: geo.depthScale,
       },
@@ -3389,7 +3377,8 @@ const TryOn = () => {
     const img = imgRef.current;
     if (!img.complete || !img.naturalWidth) return;
 
-    const glassObj = GLASS_OPTIONS.find(g => g.id === glassesRef.current);
+    // Use cached glass object — no find() per frame
+    const glassObj = cachedGlassObjRef.current;
     const sSc      = glassObj?.sizes?.[0] ? getSizeScale(glassObj.sizes[0], mobile) : 1.0;
     const adj      = adjRef.current[glassesRef.current] || DEFAULT_ADJ;
 
@@ -3408,12 +3397,14 @@ const TryOn = () => {
     pendingResultRef.current = results;
   }, []);
 
-  // ── MediaPipe init + FIX: proper camera stream cleanup ────────
+  // ── MediaPipe + Camera init ───────────────────────────────────
   useEffect(() => {
     if (!window.FaceMesh || !window.Camera) {
       setMpError("MediaPipe globals not found. Add the two MediaPipe <script> tags to index.html.");
       return;
     }
+
+    const mobile = isMobileRef.current;
 
     const faceMesh = new window.FaceMesh({
       locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh@0.4/${file}`,
@@ -3421,59 +3412,58 @@ const TryOn = () => {
     faceMesh.setOptions({
       maxNumFaces: 1,
       refineLandmarks: true,
-      minDetectionConfidence: 0.5,
-      minTrackingConfidence: 0.5,
+      // Slightly lower thresholds on mobile to reduce CPU load
+      minDetectionConfidence: mobile ? 0.45 : 0.50,
+      minTrackingConfidence:  mobile ? 0.40 : 0.50,
     });
     faceMesh.onResults(onResults);
 
     rafIdRef.current = requestAnimationFrame(drawLoop);
 
-    const mobile = isMobileRef.current;
     const cam = new window.Camera(videoRef.current, {
       onFrame: async () => {
         if (!cameraRdyRef.current) {
           cameraRdyRef.current = true;
           setCameraReady(true);
-          // FIX: Capture stream reference for cleanup
           if (videoRef.current?.srcObject) {
             camStreamRef.current = videoRef.current.srcObject;
           }
         }
+        // Skip mediapipe send on mobile if we're behind on frames
         if (mobile) {
           const now = performance.now();
           if (now - lastFrameRef.current < MOBILE_FRAME_INT) return;
         }
         await faceMesh.send({ image: videoRef.current });
       },
-      width:  mobile ? PHONE_CANVAS_W  : DESKTOP_CANVAS_W,
-      height: mobile ? PHONE_CANVAS_H  : DESKTOP_CANVAS_H,
+      // Mobile: low-res camera = faster decode + less GPU
+      width:  mobile ? MOBILE_CAM_W  : DESKTOP_CAM_W,
+      height: mobile ? MOBILE_CAM_H  : DESKTOP_CAM_H,
+      // Desktop: request HD with high-quality constraints
+      ...(mobile ? {} : {
+        facingMode: "user",
+        advanced: [{ width: { ideal: 1280 }, height: { ideal: 720 } }],
+      }),
     });
 
     camInstanceRef.current = cam;
     cam.start();
 
     return () => {
-      // FIX: Cancel animation frame
       if (rafIdRef.current) cancelAnimationFrame(rafIdRef.current);
-
-      // FIX: Stop all camera tracks to release the camera hardware
       if (camStreamRef.current) {
-        camStreamRef.current.getTracks().forEach(track => track.stop());
+        camStreamRef.current.getTracks().forEach(t => t.stop());
         camStreamRef.current = null;
       }
-
-      // FIX: Also stop from video element directly as fallback
       if (videoRef.current?.srcObject) {
         videoRef.current.srcObject.getTracks().forEach(t => t.stop());
         videoRef.current.srcObject = null;
       }
-
       faceMesh.close();
       cameraRdyRef.current = false;
     };
   }, [drawLoop, onResults]);
 
-  // ── Global CSS ────────────────────────────────────────────────
   const css = `
     @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Space+Grotesk:wght@300;400;500;600&display=swap');
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -3535,15 +3525,9 @@ const TryOn = () => {
       margin-right: 6px;
       flex-shrink: 0;
     }
-
-    /* FIX: Keyboard accessibility for frame cards */
-    .frame-card:focus-visible {
-      outline: 2px solid #E87F24;
-      outline-offset: 2px;
-    }
+    .frame-card:focus-visible { outline: 2px solid #E87F24; outline-offset: 2px; }
   `;
 
-  // ── Error state ───────────────────────────────────────────────
   if (mpError) return (
     <div role="alert" style={{
       display: "flex", alignItems: "center", justifyContent: "center",
@@ -3555,7 +3539,6 @@ const TryOn = () => {
   );
 
   const currentGlass = GLASS_OPTIONS.find(g => g.id === glasses);
-  // Read calibration UI values from adjUIState (not adjRef, which is for RAF)
   const curAdj = adjUIState;
 
   // ══════════════════════════════════════════════════════════════
@@ -3590,11 +3573,10 @@ const TryOn = () => {
         <style>{css}</style>
         <video ref={videoRef} style={{ display:"none" }} autoPlay playsInline muted />
 
-        {/* Full-screen camera canvas */}
         <canvas
           ref={canvasRef}
-          width={PHONE_CANVAS_W}
-          height={PHONE_CANVAS_H}
+          width={MOBILE_CANVAS_W}
+          height={MOBILE_CANVAS_H}
           style={{ position:"absolute", inset:0, width:"100%", height:"100%", objectFit:"cover", display:"block" }}
           aria-label="AR glasses try-on camera view"
         />
@@ -3707,7 +3689,6 @@ const TryOn = () => {
                       background:C.primary, boxShadow:`0 0 6px ${C.primary}`,
                     }} />
                   )}
-                  {/* FIX: lazy loading on all frame images */}
                   <img
                     src={g.id}
                     alt={g.name}
@@ -3724,7 +3705,6 @@ const TryOn = () => {
           </div>
         </div>
 
-        {/* Camera loading overlay */}
         {!cameraReady && (
           <div role="status" aria-label="Initializing camera" style={{
             position:"absolute", inset:0, zIndex:50,
@@ -3780,20 +3760,7 @@ const TryOn = () => {
           border:`1px solid ${C.glassBorder}`, background:"#000",
           boxShadow:`inset 0 0 60px rgba(0,0,0,0.40), 0 0 0 1px rgba(232,127,36,0.08), 0 8px 40px rgba(30,41,59,0.12)`,
         }}>
-          {/* Corner brackets */}
-          {[
-            { top:12, left:12,    borderWidth:"2px 0 0 2px", borderRadius:"4px 0 0 0" },
-            { top:12, right:12,   borderWidth:"2px 2px 0 0", borderRadius:"0 4px 0 0" },
-            { bottom:12, left:12,  borderWidth:"0 0 2px 2px", borderRadius:"0 0 0 4px" },
-            { bottom:12, right:12, borderWidth:"0 2px 2px 0", borderRadius:"0 0 4px 0" },
-          ].map((s, i) => (
-            <div key={i} aria-hidden="true" style={{
-              position:"absolute", zIndex:5, width:18, height:18,
-              borderStyle:"solid", borderColor:`rgba(115,165,202,0.50)`, ...s,
-            }} />
-          ))}
-
-          {/* AR tracking status */}
+          {/* AR tracking status — top right only, no focus box */}
           {cameraReady && (
             <div role="status" aria-live="polite" style={{
               position:"absolute", top:16, right:16, zIndex:5,
@@ -3833,7 +3800,6 @@ const TryOn = () => {
             style={{ display:"block", width:"100%", height:"100%", objectFit:"cover" }}
           />
 
-          {/* Camera init overlay */}
           {!cameraReady && (
             <div role="status" aria-label="Initializing camera" style={{
               position:"absolute", inset:0, borderRadius:22, zIndex:30,
@@ -3872,7 +3838,6 @@ const TryOn = () => {
           backdropFilter:"blur(20px)", WebkitBackdropFilter:"blur(20px)",
         }}
       >
-        {/* Header */}
         <div style={{ padding:"4px 4px 2px" }}>
           <div style={{ fontFamily:"'Outfit',sans-serif", fontSize:18, fontWeight:700, color:C.text, marginBottom:3 }}>
             Choose Frame
@@ -3882,7 +3847,6 @@ const TryOn = () => {
           </div>
         </div>
 
-        {/* Frame grid */}
         <div
           role="listbox"
           aria-label="Select glasses frame"
@@ -3917,7 +3881,6 @@ const TryOn = () => {
                   borderRadius:10, overflow:"hidden",
                   background: isA ? C.primary12 : C.text06,
                 }}>
-                  {/* FIX: lazy loading + crossOrigin for all frame images */}
                   <img
                     src={g.id}
                     alt={g.name}
@@ -3947,7 +3910,6 @@ const TryOn = () => {
           })}
         </div>
 
-        {/* ── Frame calibration ── */}
         <Section title="FRAME CALIBRATION" icon="⚙️">
           <div style={{ display:"flex", justifyContent:"flex-end", marginBottom:14 }}>
             <button
@@ -3968,19 +3930,14 @@ const TryOn = () => {
           <SliderRow label="ROTATION" value={curAdj.rotate}  min={-30}  max={30}  step={0.5}  onChange={v => setAdj("rotate",  v)} fmt={v => `${v > 0 ? "+" : ""}${v.toFixed(1)}°`} />
         </Section>
 
-        {/* ── Scene filters ── */}
         <Section title="SCENE FILTERS" icon="🎨">
           <SliderRow label="BRIGHTNESS" value={brightness} min={50}  max={160} step={1} onChange={setBrightness} fmt={v => `${v}%`} />
           <SliderRow label="CONTRAST"   value={contrast}   min={60}  max={160} step={1} onChange={setContrast}   fmt={v => `${v}%`} />
           <SliderRow label="SATURATION" value={saturate}   min={50}  max={160} step={1} onChange={setSaturate}   fmt={v => `${v}%`} />
         </Section>
-
       </div>
     </div>
   );
 };
 
 export default TryOn;
-
-
-

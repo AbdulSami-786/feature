@@ -2992,9 +2992,11 @@ const getMobileSizes = () => {
   const isLowEnd = typeof window !== "undefined" && 
     (window.innerWidth <= 360 || navigator.deviceMemory <= 4);
   if (isLowEnd) {
-    return { camW: 240, camH: 180, canvasW: 240, canvasH: 360 };
+    // 3:4 portrait ratio, enough for FaceMesh
+    return { camW: 360, camH: 480, canvasW: 360, canvasH: 480 };
   }
-  return { camW: 320, camH: 240, canvasW: 320, canvasH: 480 };
+  // Standard 3:4 portrait for better tracking
+  return { camW: 480, camH: 640, canvasW: 480, canvasH: 640 };
 };
 
 const getSizeScale = (sizeObj, mobile) => {
@@ -3431,8 +3433,8 @@ const TryOn = () => {
     faceMesh.setOptions({
       maxNumFaces: 1,
       refineLandmarks: !mobile,
-      minDetectionConfidence: mobile ? 0.45 : 0.50,
-      minTrackingConfidence:  mobile ? 0.40 : 0.50,
+      minDetectionConfidence: mobile ? 0.35 : 0.50,
+      minTrackingConfidence:  mobile ? 0.30 : 0.50,
     });
     faceMesh.onResults(onResults);
 
@@ -3451,14 +3453,23 @@ const TryOn = () => {
       },
       width:  camW,
       height: camH,
-      ...(mobile ? {} : {
-        facingMode: "user",
-        advanced: [{ width: { ideal: 1280 }, height: { ideal: 720 } }],
-      }),
+      ...(mobile 
+        ? { 
+            facingMode: "user", 
+            advanced: [{ width: { ideal: camW }, height: { ideal: camH }, frameRate: { ideal: 30 } }] 
+          }
+        : { 
+            facingMode: "user", 
+            advanced: [{ width: { ideal: 1280 }, height: { ideal: 720 } }] 
+          }
+      ),
     });
 
     camInstanceRef.current = cam;
-    cam.start();
+    cam.start().catch(err => {
+      console.error("Camera failed:", err);
+      setMpError("Camera access denied or not available. Please allow camera permissions and reload.");
+    });
 
     return () => {
       if (rafIdRef.current) cancelAnimationFrame(rafIdRef.current);
@@ -3574,7 +3585,21 @@ const TryOn = () => {
         onTouchEnd={onTouchEnd}
       >
         <style>{css}</style>
-        <video ref={videoRef} style={{ display:"none" }} autoPlay playsInline muted />
+        <video 
+          ref={videoRef} 
+          style={{ 
+            position: "absolute", 
+            left: "-100%", 
+            top: "-100%", 
+            width: "1px", 
+            height: "1px", 
+            opacity: 0, 
+            pointerEvents: "none" 
+          }} 
+          autoPlay 
+          playsInline 
+          muted 
+        />
         <canvas
           ref={canvasRef}
           width={canvasW}
@@ -3770,7 +3795,21 @@ const TryOn = () => {
               </span>
             </div>
           </div>
-          <video ref={videoRef} style={{ display:"none" }} autoPlay playsInline muted />
+          <video 
+            ref={videoRef} 
+            style={{ 
+              position: "absolute", 
+              left: "-100%", 
+              top: "-100%", 
+              width: "1px", 
+              height: "1px", 
+              opacity: 0, 
+              pointerEvents: "none" 
+            }} 
+            autoPlay 
+            playsInline 
+            muted 
+          />
           <canvas
             ref={canvasRef}
             width={DESKTOP_CANVAS_W}

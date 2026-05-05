@@ -3921,7 +3921,7 @@ const TryOn = () => {
                 padding:"5px 14px", borderRadius:100, cursor:"pointer",
                 letterSpacing:"0.5px", transition:"background 0.15s",
               }}
-            >Reset</button>
+            >Reset </button>
           </div>
           <SliderRow label="WIDTH"    value={curAdj.scaleW}  min={0.3}  max={3}   step={0.05} onChange={v => setAdj("scaleW",  v)} fmt={v => `${v.toFixed(2)}×`} />
           <SliderRow label="HEIGHT"   value={curAdj.scaleH}  min={0.3}  max={3}   step={0.05} onChange={v => setAdj("scaleH",  v)} fmt={v => `${v.toFixed(2)}×`} />

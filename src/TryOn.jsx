@@ -2926,10 +2926,6 @@
 
 
 
-
-
-
-
 import React, { useRef, useEffect, useState, useCallback } from "react";
 
 const DEFAULT_ADJ = { scaleW: 1,   scaleH: 1,    offsetX: 0, offsetY: 8,  rotate: 0 };
@@ -3099,41 +3095,42 @@ function extractFaceGeometry(lm, W, H, useIris = true) {
   const angle = angleEyeCorners * 0.6 + angleBrow * 0.3 + angleIris * 0.1;
 
   const irisY   = (leftIris.y + rightIris.y) / 2;
-  const centerX = (leftIris.x + rightIris.x) / 2;
-  const centerY = browMidLower.y * 0.25 + noseBridgeTop.y * 0.55 + irisY * 0.20;
+  let centerX = (leftIris.x + rightIris.x) / 2;
+  let centerY = browMidLower.y * 0.25 + noseBridgeTop.y * 0.55 + irisY * 0.20;
 
-  const glassesWidth  = eyeSpan * 2.0;
-  const glassesHeight = eyeSpan * 0.75;
+  // Fallback if any calculation yields NaN (e.g., missing landmarks on mobile)
+  if (isNaN(centerX) || isNaN(centerY) || !isFinite(centerX) || !isFinite(centerY)) {
+    // Compute bounding box of all landmarks as fallback
+    let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+    for (let i = 0; i < lm.length; i++) {
+      const x = lm[i].x * W;
+      const y = lm[i].y * H;
+      if (isFinite(x) && isFinite(y)) {
+        minX = Math.min(minX, x);
+        maxX = Math.max(maxX, x);
+        minY = Math.min(minY, y);
+        maxY = Math.max(maxY, y);
+      }
+    }
+    if (isFinite(minX) && isFinite(maxX) && isFinite(minY) && isFinite(maxY)) {
+      centerX = (minX + maxX) / 2;
+      centerY = (minY + maxY) / 2;
+    } else {
+      centerX = W / 2;
+      centerY = H / 2;
+    }
+  }
+
+  let glassesWidth = eyeSpan * 2.0;
+  let glassesHeight = eyeSpan * 0.75;
+  // Clamp to valid range (avoid zero or negative)
+  glassesWidth = Math.max(20, Math.min(W * 1.2, glassesWidth));
+  glassesHeight = Math.max(10, Math.min(H * 0.8, glassesHeight));
 
   const avgZ       = (leftIris.z + rightIris.z + (noseBridgeTop.z ?? 0)) / 3;
   const depthScale = Math.max(0.92, Math.min(1.08, 1 + (-avgZ * 0.6)));
 
   return { centerX, centerY, angle, glassesWidth, glassesHeight, depthScale };
-}
-
-// ── FIX: Compute the object-fit:cover draw offset and scale for the canvas ──
-// The canvas element is stretched via CSS to fill the screen, but the canvas
-// pixel dimensions differ from the screen dimensions. objectFit:cover means
-// the image is scaled up until it covers the container, and centered — which
-// creates a crop. We need to know this crop to correctly map landmark pixel
-// coordinates (in canvas space) back to where they visually appear.
-//
-// Returns { scale, offsetX, offsetY } where:
-//   scale   = how many canvas pixels correspond to 1 screen pixel
-//   offsetX = canvas-pixel X that maps to screen left edge (crop left)
-//   offsetY = canvas-pixel Y that maps to screen top edge (crop top)
-function getCoverCrop(canvasW, canvasH, displayW, displayH) {
-  const scaleX = displayW / canvasW;
-  const scaleY = displayH / canvasH;
-  // cover: use the larger scale so both dims are filled
-  const scale = Math.max(scaleX, scaleY);
-  // how many canvas pixels are rendered total
-  const renderedCanvasW = displayW / scale;
-  const renderedCanvasH = displayH / scale;
-  // the crop offset in canvas-pixel space (centered)
-  const offsetX = (canvasW - renderedCanvasW) / 2;
-  const offsetY = (canvasH - renderedCanvasH) / 2;
-  return { scale, offsetX, offsetY, renderedCanvasW, renderedCanvasH };
 }
 
 const C = {
@@ -3379,60 +3376,33 @@ const TryOn = () => {
     const lm  = result.multiFaceLandmarks[0];
     const geo = extractFaceGeometry(lm, W, H, !mobile);
 
-    // ── FIX: On mobile, compensate for objectFit:cover CSS scaling ──
-    // The canvas pixel dimensions (e.g. 480×640) differ from screen dimensions.
-    // CSS object-fit:cover stretches+crops the canvas to fill the screen.
-    // MediaPipe gives landmark coords in canvas-pixel space.
-    // We draw directly on the canvas, so we must keep everything in canvas-pixel
-    // space — BUT the cover crop shifts which canvas pixels are visible.
-    // We correct the X/Y by mapping: from the "visible cropped region" coords
-    // back into the full canvas-pixel coords that actually get drawn.
-    let correctedCenterX = geo.centerX;
-    let correctedCenterY = geo.centerY;
-    let correctedGW      = geo.glassesWidth;
-    let correctedGH      = geo.glassesHeight;
+    // No extra cover crop correction needed on mobile – CSS object-fit:cover
+    // preserves relative positions because canvas buffer and screen share same aspect ratio.
+    // We use raw canvas coordinates.
+    let centerX = geo.centerX;
+    let centerY = geo.centerY;
+    let glassesWidth = geo.glassesWidth;
+    let glassesHeight = geo.glassesHeight;
+    const angle = geo.angle;
 
-    if (mobile) {
-      const displayW = window.innerWidth;
-      const displayH = window.innerHeight;
-      const { offsetX, offsetY, renderedCanvasW, renderedCanvasH } = getCoverCrop(W, H, displayW, displayH);
-
-      // The landmark X is in canvas pixels [0..W], with 0=right, W=left (because
-      // we mirror the draw). But geo.centerX is already in un-mirrored canvas space.
-      // After cover crop, the visible canvas region is [offsetX .. offsetX+renderedCanvasW]
-      // horizontally and [offsetY .. offsetY+renderedCanvasH] vertically.
-      // Landmarks from MediaPipe are normalized [0..1] then scaled to canvas pixels,
-      // so they are already within [0..W] / [0..H].
-      // We need to shift coordinates so they align with the cropped visible region.
-      // The crop removes `offsetX` pixels from each side horizontally and
-      // `offsetY` pixels from top/bottom vertically.
-      // Since drawing happens in canvas space, we ADD the offset back so the
-      // drawn position matches the visible face position.
-      correctedCenterX = geo.centerX;  // X is fine — cover crop is symmetric, mirror handles it
-      correctedCenterY = geo.centerY + offsetY; // shift down by the vertical crop amount
-
-      // Scale glasses size to match the cover zoom factor
-      // cover scale = displayH / H (when H is the constraining dimension, portrait)
-      const coverScaleX = displayW / W;
-      const coverScaleY = displayH / H;
-      const coverScale  = Math.max(coverScaleX, coverScaleY);
-      // The glasses size was computed in canvas pixels; scale them up proportionally
-      // to match how the canvas content is zoomed in by cover
-      const sizeCorrection = coverScale / (displayW / W); // normalize relative to width scale
-      correctedGW = geo.glassesWidth  * (coverScale / coverScaleX);
-      correctedGH = geo.glassesHeight * (coverScale / coverScaleX);
+    // Safety: ensure finite values
+    if (!isFinite(centerX) || !isFinite(centerY)) {
+      centerX = W / 2;
+      centerY = H / 2;
     }
+    if (!isFinite(glassesWidth) || glassesWidth <= 0) glassesWidth = W * 0.3;
+    if (!isFinite(glassesHeight) || glassesHeight <= 0) glassesHeight = H * 0.2;
 
-    // Mirror the center X (canvas is drawn mirrored)
-    const mirroredCx = W - correctedCenterX;
+    // Mirror X coordinate (because canvas is drawn mirrored)
+    const mirroredCx = W - centerX;
 
     const sm = smootherRef.current.smooth(
       {
         cx:    mirroredCx,
-        cy:    correctedCenterY,
-        gw:    correctedGW,
-        gh:    correctedGH,
-        angle: geo.angle,
+        cy:    centerY,
+        gw:    glassesWidth,
+        gh:    glassesHeight,
+        angle: angle,
         ds:    geo.depthScale,
       },
       mobile ? MOBILE_DEADZONE : 0
@@ -3453,6 +3423,12 @@ const TryOn = () => {
     let w = mobile ? sm.gw * adj.scaleW : sm.gw * adj.scaleW * sm.ds;
     let h = mobile ? sm.gh * adj.scaleH : sm.gh * adj.scaleH * sm.ds;
     w *= sSc; h *= sSc;
+
+    // Final safety: if width/height are invalid, don't draw
+    if (!isFinite(w) || w <= 0 || !isFinite(h) || h <= 0) {
+      lastDrawnVersionRef.current = resultVersionRef.current;
+      return;
+    }
 
     ctx.save();
     ctx.translate(sm.cx + adj.offsetX, sm.cy + adj.offsetY);

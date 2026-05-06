@@ -4120,7 +4120,7 @@ const getSizeScale = (sizeObj, mobile) => {
 // Tuned smoothing for mobile responsiveness
 const MOBILE_EMA_ALPHA = 0.72;
 const MOBILE_ROT_ALPHA = 0.62;
-const DESKTOP_EMA_ALPHA = 0.50;   // fixed missing constant
+const DESKTOP_EMA_ALPHA = 0.50;   // <-- FIX: added missing constant
 const MOBILE_DEADZONE = 0.65;
 const MOBILE_FPS = 30;
 const MOBILE_FRAME_INT = 1000 / MOBILE_FPS;
@@ -4910,7 +4910,7 @@ const TryOn = () => {
     );
   }
 
-  // Desktop layout (unchanged, only included for completeness)
+  // Desktop layout (unchanged)
   return (
     <div style={{
       fontFamily: "'Space Grotesk', sans-serif",

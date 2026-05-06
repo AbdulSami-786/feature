@@ -2929,10 +2929,8 @@
 
 
 
-
 import React, { useRef, useEffect, useState, useCallback } from "react";
 
-// ─── Per-frame shape adjustments ────────────────────────────────────────────
 const DEFAULT_ADJ = { scaleW: 1,   scaleH: 1,    offsetX: 0, offsetY: 8,  rotate: 0 };
 const AVIATOR_ADJ = { scaleW: 1,   scaleH: 1.18, offsetX: 0, offsetY: 18, rotate: 0 };
 const ROUND_ADJ   = { scaleW: 1,   scaleH: 0.85, offsetX: 0, offsetY: 6,  rotate: 0 };
@@ -2989,72 +2987,69 @@ const GLASS_OPTIONS = [
   { id: "/glass49.png", name: "Classic 49",   price: "PKR 4,900", emoji: "👓", sizes: [{ label:"L",  scale:1.15, mobileScale:0.95 }] },
 ];
 
-// ─── Helpers ─────────────────────────────────────────────────────────────────
 const getIsMobile = () =>
   typeof window !== "undefined" &&
   (window.innerWidth < 768 || /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent));
 
 const getMobileSizes = () => {
   const isLowEnd = typeof window !== "undefined" &&
-    (window.innerWidth <= 360 || (navigator.deviceMemory != null && navigator.deviceMemory <= 2));
-  return isLowEnd
-    ? { camW: 360, camH: 480, canvasW: 360, canvasH: 480 }
-    : { camW: 480, camH: 640, canvasW: 480, canvasH: 640 };
+    (window.innerWidth <= 360 || navigator.deviceMemory <= 4);
+  if (isLowEnd) {
+    return { camW: 360, camH: 480, canvasW: 360, canvasH: 480 };
+  }
+  return { camW: 480, camH: 640, canvasW: 480, canvasH: 640 };
 };
 
-const getSizeScale = (sizeObj, mobile) =>
-  !sizeObj ? 1 : (mobile ? (sizeObj.mobileScale ?? sizeObj.scale) : sizeObj.scale);
+const getSizeScale = (sizeObj, mobile) => {
+  if (!sizeObj) return 1;
+  return mobile ? (sizeObj.mobileScale ?? sizeObj.scale) : sizeObj.scale;
+};
 
-// ─── Unified tracking constants (same on both platforms) ─────────────────────
-// FIX: Removed separate MOBILE_EMA_ALPHA / MOBILE_DEADZONE.
-//      Both platforms now use the same EMA smoothing and zero dead-zone.
-const EMA_ALPHA      = 0.50;   // position smoothing (same for mobile & desktop)
-const ROT_ALPHA      = 0.40;   // rotation smoothing (same for mobile & desktop)
+const MOBILE_EMA_ALPHA   = 0.55;
+const DESKTOP_EMA_ALPHA  = 0.50;
+const MOBILE_DEADZONE    = 1.2;
+const MOBILE_FPS         = 24;
+const MOBILE_FRAME_INT   = 1000 / MOBILE_FPS;
 
-// FIX: Raised mobile FPS from 24 → 30 and removed dead-zone to eliminate lag.
-const MOBILE_FPS       = 30;
-const MOBILE_FRAME_INT = 1000 / MOBILE_FPS;
-
-// How many consecutive no-landmark frames before we clear sticky position.
-// At 30 fps this is ~0.7 s — long enough to survive brief occlusions.
-const STICKY_LOSS_FRAMES = 20;
-
-const DESKTOP_CAM_W   = 1280;
-const DESKTOP_CAM_H   = 720;
-const DESKTOP_CANVAS_W = 1280;
-const DESKTOP_CANVAS_H = 720;
+const DESKTOP_CAM_W      = 1280;
+const DESKTOP_CAM_H      = 720;
+const DESKTOP_CANVAS_W   = 1280;
+const DESKTOP_CANVAS_H   = 720;
 
 const BEAUTY_B = 105;
 const BEAUTY_C = 98;
 const BEAUTY_S = 102;
 
-// ─── Landmark indices ────────────────────────────────────────────────────────
-// FIX: We now always enable refineLandmarks=true so iris indices 468/473 are
-//      available on BOTH mobile and desktop. The eye-corner fallback path is
-//      removed entirely — it was the primary cause of mobile misalignment.
+// ── FIX 1: Added LEFT_EYE_INNER and RIGHT_EYE_INNER as iris fallback landmarks ──
 const LANDMARKS = {
   LEFT_IRIS_CENTER:    468,
   RIGHT_IRIS_CENTER:   473,
   LEFT_EYE_OUTER:       33,
   RIGHT_EYE_OUTER:     263,
+  LEFT_EYE_INNER:      133,   // fallback for mobile (no refined landmarks)
+  RIGHT_EYE_INNER:     362,   // fallback for mobile (no refined landmarks)
   LEFT_EYEBROW_LOWER:  [70, 63, 105, 66, 107],
   RIGHT_EYEBROW_LOWER: [300, 293, 334, 296, 336],
   NOSE_BRIDGE_TOP:     6,
+  LEFT_FACE_EDGE:      234,
+  RIGHT_FACE_EDGE:     454,
 };
 
-// ─── EMA smoother ────────────────────────────────────────────────────────────
 class LandmarkSmoother {
   constructor(posAlpha = 0.45, rotAlpha = 0.35) {
     this.posAlpha = posAlpha;
     this.rotAlpha = rotAlpha;
     this.prev = null;
   }
-  smooth(current) {
+  smooth(current, deadzone = 0) {
     if (!this.prev) { this.prev = { ...current }; return { ...current }; }
     const result = {};
     for (const key of Object.keys(current)) {
       const alpha = key === "angle" ? this.rotAlpha : this.posAlpha;
-      result[key] = this.prev[key] + alpha * (current[key] - this.prev[key]);
+      const delta = current[key] - this.prev[key];
+      result[key] = (deadzone > 0 && Math.abs(delta) < deadzone)
+        ? this.prev[key]
+        : this.prev[key] + alpha * delta;
     }
     this.prev = { ...result };
     return result;
@@ -3062,16 +3057,12 @@ class LandmarkSmoother {
   reset() { this.prev = null; }
 }
 
-// ─── Face geometry (unified — always uses real iris centres) ─────────────────
-// FIX: Removed the `useIris` parameter. We always use iris centres (468/473)
-//      because refineLandmarks is now always true. This ensures identical
-//      landmark math on both mobile and desktop.
-function extractFaceGeometry(lm, W, H) {
-  const px = (idx) => ({
-    x: lm[idx].x * W,
-    y: lm[idx].y * H,
-    z: lm[idx].z ?? 0,
-  });
+// ── FIX 2: extractFaceGeometry now accepts useIris flag ──
+// On mobile: refineLandmarks=false means indices 468/473 don't exist → NaN → misalignment
+// Fix: fall back to inner/outer eye-corner midpoints when useIris=false
+function extractFaceGeometry(lm, W, H, useIris = true) {
+  // Guard z so it never produces NaN (some mobile browsers omit z)
+  const px = (idx) => ({ x: lm[idx].x * W, y: lm[idx].y * H, z: lm[idx].z ?? 0 });
 
   const avgPx = (indices) => {
     const pts = indices.map(i => px(i));
@@ -3080,7 +3071,6 @@ function extractFaceGeometry(lm, W, H) {
       y: pts.reduce((s, p) => s + p.y, 0) / pts.length,
     };
   };
-
   const dist = (a, b) => Math.hypot(a.x - b.x, a.y - b.y);
 
   const leftEyeOut     = px(LANDMARKS.LEFT_EYE_OUTER);
@@ -3089,19 +3079,27 @@ function extractFaceGeometry(lm, W, H) {
   const rightBrowLower = avgPx(LANDMARKS.RIGHT_EYEBROW_LOWER);
   const noseBridgeTop  = px(LANDMARKS.NOSE_BRIDGE_TOP);
 
-  // Always real iris centres — available because refineLandmarks=true on all platforms.
-  const leftIris  = px(LANDMARKS.LEFT_IRIS_CENTER);
-  const rightIris = px(LANDMARKS.RIGHT_IRIS_CENTER);
+  // Use real iris centres on desktop; fall back to eye-corner midpoints on mobile
+  let leftIris, rightIris;
+  if (useIris && lm.length > 473) {
+    leftIris  = px(LANDMARKS.LEFT_IRIS_CENTER);
+    rightIris = px(LANDMARKS.RIGHT_IRIS_CENTER);
+  } else {
+    // Midpoint of outer + inner eye corners — always present, no refined landmarks needed
+    const leftInner  = px(LANDMARKS.LEFT_EYE_INNER);
+    const rightInner = px(LANDMARKS.RIGHT_EYE_INNER);
+    leftIris  = { x: (leftEyeOut.x + leftInner.x) / 2, y: (leftEyeOut.y + leftInner.y) / 2, z: 0 };
+    rightIris = { x: (rightEyeOut.x + rightInner.x) / 2, y: (rightEyeOut.y + rightInner.y) / 2, z: 0 };
+  }
 
   const browMidLower = {
     x: (leftBrowLower.x + rightBrowLower.x) / 2,
     y: (leftBrowLower.y + rightBrowLower.y) / 2,
   };
 
-  // eyeSpan always from outer corners (robust across all platforms).
+  // eyeSpan always uses outer corners (landmarks 33 & 263) — safe on both mobile & desktop
   const eyeSpan = dist(leftEyeOut, rightEyeOut);
 
-  // Blend iris + eye-corner + brow angles for best head-tilt tracking.
   const angleIris       = Math.atan2(rightIris.y - leftIris.y, rightIris.x - leftIris.x);
   const angleEyeCorners = Math.atan2(rightEyeOut.y - leftEyeOut.y, rightEyeOut.x - leftEyeOut.x);
   const angleBrow       = Math.atan2(rightBrowLower.y - leftBrowLower.y, rightBrowLower.x - leftBrowLower.x);
@@ -3114,13 +3112,13 @@ function extractFaceGeometry(lm, W, H) {
   const glassesWidth  = eyeSpan * 2.0;
   const glassesHeight = eyeSpan * 0.75;
 
-  const avgZ       = (leftIris.z + rightIris.z + noseBridgeTop.z) / 3;
+  // Guard z here too — safe on mobile where z may be 0
+  const avgZ       = (leftIris.z + rightIris.z + (noseBridgeTop.z ?? 0)) / 3;
   const depthScale = Math.max(0.92, Math.min(1.08, 1 + (-avgZ * 0.6)));
 
   return { centerX, centerY, angle, glassesWidth, glassesHeight, depthScale };
 }
 
-// ─── Colour tokens ────────────────────────────────────────────────────────────
 const C = {
   primary:        "#E87F24",
   accent:         "#73A5CA",
@@ -3159,7 +3157,6 @@ const glassPill = {
   WebkitBackdropFilter: "blur(14px)",
 };
 
-// ─── Sub-components ──────────────────────────────────────────────────────────
 const Section = ({ title, icon, defaultOpen = false, children }) => {
   const [open, setOpen] = useState(defaultOpen);
   return (
@@ -3209,7 +3206,6 @@ const SliderRow = ({ label, value, min, max, step, onChange, fmt }) => (
   </div>
 );
 
-// ─── Main component ───────────────────────────────────────────────────────────
 const TryOn = () => {
   const videoRef          = useRef(null);
   const canvasRef         = useRef(null);
@@ -3230,11 +3226,6 @@ const TryOn = () => {
   const resultVersionRef  = useRef(0);
   const lastDrawnVersionRef = useRef(0);
 
-  // FIX: Sticky tracking — stores the last valid smoothed geometry so glasses
-  //      remain visible during brief occlusions / landmark dropout.
-  const lastGoodSmRef     = useRef(null);
-  const trackLossCountRef = useRef(0);
-
   const [isMobile, setIsMobile] = useState(() => getIsMobile());
   const isMobileRef = useRef(isMobile);
   const [mobileSizes, setMobileSizes] = useState(() => getMobileSizes());
@@ -3250,12 +3241,12 @@ const TryOn = () => {
     return () => window.removeEventListener("resize", onResize);
   }, []);
 
-  // FIX: Unified smoother params — identical alpha on mobile and desktop.
-  //      Old code used MOBILE_EMA_ALPHA=0.55 / rotAlpha=0.28 vs desktop 0.50/0.40,
-  //      which produced different motion feel across platforms.
   const smootherRef = useRef(null);
   if (!smootherRef.current) {
-    smootherRef.current = new LandmarkSmoother(EMA_ALPHA, ROT_ALPHA);
+    smootherRef.current = new LandmarkSmoother(
+      isMobile ? MOBILE_EMA_ALPHA : DESKTOP_EMA_ALPHA,
+      isMobile ? 0.28 : 0.40
+    );
   }
 
   const [glasses, setGlasses]         = useState("/glass1.png");
@@ -3316,14 +3307,13 @@ const TryOn = () => {
     imgRef.current = img;
   }, [glasses]);
 
-  // ── Draw loop ─────────────────────────────────────────────────────────────
+  // ── Draw loop ─────────────────────────────────────────────────
   const drawLoop = useCallback(() => {
     rafIdRef.current = requestAnimationFrame(drawLoop);
 
     const mobile = isMobileRef.current;
     const now    = performance.now();
 
-    // FIX: Keep the mobile FPS throttle to save battery, but now at 30fps not 24fps.
     if (mobile && now - lastFrameRef.current < MOBILE_FRAME_INT) return;
     lastFrameRef.current = now;
 
@@ -3337,26 +3327,23 @@ const TryOn = () => {
     if (!ctx) return;
 
     const result = pendingResultRef.current;
-
-    // FIX: We draw every tick regardless of version once the camera is live.
-    // The previous guard `resultVersionRef === lastDrawnVersionRef` caused mobile
-    // to skip frames whenever FaceMesh was still processing, producing black
-    // flashes. Instead we re-use the last result until a new one arrives.
-    if (!result?.image) return;
+    if (!result?.image || resultVersionRef.current === lastDrawnVersionRef.current) return;
 
     const W = canvas.width, H = canvas.height;
 
-    // ── Draw mirrored camera frame ──────────────────────────────────────────
-    const userB = brightnessRef.current;
-    const userC = contrastRef.current;
-    const userS = saturateRef.current;
-
-    // FIX: Apply beauty + user filters on both platforms (previously skipped on mobile).
-    const needsFilter = userB !== 100 || userC !== 100 || userS !== 100
-      || BEAUTY_B !== 100 || BEAUTY_C !== 100 || BEAUTY_S !== 100;
-    ctx.filter = needsFilter
-      ? `brightness(${BEAUTY_B}%) contrast(${BEAUTY_C}%) saturate(${BEAUTY_S}%) brightness(${userB}%) contrast(${userC}%) saturate(${userS}%)`
-      : "none";
+    // Draw mirrored camera frame
+    if (mobile) {
+      ctx.filter = "none";
+    } else {
+      const userB = brightnessRef.current;
+      const userC = contrastRef.current;
+      const userS = saturateRef.current;
+      const needsFilter = userB !== 100 || userC !== 100 || userS !== 100
+        || BEAUTY_B !== 100 || BEAUTY_C !== 100 || BEAUTY_S !== 100;
+      ctx.filter = needsFilter
+        ? `brightness(${BEAUTY_B}%) contrast(${BEAUTY_C}%) saturate(${BEAUTY_S}%) brightness(${userB}%) contrast(${userC}%) saturate(${userS}%)`
+        : "none";
+    }
 
     ctx.save();
     ctx.translate(W, 0);
@@ -3365,53 +3352,35 @@ const TryOn = () => {
     ctx.restore();
     ctx.filter = "none";
 
-    // ── Landmark processing ────────────────────────────────────────────────
-    const hasLandmarks = !!(result.multiFaceLandmarks?.length);
+    if (!result.multiFaceLandmarks?.length) {
+      smootherRef.current.reset();
+      trackRef.current.hasLandmarks = false;
+      lastDrawnVersionRef.current   = resultVersionRef.current;
+      return;
+    }
 
-    if (hasLandmarks) {
-      // Live landmarks — compute fresh geometry and smooth.
-      trackLossCountRef.current = 0;
-      trackRef.current.hasLandmarks = true;
+    const lm  = result.multiFaceLandmarks[0];
 
-      const lm = result.multiFaceLandmarks[0];
+    // ── FIX 3: Pass !mobile as useIris flag ──
+    // Desktop: refineLandmarks=true  → iris indices 468/473 exist  → useIris=true
+    // Mobile:  refineLandmarks=false → iris indices 468/473 absent → useIris=false → use eye-corner fallback
+    const geo = extractFaceGeometry(lm, W, H, !mobile);
 
-      // FIX: No useIris flag — always use iris centres (refineLandmarks=true everywhere).
-      const geo = extractFaceGeometry(lm, W, H);
+    const mirroredCx = geo.centerX;
 
-      const sm = smootherRef.current.smooth({
-        cx:    geo.centerX,
+    const sm = smootherRef.current.smooth(
+      {
+        cx:    mirroredCx,
         cy:    geo.centerY,
         gw:    geo.glassesWidth,
         gh:    geo.glassesHeight,
         angle: geo.angle,
         ds:    geo.depthScale,
-      });
+      },
+      mobile ? MOBILE_DEADZONE : 0
+    );
 
-      // Store for sticky rendering.
-      lastGoodSmRef.current = sm;
-
-    } else {
-      // No landmarks this frame.
-      trackRef.current.hasLandmarks = false;
-      trackLossCountRef.current++;
-
-      // FIX: Sticky tracking — keep drawing at the last known position for
-      // STICKY_LOSS_FRAMES before clearing. This prevents glasses from
-      // vanishing during brief occlusions (hand wave, blink, etc.).
-      if (trackLossCountRef.current > STICKY_LOSS_FRAMES) {
-        smootherRef.current.reset();
-        lastGoodSmRef.current = null;
-      }
-      // If still within sticky window, lastGoodSmRef stays set and we fall
-      // through to draw below.
-    }
-
-    // ── Draw glasses overlay ───────────────────────────────────────────────
-    const sm = lastGoodSmRef.current;
-    if (!sm) {
-      lastDrawnVersionRef.current = resultVersionRef.current;
-      return;
-    }
+    trackRef.current.hasLandmarks = true;
 
     const img = imgRef.current;
     if (!img.complete || !img.naturalWidth) {
@@ -3423,13 +3392,10 @@ const TryOn = () => {
     const sSc      = glassObj?.sizes?.[0] ? getSizeScale(glassObj.sizes[0], mobile) : 1.0;
     const adj      = adjRef.current[glassesRef.current] || DEFAULT_ADJ;
 
-    // FIX: Apply depth scale on BOTH platforms now that iris z-data is reliable
-    //      on mobile too (because refineLandmarks=true). Old code only applied it
-    //      on desktop, causing a visual mismatch in perceived glass depth.
-    let w = sm.gw * adj.scaleW * sm.ds;
-    let h = sm.gh * adj.scaleH * sm.ds;
-    w *= sSc;
-    h *= sSc;
+    // Apply per-frame depth scale only on desktop (stable z data)
+    let w = mobile ? sm.gw * adj.scaleW : sm.gw * adj.scaleW * sm.ds;
+    let h = mobile ? sm.gh * adj.scaleH : sm.gh * adj.scaleH * sm.ds;
+    w *= sSc; h *= sSc;
 
     ctx.save();
     ctx.translate(sm.cx + adj.offsetX, sm.cy + adj.offsetY);
@@ -3445,7 +3411,7 @@ const TryOn = () => {
     resultVersionRef.current++;
   }, []);
 
-  // ── Camera + FaceMesh initialisation ────────────────────────────────────
+  // ── Camera + FaceMesh init ────────────────────────────────────
   useEffect(() => {
     if (!window.FaceMesh) {
       setMpError("MediaPipe FaceMesh not found. Add the MediaPipe <script> tag to index.html.");
@@ -3477,29 +3443,14 @@ const TryOn = () => {
     const faceMesh = new window.FaceMesh({
       locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh@0.4/${file}`,
     });
-
     faceMesh.setOptions({
       maxNumFaces:            1,
-      // ─────────────────────────────────────────────────────────────────────
-      // FIX (critical): refineLandmarks is now ALWAYS true on both mobile and
-      // desktop. Previously mobile used false, meaning iris landmark indices
-      // 468 and 473 did not exist — the fallback eye-corner midpoint was far
-      // less accurate and caused glasses to misalign.
-      //
-      // Modern mid-range phones (2020+) handle the extra wasm workload fine.
-      // For very low-end devices the canvas resolution is already halved
-      // (360×480) which keeps overall compute similar to before.
-      // ─────────────────────────────────────────────────────────────────────
-      refineLandmarks:        true,
-
-      // FIX: Unified confidence thresholds. Old code used 0.35/0.30 on mobile
-      //      which accepted noisier detections and contributed to jitter.
-      //      0.50/0.50 matches desktop and produces cleaner landmark data.
-      minDetectionConfidence: 0.50,
-      minTrackingConfidence:  0.50,
+      refineLandmarks:        !mobile,  // iris landmarks only on desktop — mobile uses eye-corner fallback
+      minDetectionConfidence: mobile ? 0.35 : 0.50,
+      minTrackingConfidence:  mobile ? 0.30 : 0.50,
     });
-
     faceMesh.onResults(onResults);
+
     rafIdRef.current = requestAnimationFrame(drawLoop);
 
     navigator.mediaDevices.getUserMedia({
@@ -3507,7 +3458,6 @@ const TryOn = () => {
         facingMode: "user",
         width:      { ideal: camW },
         height:     { ideal: camH },
-        // FIX: Request 30fps on mobile (was 30 before, kept for consistency).
         frameRate:  { ideal: mobile ? 30 : 60 },
       },
       audio: false,
@@ -3560,7 +3510,6 @@ const TryOn = () => {
     };
   }, [drawLoop, onResults, mobileSizes]);
 
-  // ── CSS ────────────────────────────────────────────────────────────────────
   const css = `
     @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Space+Grotesk:wght@300;400;500;600&display=swap');
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -3665,8 +3614,18 @@ const TryOn = () => {
         <style>{css}</style>
         <video
           ref={videoRef}
-          style={{ position:"absolute", left:"-100%", top:"-100%", width:"1px", height:"1px", opacity:0, pointerEvents:"none" }}
-          autoPlay playsInline muted
+          style={{
+            position: "absolute",
+            left: "-100%",
+            top: "-100%",
+            width: "1px",
+            height: "1px",
+            opacity: 0,
+            pointerEvents: "none",
+          }}
+          autoPlay
+          playsInline
+          muted
         />
 
         <canvas
@@ -3749,7 +3708,10 @@ const TryOn = () => {
             className="frame-scroller"
             role="listbox"
             aria-label="Select glasses frame"
-            style={{ display:"flex", gap:10, padding:"4px 14px 14px", overflowX:"auto", scrollSnapType:"x mandatory" }}
+            style={{
+              display:"flex", gap:10, padding:"4px 14px 14px",
+              overflowX:"auto", scrollSnapType:"x mandatory",
+            }}
           >
             {GLASS_OPTIONS.map(g => {
               const isA = glasses === g.id;
@@ -3885,8 +3847,18 @@ const TryOn = () => {
 
           <video
             ref={videoRef}
-            style={{ position:"absolute", left:"-100%", top:"-100%", width:"1px", height:"1px", opacity:0, pointerEvents:"none" }}
-            autoPlay playsInline muted
+            style={{
+              position: "absolute",
+              left: "-100%",
+              top: "-100%",
+              width: "1px",
+              height: "1px",
+              opacity: 0,
+              pointerEvents: "none",
+            }}
+            autoPlay
+            playsInline
+            muted
           />
           <canvas
             ref={canvasRef}
@@ -4035,5 +4007,6 @@ const TryOn = () => {
     </div>
   );
 };
+
 
 export default TryOn;

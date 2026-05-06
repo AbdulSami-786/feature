@@ -2989,13 +2989,11 @@ const getIsMobile = () =>
   (window.innerWidth < 768 || /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent));
 
 const getMobileSizes = () => {
-  const isLowEnd = typeof window !== "undefined" && 
+  const isLowEnd = typeof window !== "undefined" &&
     (window.innerWidth <= 360 || navigator.deviceMemory <= 4);
   if (isLowEnd) {
-    // 3:4 portrait ratio, enough for FaceMesh
     return { camW: 360, camH: 480, canvasW: 360, canvasH: 480 };
   }
-  // Standard 3:4 portrait for better tracking
   return { camW: 480, camH: 640, canvasW: 480, canvasH: 640 };
 };
 
@@ -3014,9 +3012,6 @@ const DESKTOP_CAM_W      = 1280;
 const DESKTOP_CAM_H      = 720;
 const DESKTOP_CANVAS_W   = 1280;
 const DESKTOP_CANVAS_H   = 720;
-
-const BASE_EYE_SPAN      = 120;
-const BASE_GLASSES_WIDTH = BASE_EYE_SPAN * 1.7;
 
 const BEAUTY_B = 105;
 const BEAUTY_C = 98;
@@ -3056,7 +3051,8 @@ class LandmarkSmoother {
   reset() { this.prev = null; }
 }
 
-function extractFaceGeometry(lm, W, H, isMobile) {
+// ── FIX 4: Corrected extractFaceGeometry with dynamic scaling ──
+function extractFaceGeometry(lm, W, H) {
   const px = (idx) => ({ x: lm[idx].x * W, y: lm[idx].y * H, z: lm[idx].z });
   const avgPx = (indices) => {
     const pts = indices.map(i => px(i));
@@ -3074,19 +3070,13 @@ function extractFaceGeometry(lm, W, H, isMobile) {
   const leftBrowLower  = avgPx(LANDMARKS.LEFT_EYEBROW_LOWER);
   const rightBrowLower = avgPx(LANDMARKS.RIGHT_EYEBROW_LOWER);
   const noseBridgeTop  = px(LANDMARKS.NOSE_BRIDGE_TOP);
-  const leftFaceEdge   = px(LANDMARKS.LEFT_FACE_EDGE);
-  const rightFaceEdge  = px(LANDMARKS.RIGHT_FACE_EDGE);
 
   const browMidLower = {
     x: (leftBrowLower.x + rightBrowLower.x) / 2,
     y: (leftBrowLower.y + rightBrowLower.y) / 2,
   };
 
-  const eyeSpan       = dist(leftEyeOut, rightEyeOut);
-  const faceWidth     = dist(leftFaceEdge, rightFaceEdge);
-  const leftBrowGap   = dist(leftBrowLower, leftIris);
-  const rightBrowGap  = dist(rightBrowLower, rightIris);
-  const avgBrowEyeGap = (leftBrowGap + rightBrowGap) / 2;
+  const eyeSpan = dist(leftEyeOut, rightEyeOut);
 
   const angleIris       = Math.atan2(rightIris.y - leftIris.y, rightIris.x - leftIris.x);
   const angleEyeCorners = Math.atan2(rightEyeOut.y - leftEyeOut.y, rightEyeOut.x - leftEyeOut.x);
@@ -3097,15 +3087,10 @@ function extractFaceGeometry(lm, W, H, isMobile) {
   const centerX = (leftIris.x + rightIris.x) / 2;
   const centerY = browMidLower.y * 0.25 + noseBridgeTop.y * 0.55 + irisY * 0.20;
 
-  let glassesWidth;
-  if (isMobile) {
-    const normalizedScale = Math.max(0.85, Math.min(1.15, eyeSpan / BASE_EYE_SPAN));
-    glassesWidth = BASE_GLASSES_WIDTH * normalizedScale;
-  } else {
-    glassesWidth = (eyeSpan * 0.8 + faceWidth * 0.12) * 1.65;
-  }
+  // FIX 3 & 4: Dynamic scaling based on actual eye distance — consistent across all faces/devices
+  const glassesWidth  = eyeSpan * 2.0;
+  const glassesHeight = eyeSpan * 0.75;
 
-  const glassesHeight = avgBrowEyeGap * 3.3;
   const avgZ       = (leftIris.z + rightIris.z + noseBridgeTop.z) / 3;
   const depthScale = Math.max(0.92, Math.min(1.08, 1 + (-avgZ * 0.6)));
 
@@ -3200,23 +3185,23 @@ const SliderRow = ({ label, value, min, max, step, onChange, fmt }) => (
 );
 
 const TryOn = () => {
-  const videoRef         = useRef(null);
-  const canvasRef        = useRef(null);
-  const imgRef           = useRef(new Image());
-  const trackRef         = useRef({ hasLandmarks: false });
-  const rafIdRef         = useRef(null);
-  const lastFrameRef     = useRef(0);
-  const touchStartX      = useRef(null);
-  const touchStartY      = useRef(null);
-  const cameraRdyRef     = useRef(false);
-  const glassesRef       = useRef("/glass1.png");
-  const adjRef           = useRef({});
-  const pendingResultRef = useRef(null);
-  const camStreamRef     = useRef(null);
-  const camInstanceRef   = useRef(null);
+  const videoRef          = useRef(null);
+  const canvasRef         = useRef(null);
+  const imgRef            = useRef(new Image());
+  const trackRef          = useRef({ hasLandmarks: false });
+  const rafIdRef          = useRef(null);
+  const lastFrameRef      = useRef(0);
+  const touchStartX       = useRef(null);
+  const touchStartY       = useRef(null);
+  const cameraRdyRef      = useRef(false);
+  const glassesRef        = useRef("/glass1.png");
+  const adjRef            = useRef({});
+  const pendingResultRef  = useRef(null);
+  const camStreamRef      = useRef(null);
+  const camInstanceRef    = useRef(null);  // holds frame-pump RAF id on desktop
   const cachedGlassObjRef = useRef(null);
-  const ctxRef = useRef(null);
-  const resultVersionRef = useRef(0);
+  const ctxRef            = useRef(null);
+  const resultVersionRef  = useRef(0);
   const lastDrawnVersionRef = useRef(0);
 
   const [isMobile, setIsMobile] = useState(() => getIsMobile());
@@ -3244,10 +3229,10 @@ const TryOn = () => {
 
   const [glasses, setGlasses]         = useState("/glass1.png");
   const [cameraReady, setCameraReady] = useState(false);
-  const [brightness, setBrightness] = useState(100);
-  const [contrast,   setContrast]   = useState(100);
-  const [saturate,   setSaturate]   = useState(100);
-  const [mpError,    setMpError]    = useState(null);
+  const [brightness, setBrightness]   = useState(100);
+  const [contrast,   setContrast]     = useState(100);
+  const [saturate,   setSaturate]     = useState(100);
+  const [mpError,    setMpError]      = useState(null);
 
   const brightnessRef = useRef(100);
   const contrastRef   = useRef(100);
@@ -3267,8 +3252,8 @@ const TryOn = () => {
   const [adjUIState, setAdjUIState] = useState(() => adjustmentsRef.current["/glass1.png"]);
 
   useEffect(() => {
-    glassesRef.current  = glasses;
-    adjRef.current      = adjustmentsRef.current;
+    glassesRef.current        = glasses;
+    adjRef.current            = adjustmentsRef.current;
     cachedGlassObjRef.current = GLASS_OPTIONS.find(g => g.id === glasses) || null;
     setAdjUIState({ ...(adjustmentsRef.current[glasses] || DEFAULT_ADJ) });
   }, [glasses]);
@@ -3300,11 +3285,12 @@ const TryOn = () => {
     imgRef.current = img;
   }, [glasses]);
 
+  // ── Draw loop ─────────────────────────────────────────────────
   const drawLoop = useCallback(() => {
     rafIdRef.current = requestAnimationFrame(drawLoop);
 
     const mobile = isMobileRef.current;
-    const now = performance.now();
+    const now    = performance.now();
 
     if (mobile && now - lastFrameRef.current < MOBILE_FRAME_INT) return;
     lastFrameRef.current = now;
@@ -3323,51 +3309,51 @@ const TryOn = () => {
 
     const W = canvas.width, H = canvas.height;
 
+    // Draw mirrored camera frame
     if (mobile) {
       ctx.filter = "none";
-      ctx.save();
-      ctx.translate(W, 0);
-      ctx.scale(-1, 1);
-      ctx.drawImage(result.image, 0, 0, W, H);
-      ctx.restore();
     } else {
       const userB = brightnessRef.current;
       const userC = contrastRef.current;
       const userS = saturateRef.current;
       const needsFilter = userB !== 100 || userC !== 100 || userS !== 100
         || BEAUTY_B !== 100 || BEAUTY_C !== 100 || BEAUTY_S !== 100;
-      if (needsFilter) {
-        ctx.filter = `brightness(${BEAUTY_B}%) contrast(${BEAUTY_C}%) saturate(${BEAUTY_S}%) brightness(${userB}%) contrast(${userC}%) saturate(${userS}%)`;
-      } else {
-        ctx.filter = "none";
-      }
-      ctx.save();
-      ctx.translate(W, 0);
-      ctx.scale(-1, 1);
-      ctx.drawImage(result.image, 0, 0, W, H);
-      ctx.restore();
-      ctx.filter = "none";
+      ctx.filter = needsFilter
+        ? `brightness(${BEAUTY_B}%) contrast(${BEAUTY_C}%) saturate(${BEAUTY_S}%) brightness(${userB}%) contrast(${userC}%) saturate(${userS}%)`
+        : "none";
     }
+
+    ctx.save();
+    ctx.translate(W, 0);
+    ctx.scale(-1, 1);
+    ctx.drawImage(result.image, 0, 0, W, H);
+    ctx.restore();
+    ctx.filter = "none";
 
     if (!result.multiFaceLandmarks?.length) {
       smootherRef.current.reset();
       trackRef.current.hasLandmarks = false;
-      lastDrawnVersionRef.current = resultVersionRef.current;
+      lastDrawnVersionRef.current   = resultVersionRef.current;
       return;
     }
 
     const lm  = result.multiFaceLandmarks[0];
-    const geo = extractFaceGeometry(lm, W, H, mobile);
-    const mirroredCx = W - geo.centerX;
+    // FIX: pass W, H only — isMobile removed from geometry (scaling now purely eyeSpan-based)
+    const geo = extractFaceGeometry(lm, W, H);
+
+    // FIX 1: Canvas is already mirrored via ctx.scale(-1,1)
+    // Do NOT do W - centerX — that causes double mirroring
+    const mirroredCx = geo.centerX;
 
     const sm = smootherRef.current.smooth(
       {
-        cx: mirroredCx,
-        cy: geo.centerY,
-        gw: geo.glassesWidth,
-        gh: geo.glassesHeight,
-        angle: -geo.angle,
-        ds: geo.depthScale,
+        cx:    mirroredCx,
+        cy:    geo.centerY,
+        gw:    geo.glassesWidth,
+        gh:    geo.glassesHeight,
+        // FIX 2: angle sign is correct after horizontal mirror — no negation needed
+        angle: geo.angle,
+        ds:    geo.depthScale,
       },
       mobile ? MOBILE_DEADZONE : 0
     );
@@ -3384,6 +3370,7 @@ const TryOn = () => {
     const sSc      = glassObj?.sizes?.[0] ? getSizeScale(glassObj.sizes[0], mobile) : 1.0;
     const adj      = adjRef.current[glassesRef.current] || DEFAULT_ADJ;
 
+    // Apply per-frame depth scale only on desktop (stable z data)
     let w = mobile ? sm.gw * adj.scaleW : sm.gw * adj.scaleW * sm.ds;
     let h = mobile ? sm.gh * adj.scaleH : sm.gh * adj.scaleH * sm.ds;
     w *= sSc; h *= sSc;
@@ -3402,77 +3389,98 @@ const TryOn = () => {
     resultVersionRef.current++;
   }, []);
 
+  // ── Camera + FaceMesh init ────────────────────────────────────
   useEffect(() => {
-    if (!window.FaceMesh || !window.Camera) {
-      setMpError("MediaPipe globals not found. Add the two MediaPipe <script> tags to index.html.");
+    if (!window.FaceMesh) {
+      setMpError("MediaPipe FaceMesh not found. Add the MediaPipe <script> tag to index.html.");
       return;
     }
 
     const mobile = isMobileRef.current;
     let camW, camH, canvasW, canvasH;
+
     if (mobile) {
       const sizes = mobileSizes;
-      camW = sizes.camW;
-      camH = sizes.camH;
+      camW    = sizes.camW;
+      camH    = sizes.camH;
       canvasW = sizes.canvasW;
       canvasH = sizes.canvasH;
     } else {
-      camW = DESKTOP_CAM_W;
-      camH = DESKTOP_CAM_H;
+      camW    = DESKTOP_CAM_W;
+      camH    = DESKTOP_CAM_H;
       canvasW = DESKTOP_CANVAS_W;
       canvasH = DESKTOP_CANVAS_H;
     }
+
     if (canvasRef.current) {
-      canvasRef.current.width = canvasW;
+      canvasRef.current.width  = canvasW;
       canvasRef.current.height = canvasH;
+      ctxRef.current = null; // reset cached ctx after resize
     }
 
     const faceMesh = new window.FaceMesh({
       locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh@0.4/${file}`,
     });
     faceMesh.setOptions({
-      maxNumFaces: 1,
-      refineLandmarks: !mobile,
+      maxNumFaces:            1,
+      refineLandmarks:        !mobile,  // iris landmarks only on desktop (cheaper on mobile)
       minDetectionConfidence: mobile ? 0.35 : 0.50,
       minTrackingConfidence:  mobile ? 0.30 : 0.50,
     });
     faceMesh.onResults(onResults);
 
+    // Start RAF draw loop
     rafIdRef.current = requestAnimationFrame(drawLoop);
 
-    const cam = new window.Camera(videoRef.current, {
-      onFrame: async () => {
-        if (!cameraRdyRef.current) {
+    // FIX 2: Replace unreliable MediaPipe Camera class with getUserMedia + manual frame pump
+    navigator.mediaDevices.getUserMedia({
+      video: {
+        facingMode: "user",
+        width:      { ideal: camW },
+        height:     { ideal: camH },
+        frameRate:  { ideal: mobile ? 30 : 60 },
+      },
+      audio: false,
+    })
+    .then(stream => {
+      camStreamRef.current = stream;
+      const video = videoRef.current;
+      if (!video) return;
+
+      video.srcObject = stream;
+      video.onloadedmetadata = () => {
+        video.play().then(() => {
           cameraRdyRef.current = true;
           setCameraReady(true);
-          if (videoRef.current?.srcObject) {
-            camStreamRef.current = videoRef.current.srcObject;
-          }
-        }
-        await faceMesh.send({ image: videoRef.current });
-      },
-      width:  camW,
-      height: camH,
-      ...(mobile 
-        ? { 
-            facingMode: "user", 
-            advanced: [{ width: { ideal: camW }, height: { ideal: camH }, frameRate: { ideal: 30 } }] 
-          }
-        : { 
-            facingMode: "user", 
-            advanced: [{ width: { ideal: 1280 }, height: { ideal: 720 } }] 
-          }
-      ),
-    });
 
-    camInstanceRef.current = cam;
-    cam.start().catch(err => {
+          // Manual frame pump → FaceMesh
+          const sendFrame = async () => {
+            if (!cameraRdyRef.current) return;
+            try {
+              if (video.readyState >= 2) {
+                await faceMesh.send({ image: video });
+              }
+            } catch (_) { /* ignore send errors on cleanup */ }
+            camInstanceRef.current = requestAnimationFrame(sendFrame);
+          };
+          camInstanceRef.current = requestAnimationFrame(sendFrame);
+        }).catch(err => {
+          console.error("Video play failed:", err);
+          setMpError("Could not start video playback. Please reload and allow camera access.");
+        });
+      };
+    })
+    .catch(err => {
       console.error("Camera failed:", err);
       setMpError("Camera access denied or not available. Please allow camera permissions and reload.");
     });
 
     return () => {
-      if (rafIdRef.current) cancelAnimationFrame(rafIdRef.current);
+      // Stop draw loop
+      if (rafIdRef.current)      cancelAnimationFrame(rafIdRef.current);
+      // Stop frame pump
+      if (camInstanceRef.current) cancelAnimationFrame(camInstanceRef.current);
+      // Stop camera stream
       if (camStreamRef.current) {
         camStreamRef.current.getTracks().forEach(t => t.stop());
         camStreamRef.current = null;
@@ -3557,6 +3565,9 @@ const TryOn = () => {
   const currentGlass = GLASS_OPTIONS.find(g => g.id === glasses);
   const curAdj = adjUIState;
 
+  // ══════════════════════════════════════════════════════════════
+  // MOBILE LAYOUT
+  // ══════════════════════════════════════════════════════════════
   if (isMobile) {
     const idx = GLASS_OPTIONS.findIndex(g => g.id === glasses);
     const { canvasW, canvasH } = mobileSizes;
@@ -3585,21 +3596,22 @@ const TryOn = () => {
         onTouchEnd={onTouchEnd}
       >
         <style>{css}</style>
-        <video 
-          ref={videoRef} 
-          style={{ 
-            position: "absolute", 
-            left: "-100%", 
-            top: "-100%", 
-            width: "1px", 
-            height: "1px", 
-            opacity: 0, 
-            pointerEvents: "none" 
-          }} 
-          autoPlay 
-          playsInline 
-          muted 
+        <video
+          ref={videoRef}
+          style={{
+            position: "absolute",
+            left: "-100%",
+            top: "-100%",
+            width: "1px",
+            height: "1px",
+            opacity: 0,
+            pointerEvents: "none",
+          }}
+          autoPlay
+          playsInline
+          muted
         />
+
         <canvas
           ref={canvasRef}
           width={canvasW}
@@ -3607,11 +3619,15 @@ const TryOn = () => {
           style={{ position:"absolute", inset:0, width:"100%", height:"100%", objectFit:"cover", display:"block" }}
           aria-label="AR glasses try-on camera view"
         />
+
+        {/* Top vignette */}
         <div style={{
           position:"absolute", top:0, left:0, right:0, height:"22%",
           background:"linear-gradient(to bottom, rgba(0,0,0,0.50), transparent)",
           pointerEvents:"none",
         }} aria-hidden="true" />
+
+        {/* AR tracking indicator */}
         {cameraReady && (
           <div role="status" aria-live="polite" style={{
             position:"absolute", top:18, left:16, zIndex:20,
@@ -3624,6 +3640,8 @@ const TryOn = () => {
             <span style={{ fontSize:10, fontWeight:600, color:"rgba(255,255,255,0.80)", letterSpacing:"0.5px" }}>Tracking</span>
           </div>
         )}
+
+        {/* Frame name + price chip */}
         {cameraReady && currentGlass && (
           <div aria-live="polite" style={{
             position:"absolute", bottom:176, left:"50%", transform:"translateX(-50%)",
@@ -3642,6 +3660,8 @@ const TryOn = () => {
             </span>
           </div>
         )}
+
+        {/* Progress dots */}
         {cameraReady && (
           <div aria-hidden="true" style={{
             position:"absolute", bottom:158, left:"50%", transform:"translateX(-50%)",
@@ -3656,6 +3676,8 @@ const TryOn = () => {
             ))}
           </div>
         )}
+
+        {/* Bottom frame scroller */}
         <div style={{
           position:"absolute", bottom:0, left:0, right:0, zIndex:20,
           paddingBottom:"env(safe-area-inset-bottom, 12px)",
@@ -3665,6 +3687,7 @@ const TryOn = () => {
             <span style={{ fontSize:9, fontWeight:700, letterSpacing:"2px", color:"rgba(254,253,223,0.35)", textTransform:"uppercase" }}>Frames</span>
             <span style={{ fontSize:9, color:"rgba(254,253,223,0.30)" }} aria-live="polite">{idx + 1} / {GLASS_OPTIONS.length}</span>
           </div>
+
           <div
             className="frame-scroller"
             role="listbox"
@@ -3720,6 +3743,7 @@ const TryOn = () => {
             })}
           </div>
         </div>
+
         {!cameraReady && (
           <div role="status" aria-label="Initializing camera" style={{
             position:"absolute", inset:0, zIndex:50,
@@ -3746,6 +3770,9 @@ const TryOn = () => {
     );
   }
 
+  // ══════════════════════════════════════════════════════════════
+  // DESKTOP LAYOUT
+  // ══════════════════════════════════════════════════════════════
   return (
     <div style={{
       fontFamily: "'Space Grotesk', sans-serif",
@@ -3756,12 +3783,16 @@ const TryOn = () => {
       overflow: "hidden",
     }}>
       <style>{css}</style>
+
+      {/* Ambient glow */}
       <div aria-hidden="true" style={{ position:"fixed", inset:0, pointerEvents:"none", zIndex:0 }}>
         <div style={{ position:"absolute", top:"-15%", right:"-8%", width:"52vw", height:"52vw", borderRadius:"50%",
           background:`radial-gradient(circle, rgba(232,127,36,0.14) 0%, rgba(232,127,36,0.04) 45%, transparent 70%)` }} />
         <div style={{ position:"absolute", bottom:"-20%", left:"-12%", width:"48vw", height:"48vw", borderRadius:"50%",
           background:`radial-gradient(circle, rgba(115,165,202,0.12) 0%, rgba(115,165,202,0.03) 45%, transparent 70%)` }} />
       </div>
+
+      {/* ── LEFT: Camera (75%) ── */}
       <div style={{ position:"relative", zIndex:1, flex:"0 0 75%", maxWidth:"75%", padding:20, display:"flex", flexDirection:"column" }}>
         <div style={{
           flex:1, position:"relative", borderRadius:22, overflow:"hidden",
@@ -3780,6 +3811,8 @@ const TryOn = () => {
               <span style={{ fontSize:10, fontWeight:600, color:"rgba(255,255,255,0.80)", letterSpacing:"0.5px" }}>Face Tracking Active</span>
             </div>
           )}
+
+          {/* Selected frame badge */}
           <div style={{ position:"absolute", bottom:16, left:16, zIndex:5 }}>
             <div aria-live="polite" style={{
               background:"rgba(0,0,0,0.52)", ...glassPill,
@@ -3795,20 +3828,21 @@ const TryOn = () => {
               </span>
             </div>
           </div>
-          <video 
-            ref={videoRef} 
-            style={{ 
-              position: "absolute", 
-              left: "-100%", 
-              top: "-100%", 
-              width: "1px", 
-              height: "1px", 
-              opacity: 0, 
-              pointerEvents: "none" 
-            }} 
-            autoPlay 
-            playsInline 
-            muted 
+
+          <video
+            ref={videoRef}
+            style={{
+              position: "absolute",
+              left: "-100%",
+              top: "-100%",
+              width: "1px",
+              height: "1px",
+              opacity: 0,
+              pointerEvents: "none",
+            }}
+            autoPlay
+            playsInline
+            muted
           />
           <canvas
             ref={canvasRef}
@@ -3817,6 +3851,7 @@ const TryOn = () => {
             aria-label="AR glasses try-on camera view"
             style={{ display:"block", width:"100%", height:"100%", objectFit:"cover" }}
           />
+
           {!cameraReady && (
             <div role="status" aria-label="Initializing camera" style={{
               position:"absolute", inset:0, borderRadius:22, zIndex:30,
@@ -3838,6 +3873,8 @@ const TryOn = () => {
           )}
         </div>
       </div>
+
+      {/* ── RIGHT: Controls panel (25%) ── */}
       <div
         className="right-panel"
         role="complementary"
@@ -3861,6 +3898,7 @@ const TryOn = () => {
             {GLASS_OPTIONS.length} styles available
           </div>
         </div>
+
         <div
           role="listbox"
           aria-label="Select glasses frame"
@@ -3923,6 +3961,7 @@ const TryOn = () => {
             );
           })}
         </div>
+
         <Section title="FRAME CALIBRATION" icon="⚙️">
           <div style={{ display:"flex", justifyContent:"flex-end", marginBottom:14 }}>
             <button
@@ -3934,7 +3973,7 @@ const TryOn = () => {
                 padding:"5px 14px", borderRadius:100, cursor:"pointer",
                 letterSpacing:"0.5px", transition:"background 0.15s",
               }}
-            >Reset </button>
+            >Reset</button>
           </div>
           <SliderRow label="WIDTH"    value={curAdj.scaleW}  min={0.3}  max={3}   step={0.05} onChange={v => setAdj("scaleW",  v)} fmt={v => `${v.toFixed(2)}×`} />
           <SliderRow label="HEIGHT"   value={curAdj.scaleH}  min={0.3}  max={3}   step={0.05} onChange={v => setAdj("scaleH",  v)} fmt={v => `${v.toFixed(2)}×`} />
@@ -3942,6 +3981,7 @@ const TryOn = () => {
           <SliderRow label="MOVE U/D" value={curAdj.offsetY} min={-150} max={150} step={1}    onChange={v => setAdj("offsetY", v)} fmt={v => `${v > 0 ? "+" : ""}${v}px`} />
           <SliderRow label="ROTATION" value={curAdj.rotate}  min={-30}  max={30}  step={0.5}  onChange={v => setAdj("rotate",  v)} fmt={v => `${v > 0 ? "+" : ""}${v.toFixed(1)}°`} />
         </Section>
+
         <Section title="SCENE FILTERS" icon="🎨">
           <SliderRow label="BRIGHTNESS" value={brightness} min={50}  max={160} step={1} onChange={setBrightness} fmt={v => `${v}%`} />
           <SliderRow label="CONTRAST"   value={contrast}   min={60}  max={160} step={1} onChange={setContrast}   fmt={v => `${v}%`} />

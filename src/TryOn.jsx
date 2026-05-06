@@ -4036,7 +4036,6 @@ const DEFAULT_ADJ = { scaleW: 1, scaleH: 1, offsetX: 0, offsetY: 8, rotate: 0 };
 const AVIATOR_ADJ = { scaleW: 1, scaleH: 1.18, offsetX: 0, offsetY: 18, rotate: 0 };
 const ROUND_ADJ = { scaleW: 1, scaleH: 0.85, offsetX: 0, offsetY: 6, rotate: 0 };
 
-// Mobile-specific adjustments for better fit (due to different FOV and face proportions)
 const MOBILE_DEFAULT_ADJ = { scaleW: 1.05, scaleH: 1.08, offsetX: 0, offsetY: 12, rotate: 0 };
 const MOBILE_AVIATOR_ADJ = { scaleW: 1.05, scaleH: 1.25, offsetX: 0, offsetY: 22, rotate: 0 };
 const MOBILE_ROUND_ADJ = { scaleW: 1.05, scaleH: 0.95, offsetX: 0, offsetY: 10, rotate: 0 };
@@ -4106,7 +4105,6 @@ const getMobileSizes = () => {
       ? { camW: 480, camH: 360, canvasW: 480, canvasH: 360 }
       : { camW: 360, camH: 480, canvasW: 360, canvasH: 480 };
   }
-  // Better resolution for mid/high-end devices improves landmark detection
   return landscape
     ? { camW: 720, camH: 540, canvasW: 720, canvasH: 540 }
     : { camW: 540, camH: 720, canvasW: 540, canvasH: 720 };
@@ -4117,9 +4115,9 @@ const getSizeScale = (sizeObj, mobile) => {
   return mobile ? (sizeObj.mobileScale ?? sizeObj.scale) : sizeObj.scale;
 };
 
-// Tuned smoothing for mobile: more responsive but stable
 const MOBILE_EMA_ALPHA = 0.72;
 const MOBILE_ROT_ALPHA = 0.62;
+const DESKTOP_EMA_ALPHA = 0.50;   // Fixed missing constant
 const MOBILE_DEADZONE = 0.65;
 const MOBILE_FPS = 30;
 const MOBILE_FRAME_INT = 1000 / MOBILE_FPS;
@@ -4203,13 +4201,12 @@ function extractFaceGeometry(lm, W, H, useIris = true) {
     y: (leftBrowLower.y + rightBrowLower.y) / 2,
   };
 
-  // More robust width: use face edges (jaw) when available, fallback to eye-span
   let faceWidth, glassesWidth, glassesHeight;
   if (lm.length > Math.max(LANDMARKS.LEFT_FACE_EDGE, LANDMARKS.RIGHT_FACE_EDGE)) {
     const leftEdge = px(LANDMARKS.LEFT_FACE_EDGE);
     const rightEdge = px(LANDMARKS.RIGHT_FACE_EDGE);
     faceWidth = dist(leftEdge, rightEdge);
-    glassesWidth = faceWidth * 0.62;  // Glasses should cover about 62% of face width
+    glassesWidth = faceWidth * 0.62;
     glassesHeight = glassesWidth * 0.48;
   } else {
     const eyeSpan = dist(leftEyeOut, rightEyeOut);
@@ -4379,7 +4376,6 @@ const TryOn = () => {
   useEffect(() => { contrastRef.current = contrast; }, [contrast]);
   useEffect(() => { saturateRef.current = saturate; }, [saturate]);
 
-  // Dynamic adjustments: mobile gets different defaults for better fit
   const getDefaultAdjForGlass = (glassId, mobile) => {
     if (!mobile) {
       if (glassId === "/glass2.png") return { ...AVIATOR_ADJ };
@@ -4397,7 +4393,6 @@ const TryOn = () => {
   );
   const [adjUIState, setAdjUIState] = useState(() => adjustmentsRef.current["/glass1.png"]);
 
-  // Update adjustments if isMobile changes (e.g., resize from desktop to mobile)
   useEffect(() => {
     adjustmentsRef.current = Object.fromEntries(
       GLASS_OPTIONS.map(g => [g.id, getDefaultAdjForGlass(g.id, isMobileRef.current)])
@@ -4438,7 +4433,6 @@ const TryOn = () => {
     imgRef.current = img;
   }, [glasses]);
 
-  // Draw loop with mobile-specific depth scaling and improved transforms
   const drawLoop = useCallback(() => {
     rafIdRef.current = requestAnimationFrame(drawLoop);
 
@@ -4462,7 +4456,6 @@ const TryOn = () => {
 
     const W = canvas.width, H = canvas.height;
 
-    // Draw mirrored camera frame
     if (mobile) {
       ctx.filter = "none";
     } else {
@@ -4491,7 +4484,6 @@ const TryOn = () => {
     }
 
     const lm = result.multiFaceLandmarks[0];
-    // On mobile we still use iris detection false for performance, but geometry extraction now uses face edges
     const geo = extractFaceGeometry(lm, W, H, !mobile);
 
     const mirroredCx = W - geo.centerX;
@@ -4519,7 +4511,6 @@ const TryOn = () => {
     const sSc = glassObj?.sizes?.[0] ? getSizeScale(glassObj.sizes[0], mobile) : 1.0;
     const adj = adjRef.current[glassesRef.current] || (mobile ? MOBILE_DEFAULT_ADJ : DEFAULT_ADJ);
 
-    // Apply depth scaling on mobile as well for responsive size with face distance
     let w = sm.gw * adj.scaleW * sm.ds;
     let h = sm.gh * adj.scaleH * sm.ds;
     w *= sSc;
@@ -4541,7 +4532,6 @@ const TryOn = () => {
     resultVersionRef.current++;
   }, []);
 
-  // Camera + FaceMesh init with mobile-optimized settings
   useEffect(() => {
     if (!window.FaceMesh) {
       setMpError("MediaPipe FaceMesh not found. Add the MediaPipe <script> tag to index.html.");
@@ -4575,7 +4565,7 @@ const TryOn = () => {
     });
     faceMesh.setOptions({
       maxNumFaces: 1,
-      refineLandmarks: !mobile,  // Keep false on mobile for performance
+      refineLandmarks: !mobile,
       minDetectionConfidence: mobile ? 0.45 : 0.50,
       minTrackingConfidence: mobile ? 0.40 : 0.50,
     });
@@ -4609,7 +4599,7 @@ const TryOn = () => {
                 if (video.readyState >= 2) {
                   await faceMesh.send({ image: video });
                 }
-              } catch (_) { /* ignore send errors on cleanup */ }
+              } catch (_) { /* ignore */ }
               if (cameraRdyRef.current) {
                 camInstanceRef.current = requestAnimationFrame(sendFrame);
               }
@@ -4715,7 +4705,6 @@ const TryOn = () => {
   const currentGlass = GLASS_OPTIONS.find(g => g.id === glasses);
   const curAdj = adjUIState;
 
-  // MOBILE LAYOUT
   if (isMobile) {
     const idx = GLASS_OPTIONS.findIndex(g => g.id === glasses);
     const { canvasW, canvasH } = mobileSizes;
@@ -4913,7 +4902,7 @@ const TryOn = () => {
     );
   }
 
-  // DESKTOP LAYOUT (unchanged except adjustments initialization)
+  // Desktop layout
   return (
     <div style={{
       fontFamily: "'Space Grotesk', sans-serif",

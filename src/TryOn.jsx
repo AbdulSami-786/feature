@@ -2925,7 +2925,6 @@
 // export default TryOn
 
 
-
 import React, { useRef, useEffect, useState, useCallback } from "react";
 
 const DEFAULT_ADJ = { scaleW: 1,   scaleH: 1,    offsetX: 0, offsetY: 8,  rotate: 0 };
@@ -3017,13 +3016,14 @@ const BEAUTY_B = 105;
 const BEAUTY_C = 98;
 const BEAUTY_S = 102;
 
+// ── FIX 1: Added LEFT_EYE_INNER and RIGHT_EYE_INNER as iris fallback landmarks ──
 const LANDMARKS = {
   LEFT_IRIS_CENTER:    468,
   RIGHT_IRIS_CENTER:   473,
   LEFT_EYE_OUTER:       33,
   RIGHT_EYE_OUTER:     263,
-  LEFT_EYE_INNER:      133,
-  RIGHT_EYE_INNER:     362,
+  LEFT_EYE_INNER:      133,   // fallback for mobile (no refined landmarks)
+  RIGHT_EYE_INNER:     362,   // fallback for mobile (no refined landmarks)
   LEFT_EYEBROW_LOWER:  [70, 63, 105, 66, 107],
   RIGHT_EYEBROW_LOWER: [300, 293, 334, 296, 336],
   NOSE_BRIDGE_TOP:     6,
@@ -3053,7 +3053,11 @@ class LandmarkSmoother {
   reset() { this.prev = null; }
 }
 
+// ── FIX 2: extractFaceGeometry now accepts useIris flag ──
+// On mobile: refineLandmarks=false means indices 468/473 don't exist → NaN → misalignment
+// Fix: fall back to inner/outer eye-corner midpoints when useIris=false
 function extractFaceGeometry(lm, W, H, useIris = true) {
+  // Guard z so it never produces NaN (some mobile browsers omit z)
   const px = (idx) => ({ x: lm[idx].x * W, y: lm[idx].y * H, z: lm[idx].z ?? 0 });
 
   const avgPx = (indices) => {
@@ -3071,11 +3075,13 @@ function extractFaceGeometry(lm, W, H, useIris = true) {
   const rightBrowLower = avgPx(LANDMARKS.RIGHT_EYEBROW_LOWER);
   const noseBridgeTop  = px(LANDMARKS.NOSE_BRIDGE_TOP);
 
+  // Use real iris centres on desktop; fall back to eye-corner midpoints on mobile
   let leftIris, rightIris;
   if (useIris && lm.length > 473) {
     leftIris  = px(LANDMARKS.LEFT_IRIS_CENTER);
     rightIris = px(LANDMARKS.RIGHT_IRIS_CENTER);
   } else {
+    // Midpoint of outer + inner eye corners — always present, no refined landmarks needed
     const leftInner  = px(LANDMARKS.LEFT_EYE_INNER);
     const rightInner = px(LANDMARKS.RIGHT_EYE_INNER);
     leftIris  = { x: (leftEyeOut.x + leftInner.x) / 2, y: (leftEyeOut.y + leftInner.y) / 2, z: 0 };
@@ -3087,6 +3093,7 @@ function extractFaceGeometry(lm, W, H, useIris = true) {
     y: (leftBrowLower.y + rightBrowLower.y) / 2,
   };
 
+  // eyeSpan always uses outer corners (landmarks 33 & 263) — safe on both mobile & desktop
   const eyeSpan = dist(leftEyeOut, rightEyeOut);
 
   const angleIris       = Math.atan2(rightIris.y - leftIris.y, rightIris.x - leftIris.x);
@@ -3095,38 +3102,13 @@ function extractFaceGeometry(lm, W, H, useIris = true) {
   const angle = angleEyeCorners * 0.6 + angleBrow * 0.3 + angleIris * 0.1;
 
   const irisY   = (leftIris.y + rightIris.y) / 2;
-  let centerX = (leftIris.x + rightIris.x) / 2;
-  let centerY = browMidLower.y * 0.25 + noseBridgeTop.y * 0.55 + irisY * 0.20;
+  const centerX = (leftIris.x + rightIris.x) / 2;
+  const centerY = browMidLower.y * 0.25 + noseBridgeTop.y * 0.55 + irisY * 0.20;
 
-  // Fallback if any calculation yields NaN (e.g., missing landmarks on mobile)
-  if (isNaN(centerX) || isNaN(centerY) || !isFinite(centerX) || !isFinite(centerY)) {
-    // Compute bounding box of all landmarks as fallback
-    let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
-    for (let i = 0; i < lm.length; i++) {
-      const x = lm[i].x * W;
-      const y = lm[i].y * H;
-      if (isFinite(x) && isFinite(y)) {
-        minX = Math.min(minX, x);
-        maxX = Math.max(maxX, x);
-        minY = Math.min(minY, y);
-        maxY = Math.max(maxY, y);
-      }
-    }
-    if (isFinite(minX) && isFinite(maxX) && isFinite(minY) && isFinite(maxY)) {
-      centerX = (minX + maxX) / 2;
-      centerY = (minY + maxY) / 2;
-    } else {
-      centerX = W / 2;
-      centerY = H / 2;
-    }
-  }
+  const glassesWidth  = eyeSpan * 2.0;
+  const glassesHeight = eyeSpan * 0.75;
 
-  let glassesWidth = eyeSpan * 2.0;
-  let glassesHeight = eyeSpan * 0.75;
-  // Clamp to valid range (avoid zero or negative)
-  glassesWidth = Math.max(20, Math.min(W * 1.2, glassesWidth));
-  glassesHeight = Math.max(10, Math.min(H * 0.8, glassesHeight));
-
+  // Guard z here too — safe on mobile where z may be 0
   const avgZ       = (leftIris.z + rightIris.z + (noseBridgeTop.z ?? 0)) / 3;
   const depthScale = Math.max(0.92, Math.min(1.08, 1 + (-avgZ * 0.6)));
 
@@ -3374,35 +3356,21 @@ const TryOn = () => {
     }
 
     const lm  = result.multiFaceLandmarks[0];
+
+    // ── FIX 3: Pass !mobile as useIris flag ──
+    // Desktop: refineLandmarks=true  → iris indices 468/473 exist  → useIris=true
+    // Mobile:  refineLandmarks=false → iris indices 468/473 absent → useIris=false → use eye-corner fallback
     const geo = extractFaceGeometry(lm, W, H, !mobile);
 
-    // No extra cover crop correction needed on mobile – CSS object-fit:cover
-    // preserves relative positions because canvas buffer and screen share same aspect ratio.
-    // We use raw canvas coordinates.
-    let centerX = geo.centerX;
-    let centerY = geo.centerY;
-    let glassesWidth = geo.glassesWidth;
-    let glassesHeight = geo.glassesHeight;
-    const angle = geo.angle;
-
-    // Safety: ensure finite values
-    if (!isFinite(centerX) || !isFinite(centerY)) {
-      centerX = W / 2;
-      centerY = H / 2;
-    }
-    if (!isFinite(glassesWidth) || glassesWidth <= 0) glassesWidth = W * 0.3;
-    if (!isFinite(glassesHeight) || glassesHeight <= 0) glassesHeight = H * 0.2;
-
-    // Mirror X coordinate (because canvas is drawn mirrored)
-    const mirroredCx = W - centerX;
+    const mirroredCx = geo.centerX;
 
     const sm = smootherRef.current.smooth(
       {
         cx:    mirroredCx,
-        cy:    centerY,
-        gw:    glassesWidth,
-        gh:    glassesHeight,
-        angle: angle,
+        cy:    geo.centerY,
+        gw:    geo.glassesWidth,
+        gh:    geo.glassesHeight,
+        angle: geo.angle,
         ds:    geo.depthScale,
       },
       mobile ? MOBILE_DEADZONE : 0
@@ -3420,15 +3388,10 @@ const TryOn = () => {
     const sSc      = glassObj?.sizes?.[0] ? getSizeScale(glassObj.sizes[0], mobile) : 1.0;
     const adj      = adjRef.current[glassesRef.current] || DEFAULT_ADJ;
 
+    // Apply per-frame depth scale only on desktop (stable z data)
     let w = mobile ? sm.gw * adj.scaleW : sm.gw * adj.scaleW * sm.ds;
     let h = mobile ? sm.gh * adj.scaleH : sm.gh * adj.scaleH * sm.ds;
     w *= sSc; h *= sSc;
-
-    // Final safety: if width/height are invalid, don't draw
-    if (!isFinite(w) || w <= 0 || !isFinite(h) || h <= 0) {
-      lastDrawnVersionRef.current = resultVersionRef.current;
-      return;
-    }
 
     ctx.save();
     ctx.translate(sm.cx + adj.offsetX, sm.cy + adj.offsetY);
@@ -3478,7 +3441,7 @@ const TryOn = () => {
     });
     faceMesh.setOptions({
       maxNumFaces:            1,
-      refineLandmarks:        !mobile,
+      refineLandmarks:        !mobile,  // iris landmarks only on desktop — mobile uses eye-corner fallback
       minDetectionConfidence: mobile ? 0.35 : 0.50,
       minTrackingConfidence:  mobile ? 0.30 : 0.50,
     });

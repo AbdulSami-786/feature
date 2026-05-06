@@ -4036,60 +4036,61 @@ const DEFAULT_ADJ = { scaleW: 1, scaleH: 1, offsetX: 0, offsetY: 8, rotate: 0 };
 const AVIATOR_ADJ = { scaleW: 1, scaleH: 1.18, offsetX: 0, offsetY: 18, rotate: 0 };
 const ROUND_ADJ = { scaleW: 1, scaleH: 0.85, offsetX: 0, offsetY: 6, rotate: 0 };
 
+// Mobile‑specific default adjustments (compensate for different FOV and face proportions)
 const MOBILE_DEFAULT_ADJ = { scaleW: 1.05, scaleH: 1.08, offsetX: 0, offsetY: 12, rotate: 0 };
 const MOBILE_AVIATOR_ADJ = { scaleW: 1.05, scaleH: 1.25, offsetX: 0, offsetY: 22, rotate: 0 };
 const MOBILE_ROUND_ADJ = { scaleW: 1.05, scaleH: 0.95, offsetX: 0, offsetY: 10, rotate: 0 };
 
 const GLASS_OPTIONS = [
-  { id: "/glass1.png",  name: "Classic",      price: "PKR 4,500", emoji: "👓", sizes: [{ label:"XL", scale:1.10, mobileScale:0.70 }] },
-  { id: "/glass2.png",  name: "Aviator",      price: "PKR 5,200", emoji: "🕶️", sizes: [{ label:"L",  scale:1.15, mobileScale:1.05 }] },
-  { id: "/glass3.png",  name: "Sport",        price: "PKR 3,800", emoji: "🥽", sizes: [{ label:"L",  scale:1.15, mobileScale:1.05 }] },
-  { id: "/glass4.png",  name: "Round",        price: "PKR 4,900", emoji: "⭕", sizes: [{ label:"L",  scale:1.15, mobileScale:1.00 }] },
-  { id: "/glass5.png",  name: "Wayfarer",     price: "PKR 4,900", emoji: "🕶️", sizes: [{ label:"L",  scale:1.25, mobileScale:1.02 }] },
-  { id: "/glass6.png",  name: "Vintage",      price: "PKR 4,900", emoji: "🪩", sizes: [{ label:"L",  scale:1.15, mobileScale:1.00 }] },
-  { id: "/glass7.png",  name: "Clubmaster",   price: "PKR 4,900", emoji: "🔲", sizes: [{ label:"XL", scale:1.30, mobileScale:1.15 }] },
-  { id: "/glass8.png",  name: "Cat Eye",      price: "PKR 4,900", emoji: "😼", sizes: [{ label:"XL", scale:1.30, mobileScale:1.15 }] },
-  { id: "/glass9.png",  name: "Shield",       price: "PKR 4,900", emoji: "🛡️", sizes: [{ label:"M",  scale:1.00, mobileScale:0.80 }] },
-  { id: "/glass10.png", name: "Oval",         price: "PKR 4,900", emoji: "🥚", sizes: [{ label:"L",  scale:1.15, mobileScale:1.00 }] },
-  { id: "/glass11.png", name: "Square",       price: "PKR 4,900", emoji: "⬛", sizes: [{ label:"S",  scale:0.75, mobileScale:0.55 }] },
-  { id: "/glass12.png", name: "Hexagonal",    price: "PKR 4,900", emoji: "⬡", sizes: [{ label:"L",  scale:1.15, mobileScale:1.00 }] },
-  { id: "/glass13.png", name: "Geometric",    price: "PKR 4,900", emoji: "🔷", sizes: [{ label:"M",  scale:1.00, mobileScale:0.80 }] },
-  { id: "/glass14.png", name: "Steampunk",    price: "PKR 4,900", emoji: "⚙️", sizes: [{ label:"S",  scale:0.95, mobileScale:0.55 }] },
-  { id: "/glass15.png", name: "Sports Pro",   price: "PKR 4,900", emoji: "🏃", sizes: [{ label:"L",  scale:1.15, mobileScale:1.00 }] },
-  { id: "/glass16.png", name: "Retro",        price: "PKR 4,900", emoji: "🎞️", sizes: [{ label:"L",  scale:1.15, mobileScale:1.00 }] },
-  { id: "/glass17.png", name: "Modern",       price: "PKR 4,900", emoji: "✨", sizes: [{ label:"L",  scale:1.15, mobileScale:1.00 }] },
-  { id: "/glass18.png", name: "Luxury",       price: "PKR 4,900", emoji: "💎", sizes: [{ label:"L",  scale:1.15, mobileScale:1.00 }] },
-  { id: "/glass19.png", name: "Designer",     price: "PKR 4,900", emoji: "🎨", sizes: [{ label:"L",  scale:1.15, mobileScale:1.00 }] },
-  { id: "/glass20.png", name: "Classic II",   price: "PKR 4,900", emoji: "👓", sizes: [{ label:"L",  scale:1.15, mobileScale:1.00 }] },
-  { id: "/glass21.png", name: "Classic III",  price: "PKR 4,900", emoji: "👓", sizes: [{ label:"M",  scale:1.00, mobileScale:0.80 }] },
-  { id: "/glass22.png", name: "Classic IV",   price: "PKR 4,900", emoji: "👓", sizes: [{ label:"L",  scale:1.05, mobileScale:1.00 }] },
-  { id: "/glass23.png", name: "Classic V",    price: "PKR 4,900", emoji: "👓", sizes: [{ label:"L",  scale:1.15, mobileScale:1.00 }] },
-  { id: "/glass24.png", name: "Classic VI",   price: "PKR 4,900", emoji: "👓", sizes: [{ label:"S",  scale:0.85, mobileScale:0.55 }] },
-  { id: "/glass25.png", name: "Classic VII",  price: "PKR 4,900", emoji: "👓", sizes: [{ label:"L",  scale:1.15, mobileScale:1.00 }] },
-  { id: "/glass26.png", name: "Classic VIII", price: "PKR 4,900", emoji: "👓", sizes: [{ label:"L",  scale:1.15, mobileScale:1.00 }] },
-  { id: "/glass27.png", name: "Classic IX",   price: "PKR 4,900", emoji: "👓", sizes: [{ label:"L",  scale:1.15, mobileScale:1.00 }] },
-  { id: "/glass28.png", name: "Classic X",    price: "PKR 4,900", emoji: "👓", sizes: [{ label:"M",  scale:1.00, mobileScale:0.80 }] },
-  { id: "/glass29.png", name: "Classic XI",   price: "PKR 4,900", emoji: "👓", sizes: [{ label:"L",  scale:1.25, mobileScale:1.00 }] },
-  { id: "/glass30.png", name: "Classic XII",  price: "PKR 4,900", emoji: "👓", sizes: [{ label:"L",  scale:1.15, mobileScale:1.00 }] },
-  { id: "/glass31.png", name: "Classic 31",   price: "PKR 4,900", emoji: "👓", sizes: [{ label:"L",  scale:1.15, mobileScale:1.00 }] },
-  { id: "/glass32.png", name: "Classic 32",   price: "PKR 4,900", emoji: "👓", sizes: [{ label:"L",  scale:1.15, mobileScale:1.00 }] },
-  { id: "/glass33.png", name: "Classic 33",   price: "PKR 4,900", emoji: "👓", sizes: [{ label:"L",  scale:1.15, mobileScale:1.00 }] },
-  { id: "/glass34.png", name: "Classic 34",   price: "PKR 4,900", emoji: "👓", sizes: [{ label:"L",  scale:1.15, mobileScale:1.00 }] },
-  { id: "/glass35.png", name: "Classic 35",   price: "PKR 4,900", emoji: "👓", sizes: [{ label:"M",  scale:1.10, mobileScale:0.80 }] },
-  { id: "/glass36.png", name: "Classic 36",   price: "PKR 4,900", emoji: "👓", sizes: [{ label:"L",  scale:1.15, mobileScale:1.00 }] },
-  { id: "/glass37.png", name: "Classic 37",   price: "PKR 4,900", emoji: "👓", sizes: [{ label:"L",  scale:1.15, mobileScale:1.00 }] },
-  { id: "/glass38.png", name: "Classic 38",   price: "PKR 4,900", emoji: "👓", sizes: [{ label:"XL", scale:1.30, mobileScale:1.15 }] },
-  { id: "/glass39.png", name: "Classic 39",   price: "PKR 4,900", emoji: "👓", sizes: [{ label:"L",  scale:1.15, mobileScale:1.00 }] },
-  { id: "/glass40.png", name: "Classic 40",   price: "PKR 4,900", emoji: "👓", sizes: [{ label:"M",  scale:1.00, mobileScale:0.80 }] },
-  { id: "/glass41.png", name: "Classic 41",   price: "PKR 4,900", emoji: "👓", sizes: [{ label:"L",  scale:1.15, mobileScale:1.00 }] },
-  { id: "/glass42.png", name: "Classic 42",   price: "PKR 4,900", emoji: "👓", sizes: [{ label:"S",  scale:0.95, mobileScale:0.55 }] },
-  { id: "/glass43.png", name: "Classic 43",   price: "PKR 4,900", emoji: "👓", sizes: [{ label:"L",  scale:1.15, mobileScale:1.00 }] },
-  { id: "/glass44.png", name: "Classic 44",   price: "PKR 4,900", emoji: "👓", sizes: [{ label:"L",  scale:1.15, mobileScale:1.00 }] },
-  { id: "/glass45.png", name: "Classic 45",   price: "PKR 4,900", emoji: "👓", sizes: [{ label:"XL", scale:1.30, mobileScale:1.15 }] },
-  { id: "/glass46.png", name: "Classic 46",   price: "PKR 4,900", emoji: "👓", sizes: [{ label:"XL", scale:1.40, mobileScale:1.15 }] },
-  { id: "/glass47.png", name: "Classic 47",   price: "PKR 4,900", emoji: "👓", sizes: [{ label:"XL", scale:1.20, mobileScale:1.15 }] },
-  { id: "/glass48.png", name: "Classic 48",   price: "PKR 4,900", emoji: "👓", sizes: [{ label:"M",  scale:1.00, mobileScale:0.80 }] },
-  { id: "/glass49.png", name: "Classic 49",   price: "PKR 4,900", emoji: "👓", sizes: [{ label:"L",  scale:1.15, mobileScale:1.00 }] },
+  { id: "/glass1.png", name: "Classic", price: "PKR 4,500", emoji: "👓", sizes: [{ label: "XL", scale: 1.10, mobileScale: 0.70 }] },
+  { id: "/glass2.png", name: "Aviator", price: "PKR 5,200", emoji: "🕶️", sizes: [{ label: "L", scale: 1.15, mobileScale: 1.05 }] },
+  { id: "/glass3.png", name: "Sport", price: "PKR 3,800", emoji: "🥽", sizes: [{ label: "L", scale: 1.15, mobileScale: 1.05 }] },
+  { id: "/glass4.png", name: "Round", price: "PKR 4,900", emoji: "⭕", sizes: [{ label: "L", scale: 1.15, mobileScale: 1.00 }] },
+  { id: "/glass5.png", name: "Wayfarer", price: "PKR 4,900", emoji: "🕶️", sizes: [{ label: "L", scale: 1.25, mobileScale: 1.02 }] },
+  { id: "/glass6.png", name: "Vintage", price: "PKR 4,900", emoji: "🪩", sizes: [{ label: "L", scale: 1.15, mobileScale: 1.00 }] },
+  { id: "/glass7.png", name: "Clubmaster", price: "PKR 4,900", emoji: "🔲", sizes: [{ label: "XL", scale: 1.30, mobileScale: 1.15 }] },
+  { id: "/glass8.png", name: "Cat Eye", price: "PKR 4,900", emoji: "😼", sizes: [{ label: "XL", scale: 1.30, mobileScale: 1.15 }] },
+  { id: "/glass9.png", name: "Shield", price: "PKR 4,900", emoji: "🛡️", sizes: [{ label: "M", scale: 1.00, mobileScale: 0.80 }] },
+  { id: "/glass10.png", name: "Oval", price: "PKR 4,900", emoji: "🥚", sizes: [{ label: "L", scale: 1.15, mobileScale: 1.00 }] },
+  { id: "/glass11.png", name: "Square", price: "PKR 4,900", emoji: "⬛", sizes: [{ label: "S", scale: 0.75, mobileScale: 0.55 }] },
+  { id: "/glass12.png", name: "Hexagonal", price: "PKR 4,900", emoji: "⬡", sizes: [{ label: "L", scale: 1.15, mobileScale: 1.00 }] },
+  { id: "/glass13.png", name: "Geometric", price: "PKR 4,900", emoji: "🔷", sizes: [{ label: "M", scale: 1.00, mobileScale: 0.80 }] },
+  { id: "/glass14.png", name: "Steampunk", price: "PKR 4,900", emoji: "⚙️", sizes: [{ label: "S", scale: 0.95, mobileScale: 0.55 }] },
+  { id: "/glass15.png", name: "Sports Pro", price: "PKR 4,900", emoji: "🏃", sizes: [{ label: "L", scale: 1.15, mobileScale: 1.00 }] },
+  { id: "/glass16.png", name: "Retro", price: "PKR 4,900", emoji: "🎞️", sizes: [{ label: "L", scale: 1.15, mobileScale: 1.00 }] },
+  { id: "/glass17.png", name: "Modern", price: "PKR 4,900", emoji: "✨", sizes: [{ label: "L", scale: 1.15, mobileScale: 1.00 }] },
+  { id: "/glass18.png", name: "Luxury", price: "PKR 4,900", emoji: "💎", sizes: [{ label: "L", scale: 1.15, mobileScale: 1.00 }] },
+  { id: "/glass19.png", name: "Designer", price: "PKR 4,900", emoji: "🎨", sizes: [{ label: "L", scale: 1.15, mobileScale: 1.00 }] },
+  { id: "/glass20.png", name: "Classic II", price: "PKR 4,900", emoji: "👓", sizes: [{ label: "L", scale: 1.15, mobileScale: 1.00 }] },
+  { id: "/glass21.png", name: "Classic III", price: "PKR 4,900", emoji: "👓", sizes: [{ label: "M", scale: 1.00, mobileScale: 0.80 }] },
+  { id: "/glass22.png", name: "Classic IV", price: "PKR 4,900", emoji: "👓", sizes: [{ label: "L", scale: 1.05, mobileScale: 1.00 }] },
+  { id: "/glass23.png", name: "Classic V", price: "PKR 4,900", emoji: "👓", sizes: [{ label: "L", scale: 1.15, mobileScale: 1.00 }] },
+  { id: "/glass24.png", name: "Classic VI", price: "PKR 4,900", emoji: "👓", sizes: [{ label: "S", scale: 0.85, mobileScale: 0.55 }] },
+  { id: "/glass25.png", name: "Classic VII", price: "PKR 4,900", emoji: "👓", sizes: [{ label: "L", scale: 1.15, mobileScale: 1.00 }] },
+  { id: "/glass26.png", name: "Classic VIII", price: "PKR 4,900", emoji: "👓", sizes: [{ label: "L", scale: 1.15, mobileScale: 1.00 }] },
+  { id: "/glass27.png", name: "Classic IX", price: "PKR 4,900", emoji: "👓", sizes: [{ label: "L", scale: 1.15, mobileScale: 1.00 }] },
+  { id: "/glass28.png", name: "Classic X", price: "PKR 4,900", emoji: "👓", sizes: [{ label: "M", scale: 1.00, mobileScale: 0.80 }] },
+  { id: "/glass29.png", name: "Classic XI", price: "PKR 4,900", emoji: "👓", sizes: [{ label: "L", scale: 1.25, mobileScale: 1.00 }] },
+  { id: "/glass30.png", name: "Classic XII", price: "PKR 4,900", emoji: "👓", sizes: [{ label: "L", scale: 1.15, mobileScale: 1.00 }] },
+  { id: "/glass31.png", name: "Classic 31", price: "PKR 4,900", emoji: "👓", sizes: [{ label: "L", scale: 1.15, mobileScale: 1.00 }] },
+  { id: "/glass32.png", name: "Classic 32", price: "PKR 4,900", emoji: "👓", sizes: [{ label: "L", scale: 1.15, mobileScale: 1.00 }] },
+  { id: "/glass33.png", name: "Classic 33", price: "PKR 4,900", emoji: "👓", sizes: [{ label: "L", scale: 1.15, mobileScale: 1.00 }] },
+  { id: "/glass34.png", name: "Classic 34", price: "PKR 4,900", emoji: "👓", sizes: [{ label: "L", scale: 1.15, mobileScale: 1.00 }] },
+  { id: "/glass35.png", name: "Classic 35", price: "PKR 4,900", emoji: "👓", sizes: [{ label: "M", scale: 1.10, mobileScale: 0.80 }] },
+  { id: "/glass36.png", name: "Classic 36", price: "PKR 4,900", emoji: "👓", sizes: [{ label: "L", scale: 1.15, mobileScale: 1.00 }] },
+  { id: "/glass37.png", name: "Classic 37", price: "PKR 4,900", emoji: "👓", sizes: [{ label: "L", scale: 1.15, mobileScale: 1.00 }] },
+  { id: "/glass38.png", name: "Classic 38", price: "PKR 4,900", emoji: "👓", sizes: [{ label: "XL", scale: 1.30, mobileScale: 1.15 }] },
+  { id: "/glass39.png", name: "Classic 39", price: "PKR 4,900", emoji: "👓", sizes: [{ label: "L", scale: 1.15, mobileScale: 1.00 }] },
+  { id: "/glass40.png", name: "Classic 40", price: "PKR 4,900", emoji: "👓", sizes: [{ label: "M", scale: 1.00, mobileScale: 0.80 }] },
+  { id: "/glass41.png", name: "Classic 41", price: "PKR 4,900", emoji: "👓", sizes: [{ label: "L", scale: 1.15, mobileScale: 1.00 }] },
+  { id: "/glass42.png", name: "Classic 42", price: "PKR 4,900", emoji: "👓", sizes: [{ label: "S", scale: 0.95, mobileScale: 0.55 }] },
+  { id: "/glass43.png", name: "Classic 43", price: "PKR 4,900", emoji: "👓", sizes: [{ label: "L", scale: 1.15, mobileScale: 1.00 }] },
+  { id: "/glass44.png", name: "Classic 44", price: "PKR 4,900", emoji: "👓", sizes: [{ label: "L", scale: 1.15, mobileScale: 1.00 }] },
+  { id: "/glass45.png", name: "Classic 45", price: "PKR 4,900", emoji: "👓", sizes: [{ label: "XL", scale: 1.30, mobileScale: 1.15 }] },
+  { id: "/glass46.png", name: "Classic 46", price: "PKR 4,900", emoji: "👓", sizes: [{ label: "XL", scale: 1.40, mobileScale: 1.15 }] },
+  { id: "/glass47.png", name: "Classic 47", price: "PKR 4,900", emoji: "👓", sizes: [{ label: "XL", scale: 1.20, mobileScale: 1.15 }] },
+  { id: "/glass48.png", name: "Classic 48", price: "PKR 4,900", emoji: "👓", sizes: [{ label: "M", scale: 1.00, mobileScale: 0.80 }] },
+  { id: "/glass49.png", name: "Classic 49", price: "PKR 4,900", emoji: "👓", sizes: [{ label: "L", scale: 1.15, mobileScale: 1.00 }] },
 ];
 
 const getIsMobile = () =>
@@ -4105,6 +4106,7 @@ const getMobileSizes = () => {
       ? { camW: 480, camH: 360, canvasW: 480, canvasH: 360 }
       : { camW: 360, camH: 480, canvasW: 360, canvasH: 480 };
   }
+  // Higher resolution for better landmark detection on mobile
   return landscape
     ? { camW: 720, camH: 540, canvasW: 720, canvasH: 540 }
     : { camW: 540, camH: 720, canvasW: 540, canvasH: 720 };
@@ -4115,9 +4117,10 @@ const getSizeScale = (sizeObj, mobile) => {
   return mobile ? (sizeObj.mobileScale ?? sizeObj.scale) : sizeObj.scale;
 };
 
+// Tuned smoothing for mobile responsiveness
 const MOBILE_EMA_ALPHA = 0.72;
 const MOBILE_ROT_ALPHA = 0.62;
-const DESKTOP_EMA_ALPHA = 0.50;   // Fixed missing constant
+const DESKTOP_EMA_ALPHA = 0.50;   // fixed missing constant
 const MOBILE_DEADZONE = 0.65;
 const MOBILE_FPS = 30;
 const MOBILE_FRAME_INT = 1000 / MOBILE_FPS;
@@ -4201,11 +4204,12 @@ function extractFaceGeometry(lm, W, H, useIris = true) {
     y: (leftBrowLower.y + rightBrowLower.y) / 2,
   };
 
-  let faceWidth, glassesWidth, glassesHeight;
+  let glassesWidth, glassesHeight;
+  // Use face edges if available (more robust sizing)
   if (lm.length > Math.max(LANDMARKS.LEFT_FACE_EDGE, LANDMARKS.RIGHT_FACE_EDGE)) {
     const leftEdge = px(LANDMARKS.LEFT_FACE_EDGE);
     const rightEdge = px(LANDMARKS.RIGHT_FACE_EDGE);
-    faceWidth = dist(leftEdge, rightEdge);
+    const faceWidth = dist(leftEdge, rightEdge);
     glassesWidth = faceWidth * 0.62;
     glassesHeight = glassesWidth * 0.48;
   } else {
@@ -4456,6 +4460,7 @@ const TryOn = () => {
 
     const W = canvas.width, H = canvas.height;
 
+    // Draw mirrored camera frame
     if (mobile) {
       ctx.filter = "none";
     } else {
@@ -4484,6 +4489,7 @@ const TryOn = () => {
     }
 
     const lm = result.multiFaceLandmarks[0];
+    // On mobile we still use iris detection false for performance, but geometry extraction now uses face edges
     const geo = extractFaceGeometry(lm, W, H, !mobile);
 
     const mirroredCx = W - geo.centerX;
@@ -4511,6 +4517,7 @@ const TryOn = () => {
     const sSc = glassObj?.sizes?.[0] ? getSizeScale(glassObj.sizes[0], mobile) : 1.0;
     const adj = adjRef.current[glassesRef.current] || (mobile ? MOBILE_DEFAULT_ADJ : DEFAULT_ADJ);
 
+    // Apply depth scaling on mobile as well for responsive size with face distance
     let w = sm.gw * adj.scaleW * sm.ds;
     let h = sm.gh * adj.scaleH * sm.ds;
     w *= sSc;
@@ -4705,6 +4712,7 @@ const TryOn = () => {
   const currentGlass = GLASS_OPTIONS.find(g => g.id === glasses);
   const curAdj = adjUIState;
 
+  // Mobile layout
   if (isMobile) {
     const idx = GLASS_OPTIONS.findIndex(g => g.id === glasses);
     const { canvasW, canvasH } = mobileSizes;
@@ -4902,7 +4910,7 @@ const TryOn = () => {
     );
   }
 
-  // Desktop layout
+  // Desktop layout (unchanged, only included for completeness)
   return (
     <div style={{
       fontFamily: "'Space Grotesk', sans-serif",

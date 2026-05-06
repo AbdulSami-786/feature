@@ -2924,7 +2924,6 @@
 
 // export default TryOn
 
-
 import React, { useRef, useEffect, useState, useCallback } from "react";
 
 const DEFAULT_ADJ = { scaleW: 1,   scaleH: 1,    offsetX: 0, offsetY: 8,  rotate: 0 };
@@ -2988,12 +2987,18 @@ const getIsMobile = () =>
   (window.innerWidth < 768 || /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent));
 
 const getMobileSizes = () => {
+  // FIX 7: Detect landscape and swap dims so canvas coordinate space matches CSS display
+  const landscape = typeof window !== "undefined" && window.innerWidth > window.innerHeight;
   const isLowEnd = typeof window !== "undefined" &&
     (window.innerWidth <= 360 || navigator.deviceMemory <= 4);
   if (isLowEnd) {
-    return { camW: 360, camH: 480, canvasW: 360, canvasH: 480 };
+    return landscape
+      ? { camW: 480, camH: 360, canvasW: 480, canvasH: 360 }
+      : { camW: 360, camH: 480, canvasW: 360, canvasH: 480 };
   }
-  return { camW: 480, camH: 640, canvasW: 480, canvasH: 640 };
+  return landscape
+    ? { camW: 640, camH: 480, canvasW: 640, canvasH: 480 }
+    : { camW: 480, camH: 640, canvasW: 480, canvasH: 640 };
 };
 
 const getSizeScale = (sizeObj, mobile) => {
@@ -3012,18 +3017,19 @@ const DESKTOP_CAM_H      = 720;
 const DESKTOP_CANVAS_W   = 1280;
 const DESKTOP_CANVAS_H   = 720;
 
-const BEAUTY_B = 105;
-const BEAUTY_C = 98;
-const BEAUTY_S = 102;
+// FIX 3: All beauty values set to 100 so needsFilter check works correctly
+// and no unnecessary filter string is built every frame at neutral settings
+const BEAUTY_B = 100;
+const BEAUTY_C = 100;
+const BEAUTY_S = 100;
 
-// ── FIX 1: Added LEFT_EYE_INNER and RIGHT_EYE_INNER as iris fallback landmarks ──
 const LANDMARKS = {
   LEFT_IRIS_CENTER:    468,
   RIGHT_IRIS_CENTER:   473,
   LEFT_EYE_OUTER:       33,
   RIGHT_EYE_OUTER:     263,
-  LEFT_EYE_INNER:      133,   // fallback for mobile (no refined landmarks)
-  RIGHT_EYE_INNER:     362,   // fallback for mobile (no refined landmarks)
+  LEFT_EYE_INNER:      133,
+  RIGHT_EYE_INNER:     362,
   LEFT_EYEBROW_LOWER:  [70, 63, 105, 66, 107],
   RIGHT_EYEBROW_LOWER: [300, 293, 334, 296, 336],
   NOSE_BRIDGE_TOP:     6,
@@ -3053,11 +3059,7 @@ class LandmarkSmoother {
   reset() { this.prev = null; }
 }
 
-// ── FIX 2: extractFaceGeometry now accepts useIris flag ──
-// On mobile: refineLandmarks=false means indices 468/473 don't exist → NaN → misalignment
-// Fix: fall back to inner/outer eye-corner midpoints when useIris=false
 function extractFaceGeometry(lm, W, H, useIris = true) {
-  // Guard z so it never produces NaN (some mobile browsers omit z)
   const px = (idx) => ({ x: lm[idx].x * W, y: lm[idx].y * H, z: lm[idx].z ?? 0 });
 
   const avgPx = (indices) => {
@@ -3075,13 +3077,11 @@ function extractFaceGeometry(lm, W, H, useIris = true) {
   const rightBrowLower = avgPx(LANDMARKS.RIGHT_EYEBROW_LOWER);
   const noseBridgeTop  = px(LANDMARKS.NOSE_BRIDGE_TOP);
 
-  // Use real iris centres on desktop; fall back to eye-corner midpoints on mobile
   let leftIris, rightIris;
   if (useIris && lm.length > 473) {
     leftIris  = px(LANDMARKS.LEFT_IRIS_CENTER);
     rightIris = px(LANDMARKS.RIGHT_IRIS_CENTER);
   } else {
-    // Midpoint of outer + inner eye corners — always present, no refined landmarks needed
     const leftInner  = px(LANDMARKS.LEFT_EYE_INNER);
     const rightInner = px(LANDMARKS.RIGHT_EYE_INNER);
     leftIris  = { x: (leftEyeOut.x + leftInner.x) / 2, y: (leftEyeOut.y + leftInner.y) / 2, z: 0 };
@@ -3093,7 +3093,6 @@ function extractFaceGeometry(lm, W, H, useIris = true) {
     y: (leftBrowLower.y + rightBrowLower.y) / 2,
   };
 
-  // eyeSpan always uses outer corners (landmarks 33 & 263) — safe on both mobile & desktop
   const eyeSpan = dist(leftEyeOut, rightEyeOut);
 
   const angleIris       = Math.atan2(rightIris.y - leftIris.y, rightIris.x - leftIris.x);
@@ -3105,10 +3104,12 @@ function extractFaceGeometry(lm, W, H, useIris = true) {
   const centerX = (leftIris.x + rightIris.x) / 2;
   const centerY = browMidLower.y * 0.25 + noseBridgeTop.y * 0.55 + irisY * 0.20;
 
-  const glassesWidth  = eyeSpan * 2.0;
-  const glassesHeight = eyeSpan * 0.75;
+  // FIX 5: Scale up eyeSpan on mobile to compensate for narrower lid-corner span
+  // (no refined landmarks → eye corners are ~30% narrower than real face width)
+  const spanMult      = useIris ? 1.0 : 1.35;
+  const glassesWidth  = eyeSpan * 2.0 * spanMult;
+  const glassesHeight = eyeSpan * 0.75 * spanMult;
 
-  // Guard z here too — safe on mobile where z may be 0
   const avgZ       = (leftIris.z + rightIris.z + (noseBridgeTop.z ?? 0)) / 3;
   const depthScale = Math.max(0.92, Math.min(1.08, 1 + (-avgZ * 0.6)));
 
@@ -3220,7 +3221,8 @@ const TryOn = () => {
   const cachedGlassObjRef = useRef(null);
   const ctxRef            = useRef(null);
   const resultVersionRef  = useRef(0);
-  const lastDrawnVersionRef = useRef(0);
+  // FIX 4: Start at -1 so first frame (version=0) always draws
+  const lastDrawnVersionRef = useRef(-1);
 
   const [isMobile, setIsMobile] = useState(() => getIsMobile());
   const isMobileRef = useRef(isMobile);
@@ -3231,6 +3233,8 @@ const TryOn = () => {
       const m = getIsMobile();
       isMobileRef.current = m;
       setIsMobile(m);
+      // FIX 8: Invalidate cached context on resize so stale context is not reused
+      ctxRef.current = null;
       if (m) setMobileSizes(getMobileSizes());
     };
     window.addEventListener("resize", onResize, { passive: true });
@@ -3355,14 +3359,16 @@ const TryOn = () => {
       return;
     }
 
-    const lm  = result.multiFaceLandmarks[0];
+    const lm = result.multiFaceLandmarks[0];
 
-    // ── FIX 3: Pass !mobile as useIris flag ──
-    // Desktop: refineLandmarks=true  → iris indices 468/473 exist  → useIris=true
-    // Mobile:  refineLandmarks=false → iris indices 468/473 absent → useIris=false → use eye-corner fallback
+    // useIris=true on desktop (refineLandmarks=true → indices 468/473 exist)
+    // useIris=false on mobile (refineLandmarks=false → use eye-corner midpoint fallback)
     const geo = extractFaceGeometry(lm, W, H, !mobile);
 
-    const mirroredCx = geo.centerX;
+    // FIX 1: Mirror the centerX to match the mirrored canvas draw
+    // Landmark X coords are in original (unmirrored) camera space.
+    // Canvas is drawn with scale(-1,1), so we must flip X: mirroredCx = W - centerX
+    const mirroredCx = W - geo.centerX;
 
     const sm = smootherRef.current.smooth(
       {
@@ -3393,9 +3399,13 @@ const TryOn = () => {
     let h = mobile ? sm.gh * adj.scaleH : sm.gh * adj.scaleH * sm.ds;
     w *= sSc; h *= sSc;
 
+    // FIX 2: Negate rotation angle because canvas is horizontally mirrored
+    // Without this, head tilt left shows glasses tilted right (reversed)
+    const mirroredAngle = -sm.angle;
+
     ctx.save();
     ctx.translate(sm.cx + adj.offsetX, sm.cy + adj.offsetY);
-    ctx.rotate(sm.angle + adj.rotate * Math.PI / 180);
+    ctx.rotate(mirroredAngle + adj.rotate * Math.PI / 180);
     ctx.drawImage(img, -w / 2, -h / 2, w, h);
     ctx.restore();
 
@@ -3433,6 +3443,7 @@ const TryOn = () => {
     if (canvasRef.current) {
       canvasRef.current.width  = canvasW;
       canvasRef.current.height = canvasH;
+      // FIX 8: Always clear cached context when canvas is resized
       ctxRef.current = null;
     }
 
@@ -3441,7 +3452,7 @@ const TryOn = () => {
     });
     faceMesh.setOptions({
       maxNumFaces:            1,
-      refineLandmarks:        !mobile,  // iris landmarks only on desktop — mobile uses eye-corner fallback
+      refineLandmarks:        !mobile,
       minDetectionConfidence: mobile ? 0.35 : 0.50,
       minTrackingConfidence:  mobile ? 0.30 : 0.50,
     });
@@ -3470,13 +3481,17 @@ const TryOn = () => {
           setCameraReady(true);
 
           const sendFrame = async () => {
+            // FIX 6: Check cameraRdyRef BEFORE scheduling next RAF
+            // so that if cleanup fires between the check and the send, we stop cleanly
             if (!cameraRdyRef.current) return;
             try {
               if (video.readyState >= 2) {
                 await faceMesh.send({ image: video });
               }
             } catch (_) { /* ignore send errors on cleanup */ }
-            camInstanceRef.current = requestAnimationFrame(sendFrame);
+            if (cameraRdyRef.current) {
+              camInstanceRef.current = requestAnimationFrame(sendFrame);
+            }
           };
           camInstanceRef.current = requestAnimationFrame(sendFrame);
         }).catch(err => {
@@ -3491,8 +3506,13 @@ const TryOn = () => {
     });
 
     return () => {
+      // FIX 9: Set cameraRdyRef=false FIRST so any in-flight sendFrame RAF
+      // sees it and stops before faceMesh.close() is called
+      cameraRdyRef.current = false;
+
       if (rafIdRef.current)       cancelAnimationFrame(rafIdRef.current);
       if (camInstanceRef.current) cancelAnimationFrame(camInstanceRef.current);
+
       if (camStreamRef.current) {
         camStreamRef.current.getTracks().forEach(t => t.stop());
         camStreamRef.current = null;
@@ -3501,8 +3521,8 @@ const TryOn = () => {
         videoRef.current.srcObject.getTracks().forEach(t => t.stop());
         videoRef.current.srcObject = null;
       }
+      // Now safe to close — no more sendFrame calls can reach faceMesh
       faceMesh.close();
-      cameraRdyRef.current = false;
     };
   }, [drawLoop, onResults, mobileSizes]);
 

@@ -2925,6 +2925,11 @@
 // export default TryOn
 
 
+
+
+
+
+
 import React, { useRef, useEffect, useState, useCallback } from "react";
 
 const DEFAULT_ADJ = { scaleW: 1,   scaleH: 1,    offsetX: 0, offsetY: 8,  rotate: 0 };
@@ -3016,14 +3021,13 @@ const BEAUTY_B = 105;
 const BEAUTY_C = 98;
 const BEAUTY_S = 102;
 
-// ── FIX 1: Added LEFT_EYE_INNER and RIGHT_EYE_INNER as iris fallback landmarks ──
 const LANDMARKS = {
   LEFT_IRIS_CENTER:    468,
   RIGHT_IRIS_CENTER:   473,
   LEFT_EYE_OUTER:       33,
   RIGHT_EYE_OUTER:     263,
-  LEFT_EYE_INNER:      133,   // fallback for mobile (no refined landmarks)
-  RIGHT_EYE_INNER:     362,   // fallback for mobile (no refined landmarks)
+  LEFT_EYE_INNER:      133,
+  RIGHT_EYE_INNER:     362,
   LEFT_EYEBROW_LOWER:  [70, 63, 105, 66, 107],
   RIGHT_EYEBROW_LOWER: [300, 293, 334, 296, 336],
   NOSE_BRIDGE_TOP:     6,
@@ -3053,11 +3057,7 @@ class LandmarkSmoother {
   reset() { this.prev = null; }
 }
 
-// ── FIX 2: extractFaceGeometry now accepts useIris flag ──
-// On mobile: refineLandmarks=false means indices 468/473 don't exist → NaN → misalignment
-// Fix: fall back to inner/outer eye-corner midpoints when useIris=false
 function extractFaceGeometry(lm, W, H, useIris = true) {
-  // Guard z so it never produces NaN (some mobile browsers omit z)
   const px = (idx) => ({ x: lm[idx].x * W, y: lm[idx].y * H, z: lm[idx].z ?? 0 });
 
   const avgPx = (indices) => {
@@ -3075,13 +3075,11 @@ function extractFaceGeometry(lm, W, H, useIris = true) {
   const rightBrowLower = avgPx(LANDMARKS.RIGHT_EYEBROW_LOWER);
   const noseBridgeTop  = px(LANDMARKS.NOSE_BRIDGE_TOP);
 
-  // Use real iris centres on desktop; fall back to eye-corner midpoints on mobile
   let leftIris, rightIris;
   if (useIris && lm.length > 473) {
     leftIris  = px(LANDMARKS.LEFT_IRIS_CENTER);
     rightIris = px(LANDMARKS.RIGHT_IRIS_CENTER);
   } else {
-    // Midpoint of outer + inner eye corners — always present, no refined landmarks needed
     const leftInner  = px(LANDMARKS.LEFT_EYE_INNER);
     const rightInner = px(LANDMARKS.RIGHT_EYE_INNER);
     leftIris  = { x: (leftEyeOut.x + leftInner.x) / 2, y: (leftEyeOut.y + leftInner.y) / 2, z: 0 };
@@ -3093,7 +3091,6 @@ function extractFaceGeometry(lm, W, H, useIris = true) {
     y: (leftBrowLower.y + rightBrowLower.y) / 2,
   };
 
-  // eyeSpan always uses outer corners (landmarks 33 & 263) — safe on both mobile & desktop
   const eyeSpan = dist(leftEyeOut, rightEyeOut);
 
   const angleIris       = Math.atan2(rightIris.y - leftIris.y, rightIris.x - leftIris.x);
@@ -3108,11 +3105,35 @@ function extractFaceGeometry(lm, W, H, useIris = true) {
   const glassesWidth  = eyeSpan * 2.0;
   const glassesHeight = eyeSpan * 0.75;
 
-  // Guard z here too — safe on mobile where z may be 0
   const avgZ       = (leftIris.z + rightIris.z + (noseBridgeTop.z ?? 0)) / 3;
   const depthScale = Math.max(0.92, Math.min(1.08, 1 + (-avgZ * 0.6)));
 
   return { centerX, centerY, angle, glassesWidth, glassesHeight, depthScale };
+}
+
+// ── FIX: Compute the object-fit:cover draw offset and scale for the canvas ──
+// The canvas element is stretched via CSS to fill the screen, but the canvas
+// pixel dimensions differ from the screen dimensions. objectFit:cover means
+// the image is scaled up until it covers the container, and centered — which
+// creates a crop. We need to know this crop to correctly map landmark pixel
+// coordinates (in canvas space) back to where they visually appear.
+//
+// Returns { scale, offsetX, offsetY } where:
+//   scale   = how many canvas pixels correspond to 1 screen pixel
+//   offsetX = canvas-pixel X that maps to screen left edge (crop left)
+//   offsetY = canvas-pixel Y that maps to screen top edge (crop top)
+function getCoverCrop(canvasW, canvasH, displayW, displayH) {
+  const scaleX = displayW / canvasW;
+  const scaleY = displayH / canvasH;
+  // cover: use the larger scale so both dims are filled
+  const scale = Math.max(scaleX, scaleY);
+  // how many canvas pixels are rendered total
+  const renderedCanvasW = displayW / scale;
+  const renderedCanvasH = displayH / scale;
+  // the crop offset in canvas-pixel space (centered)
+  const offsetX = (canvasW - renderedCanvasW) / 2;
+  const offsetY = (canvasH - renderedCanvasH) / 2;
+  return { scale, offsetX, offsetY, renderedCanvasW, renderedCanvasH };
 }
 
 const C = {
@@ -3356,20 +3377,61 @@ const TryOn = () => {
     }
 
     const lm  = result.multiFaceLandmarks[0];
-
-    // ── FIX 3: Pass !mobile as useIris flag ──
-    // Desktop: refineLandmarks=true  → iris indices 468/473 exist  → useIris=true
-    // Mobile:  refineLandmarks=false → iris indices 468/473 absent → useIris=false → use eye-corner fallback
     const geo = extractFaceGeometry(lm, W, H, !mobile);
 
-    const mirroredCx = geo.centerX;
+    // ── FIX: On mobile, compensate for objectFit:cover CSS scaling ──
+    // The canvas pixel dimensions (e.g. 480×640) differ from screen dimensions.
+    // CSS object-fit:cover stretches+crops the canvas to fill the screen.
+    // MediaPipe gives landmark coords in canvas-pixel space.
+    // We draw directly on the canvas, so we must keep everything in canvas-pixel
+    // space — BUT the cover crop shifts which canvas pixels are visible.
+    // We correct the X/Y by mapping: from the "visible cropped region" coords
+    // back into the full canvas-pixel coords that actually get drawn.
+    let correctedCenterX = geo.centerX;
+    let correctedCenterY = geo.centerY;
+    let correctedGW      = geo.glassesWidth;
+    let correctedGH      = geo.glassesHeight;
+
+    if (mobile) {
+      const displayW = window.innerWidth;
+      const displayH = window.innerHeight;
+      const { offsetX, offsetY, renderedCanvasW, renderedCanvasH } = getCoverCrop(W, H, displayW, displayH);
+
+      // The landmark X is in canvas pixels [0..W], with 0=right, W=left (because
+      // we mirror the draw). But geo.centerX is already in un-mirrored canvas space.
+      // After cover crop, the visible canvas region is [offsetX .. offsetX+renderedCanvasW]
+      // horizontally and [offsetY .. offsetY+renderedCanvasH] vertically.
+      // Landmarks from MediaPipe are normalized [0..1] then scaled to canvas pixels,
+      // so they are already within [0..W] / [0..H].
+      // We need to shift coordinates so they align with the cropped visible region.
+      // The crop removes `offsetX` pixels from each side horizontally and
+      // `offsetY` pixels from top/bottom vertically.
+      // Since drawing happens in canvas space, we ADD the offset back so the
+      // drawn position matches the visible face position.
+      correctedCenterX = geo.centerX;  // X is fine — cover crop is symmetric, mirror handles it
+      correctedCenterY = geo.centerY + offsetY; // shift down by the vertical crop amount
+
+      // Scale glasses size to match the cover zoom factor
+      // cover scale = displayH / H (when H is the constraining dimension, portrait)
+      const coverScaleX = displayW / W;
+      const coverScaleY = displayH / H;
+      const coverScale  = Math.max(coverScaleX, coverScaleY);
+      // The glasses size was computed in canvas pixels; scale them up proportionally
+      // to match how the canvas content is zoomed in by cover
+      const sizeCorrection = coverScale / (displayW / W); // normalize relative to width scale
+      correctedGW = geo.glassesWidth  * (coverScale / coverScaleX);
+      correctedGH = geo.glassesHeight * (coverScale / coverScaleX);
+    }
+
+    // Mirror the center X (canvas is drawn mirrored)
+    const mirroredCx = W - correctedCenterX;
 
     const sm = smootherRef.current.smooth(
       {
         cx:    mirroredCx,
-        cy:    geo.centerY,
-        gw:    geo.glassesWidth,
-        gh:    geo.glassesHeight,
+        cy:    correctedCenterY,
+        gw:    correctedGW,
+        gh:    correctedGH,
         angle: geo.angle,
         ds:    geo.depthScale,
       },
@@ -3388,7 +3450,6 @@ const TryOn = () => {
     const sSc      = glassObj?.sizes?.[0] ? getSizeScale(glassObj.sizes[0], mobile) : 1.0;
     const adj      = adjRef.current[glassesRef.current] || DEFAULT_ADJ;
 
-    // Apply per-frame depth scale only on desktop (stable z data)
     let w = mobile ? sm.gw * adj.scaleW : sm.gw * adj.scaleW * sm.ds;
     let h = mobile ? sm.gh * adj.scaleH : sm.gh * adj.scaleH * sm.ds;
     w *= sSc; h *= sSc;
@@ -3441,7 +3502,7 @@ const TryOn = () => {
     });
     faceMesh.setOptions({
       maxNumFaces:            1,
-      refineLandmarks:        !mobile,  // iris landmarks only on desktop — mobile uses eye-corner fallback
+      refineLandmarks:        !mobile,
       minDetectionConfidence: mobile ? 0.35 : 0.50,
       minTrackingConfidence:  mobile ? 0.30 : 0.50,
     });

@@ -2925,10 +2925,6 @@
 // export default TryOn
 
 
-
-
-
-
 import React, { useRef, useEffect, useState, useCallback } from "react";
 
 const DEFAULT_ADJ = { scaleW: 1,   scaleH: 1,    offsetX: 0, offsetY: 8,  rotate: 0 };
@@ -4007,6 +4003,5 @@ const TryOn = () => {
     </div>
   );
 };
-
 
 export default TryOn;

@@ -4043,127 +4043,309 @@
 
 
 
-
 import React, { useRef, useEffect, useState, useCallback } from "react";
 
+// ============================================================
+// GLASS ADJUSTMENTS & OPTIONS
+// ============================================================
 const DEFAULT_ADJ = { scaleW: 1, scaleH: 1, offsetX: 0, offsetY: 8, rotate: 0 };
 const AVIATOR_ADJ = { scaleW: 1, scaleH: 1.18, offsetX: 0, offsetY: 18, rotate: 0 };
-const ROUND_ADJ = { scaleW: 1, scaleH: 0.85, offsetX: 0, offsetY: 6, rotate: 0 };
+const ROUND_ADJ   = { scaleW: 1, scaleH: 0.85, offsetX: 0, offsetY: 6,  rotate: 0 };
 
 const GLASS_OPTIONS = [
-  { id: "/glass1.png", name: "Classic", price: "PKR 4,500", emoji: "👓", aspectRatio: 0.5 },
-  { id: "/glass2.png", name: "Aviator", price: "PKR 5,200", emoji: "🕶️", aspectRatio: 0.45 },
-  { id: "/glass3.png", name: "Sport", price: "PKR 3,800", emoji: "🥽", aspectRatio: 0.5 },
-  { id: "/glass4.png", name: "Round", price: "PKR 4,900", emoji: "⭕", aspectRatio: 0.7 },
-  { id: "/glass5.png", name: "Wayfarer", price: "PKR 4,900", emoji: "🕶️", aspectRatio: 0.5 },
-  { id: "/glass6.png", name: "Vintage", price: "PKR 4,900", emoji: "🪩", aspectRatio: 0.5 },
-  { id: "/glass7.png", name: "Clubmaster", price: "PKR 4,900", emoji: "🔲", aspectRatio: 0.5 },
-  { id: "/glass8.png", name: "Cat Eye", price: "PKR 4,900", emoji: "😼", aspectRatio: 0.5 },
-  { id: "/glass9.png", name: "Shield", price: "PKR 3,800", emoji: "🛡️", aspectRatio: 0.35 },
-  { id: "/glass10.png", name: "Oval", price: "PKR 4,900", emoji: "🥚", aspectRatio: 0.5 },
-  { id: "/glass11.png", name: "Square", price: "PKR 4,900", emoji: "⬛", aspectRatio: 0.55 },
-  { id: "/glass12.png", name: "Hexagonal", price: "PKR 4,900", emoji: "⚡", aspectRatio: 0.5 },
-  { id: "/glass13.png", name: "Geometric", price: "PKR 4,900", emoji: "🔷", aspectRatio: 0.5 },
-  { id: "/glass14.png", name: "Steampunk", price: "PKR 4,900", emoji: "⚙️", aspectRatio: 0.5 },
-  { id: "/glass15.png", name: "Sports Pro", price: "PKR 4,900", emoji: "🏃", aspectRatio: 0.5 },
-  { id: "/glass16.png", name: "Retro", price: "PKR 4,900", emoji: "🎞️", aspectRatio: 0.5 },
-  { id: "/glass17.png", name: "Modern", price: "PKR 4,900", emoji: "✨", aspectRatio: 0.5 },
-  { id: "/glass18.png", name: "Luxury", price: "PKR 4,900", emoji: "💎", aspectRatio: 0.5 },
-  { id: "/glass19.png", name: "Designer", price: "PKR 4,900", emoji: "🎨", aspectRatio: 0.5 },
-  { id: "/glass20.png", name: "Classic II", price: "PKR 4,900", emoji: "👓", aspectRatio: 0.5 },
-  { id: "/glass21.png", name: "Classic III", price: "PKR 4,900", emoji: "👓", aspectRatio: 0.5 },
-  { id: "/glass22.png", name: "Classic IV", price: "PKR 4,900", emoji: "👓", aspectRatio: 0.5 },
-  { id: "/glass23.png", name: "Classic V", price: "PKR 4,900", emoji: "👓", aspectRatio: 0.5 },
-  { id: "/glass24.png", name: "Classic VI", price: "PKR 4,900", emoji: "👓", aspectRatio: 0.5 },
-  { id: "/glass25.png", name: "Classic VII", price: "PKR 4,900", emoji: "👓", aspectRatio: 0.5 },
-  { id: "/glass26.png", name: "Classic VIII", price: "PKR 4,900", emoji: "👓", aspectRatio: 0.5 },
-  { id: "/glass27.png", name: "Classic IX", price: "PKR 4,900", emoji: "👓", aspectRatio: 0.5 },
-  { id: "/glass28.png", name: "Classic X", price: "PKR 4,900", emoji: "👓", aspectRatio: 0.5 },
-  { id: "/glass29.png", name: "Classic XI", price: "PKR 4,900", emoji: "👓", aspectRatio: 0.5 },
-  { id: "/glass30.png", name: "Classic XII", price: "PKR 4,900", emoji: "👓", aspectRatio: 0.5 },
-  { id: "/glass31.png", name: "Classic 31", price: "PKR 4,900", emoji: "👓", aspectRatio: 0.5 },
-  { id: "/glass32.png", name: "Classic 32", price: "PKR 4,900", emoji: "👓", aspectRatio: 0.5 },
-  { id: "/glass33.png", name: "Classic 33", price: "PKR 4,900", emoji: "👓", aspectRatio: 0.5 },
-  { id: "/glass34.png", name: "Classic 34", price: "PKR 4,900", emoji: "👓", aspectRatio: 0.5 },
-  { id: "/glass35.png", name: "Classic 35", price: "PKR 4,900", emoji: "👓", aspectRatio: 0.5 },
-  { id: "/glass36.png", name: "Classic 36", price: "PKR 4,900", emoji: "👓", aspectRatio: 0.5 },
-  { id: "/glass37.png", name: "Classic 37", price: "PKR 4,900", emoji: "👓", aspectRatio: 0.5 },
-  { id: "/glass38.png", name: "Classic 38", price: "PKR 4,900", emoji: "👓", aspectRatio: 0.5 },
-  { id: "/glass39.png", name: "Classic 39", price: "PKR 4,900", emoji: "👓", aspectRatio: 0.5 },
-  { id: "/glass40.png", name: "Classic 40", price: "PKR 4,900", emoji: "👓", aspectRatio: 0.5 },
-  { id: "/glass41.png", name: "Classic 41", price: "PKR 4,900", emoji: "👓", aspectRatio: 0.5 },
-  { id: "/glass42.png", name: "Classic 42", price: "PKR 4,900", emoji: "👓", aspectRatio: 0.5 },
-  { id: "/glass43.png", name: "Classic 43", price: "PKR 4,900", emoji: "👓", aspectRatio: 0.5 },
-  { id: "/glass44.png", name: "Classic 44", price: "PKR 4,900", emoji: "👓", aspectRatio: 0.5 },
-  { id: "/glass45.png", name: "Classic 45", price: "PKR 4,900", emoji: "👓", aspectRatio: 0.5 },
-  { id: "/glass46.png", name: "Classic 46", price: "PKR 4,900", emoji: "👓", aspectRatio: 0.5 },
-  { id: "/glass47.png", name: "Classic 47", price: "PKR 4,900", emoji: "👓", aspectRatio: 0.5 },
-  { id: "/glass48.png", name: "Classic 48", price: "PKR 4,900", emoji: "👓", aspectRatio: 0.5 },
-  { id: "/glass49.png", name: "Classic 49", price: "PKR 4,900", emoji: "👓", aspectRatio: 0.5 },
+  { id: "/glass1.png",  name: "Classic",    price: "PKR 4,500", emoji: "👓", aspectRatio: 0.50 },
+  { id: "/glass2.png",  name: "Aviator",    price: "PKR 5,200", emoji: "🕶️", aspectRatio: 0.45 },
+  { id: "/glass3.png",  name: "Sport",      price: "PKR 3,800", emoji: "🥽", aspectRatio: 0.50 },
+  { id: "/glass4.png",  name: "Round",      price: "PKR 4,900", emoji: "⭕", aspectRatio: 0.70 },
+  { id: "/glass5.png",  name: "Wayfarer",   price: "PKR 4,900", emoji: "🕶️", aspectRatio: 0.50 },
+  { id: "/glass6.png",  name: "Vintage",    price: "PKR 4,900", emoji: "🪩", aspectRatio: 0.50 },
+  { id: "/glass7.png",  name: "Clubmaster", price: "PKR 4,900", emoji: "🔲", aspectRatio: 0.50 },
+  { id: "/glass8.png",  name: "Cat Eye",    price: "PKR 4,900", emoji: "😼", aspectRatio: 0.50 },
+  { id: "/glass9.png",  name: "Shield",     price: "PKR 3,800", emoji: "🛡️", aspectRatio: 0.35 },
+  { id: "/glass10.png", name: "Oval",       price: "PKR 4,900", emoji: "🥚", aspectRatio: 0.50 },
+  { id: "/glass11.png", name: "Square",     price: "PKR 4,900", emoji: "⬛", aspectRatio: 0.55 },
+  { id: "/glass12.png", name: "Hexagonal",  price: "PKR 4,900", emoji: "⚡", aspectRatio: 0.50 },
+  { id: "/glass13.png", name: "Geometric",  price: "PKR 4,900", emoji: "🔷", aspectRatio: 0.50 },
+  { id: "/glass14.png", name: "Steampunk",  price: "PKR 4,900", emoji: "⚙️", aspectRatio: 0.50 },
+  { id: "/glass15.png", name: "Sports Pro", price: "PKR 4,900", emoji: "🏃", aspectRatio: 0.50 },
+  { id: "/glass16.png", name: "Retro",      price: "PKR 4,900", emoji: "🎞️", aspectRatio: 0.50 },
+  { id: "/glass17.png", name: "Modern",     price: "PKR 4,900", emoji: "✨", aspectRatio: 0.50 },
+  { id: "/glass18.png", name: "Luxury",     price: "PKR 4,900", emoji: "💎", aspectRatio: 0.50 },
+  { id: "/glass19.png", name: "Designer",   price: "PKR 4,900", emoji: "🎨", aspectRatio: 0.50 },
+  { id: "/glass20.png", name: "Classic II",   price: "PKR 4,900", emoji: "👓", aspectRatio: 0.50 },
+  { id: "/glass21.png", name: "Classic III",  price: "PKR 4,900", emoji: "👓", aspectRatio: 0.50 },
+  { id: "/glass22.png", name: "Classic IV",   price: "PKR 4,900", emoji: "👓", aspectRatio: 0.50 },
+  { id: "/glass23.png", name: "Classic V",    price: "PKR 4,900", emoji: "👓", aspectRatio: 0.50 },
+  { id: "/glass24.png", name: "Classic VI",   price: "PKR 4,900", emoji: "👓", aspectRatio: 0.50 },
+  { id: "/glass25.png", name: "Classic VII",  price: "PKR 4,900", emoji: "👓", aspectRatio: 0.50 },
+  { id: "/glass26.png", name: "Classic VIII", price: "PKR 4,900", emoji: "👓", aspectRatio: 0.50 },
+  { id: "/glass27.png", name: "Classic IX",   price: "PKR 4,900", emoji: "👓", aspectRatio: 0.50 },
+  { id: "/glass28.png", name: "Classic X",    price: "PKR 4,900", emoji: "👓", aspectRatio: 0.50 },
+  { id: "/glass29.png", name: "Classic XI",   price: "PKR 4,900", emoji: "👓", aspectRatio: 0.50 },
+  { id: "/glass30.png", name: "Classic XII",  price: "PKR 4,900", emoji: "👓", aspectRatio: 0.50 },
+  { id: "/glass31.png", name: "Classic 31", price: "PKR 4,900", emoji: "👓", aspectRatio: 0.50 },
+  { id: "/glass32.png", name: "Classic 32", price: "PKR 4,900", emoji: "👓", aspectRatio: 0.50 },
+  { id: "/glass33.png", name: "Classic 33", price: "PKR 4,900", emoji: "👓", aspectRatio: 0.50 },
+  { id: "/glass34.png", name: "Classic 34", price: "PKR 4,900", emoji: "👓", aspectRatio: 0.50 },
+  { id: "/glass35.png", name: "Classic 35", price: "PKR 4,900", emoji: "👓", aspectRatio: 0.50 },
+  { id: "/glass36.png", name: "Classic 36", price: "PKR 4,900", emoji: "👓", aspectRatio: 0.50 },
+  { id: "/glass37.png", name: "Classic 37", price: "PKR 4,900", emoji: "👓", aspectRatio: 0.50 },
+  { id: "/glass38.png", name: "Classic 38", price: "PKR 4,900", emoji: "👓", aspectRatio: 0.50 },
+  { id: "/glass39.png", name: "Classic 39", price: "PKR 4,900", emoji: "👓", aspectRatio: 0.50 },
+  { id: "/glass40.png", name: "Classic 40", price: "PKR 4,900", emoji: "👓", aspectRatio: 0.50 },
+  { id: "/glass41.png", name: "Classic 41", price: "PKR 4,900", emoji: "👓", aspectRatio: 0.50 },
+  { id: "/glass42.png", name: "Classic 42", price: "PKR 4,900", emoji: "👓", aspectRatio: 0.50 },
+  { id: "/glass43.png", name: "Classic 43", price: "PKR 4,900", emoji: "👓", aspectRatio: 0.50 },
+  { id: "/glass44.png", name: "Classic 44", price: "PKR 4,900", emoji: "👓", aspectRatio: 0.50 },
+  { id: "/glass45.png", name: "Classic 45", price: "PKR 4,900", emoji: "👓", aspectRatio: 0.50 },
+  { id: "/glass46.png", name: "Classic 46", price: "PKR 4,900", emoji: "👓", aspectRatio: 0.50 },
+  { id: "/glass47.png", name: "Classic 47", price: "PKR 4,900", emoji: "👓", aspectRatio: 0.50 },
+  { id: "/glass48.png", name: "Classic 48", price: "PKR 4,900", emoji: "👓", aspectRatio: 0.50 },
+  { id: "/glass49.png", name: "Classic 49", price: "PKR 4,900", emoji: "👓", aspectRatio: 0.50 },
 ];
 
-const getIsMobile = () =>
-  typeof window !== "undefined" &&
-  (window.innerWidth < 768 || /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent));
+// ============================================================
+// RESPONSIVE SIZING ARCHITECTURE
+// ============================================================
 
-const getMobileSizes = () => ({
-  camW: screen.width,
-  camH: screen.height,
-  canvasW: screen.width,
-  canvasH: screen.height,
-});
+/**
+ * Breakpoints for device classification.
+ * Tablet support is structured in — just add a "tablet" layout branch
+ * in the component render section when you're ready.
+ */
+const BREAKPOINTS = {
+  mobile: 768,   // < 768px  → mobile
+  tablet: 1024,  // < 1024px → tablet (reserved for future use)
+  // >= 1024px  → desktop
+};
 
-const MOBILE_EMA_ALPHA = 0.55;
-const DESKTOP_EMA_ALPHA = 0.5;
-const MOBILE_DEADZONE = 1.2;
-const MOBILE_FPS = 24;
-const MOBILE_FRAME_INT = 1000 / MOBILE_FPS;
-const MOBILE_SEND_INTERVAL = 1000 / MOBILE_FPS;
+/**
+ * DEVICE_CONFIG — single source of truth for ALL sizing and performance values.
+ *
+ * Camera:  The resolution hint sent to getUserMedia (hardware capture).
+ * Canvas:  The actual pixel dimensions of the <canvas> element we render into.
+ *          For mobile/tablet these are functions so they read the viewport lazily;
+ *          for desktop these are fixed numbers matching the typical webcam stream.
+ *
+ * MediaPipe:  Per-device ML confidence thresholds and feature flags.
+ * Render:     Per-device animation loop parameters (FPS cap, EMA smoothing, etc.).
+ */
+const DEVICE_CONFIG = {
+  mobile: {
+    camera: {
+      width: 720,
+      height: 1280,
+      fps: 30,
+      facingMode: "user",
+    },
+    canvas: {
+      // Read viewport at call-time so the value is always fresh after a resize.
+      getWidth:  () => window.innerWidth,
+      getHeight: () => window.innerHeight,
+    },
+    mediapipe: {
+      refineLandmarks:        false,
+      minDetectionConfidence: 0.35,
+      minTrackingConfidence:  0.30,
+    },
+    render: {
+      eyeMultiplier: 1.6,
+      emaAlpha:      0.55,
+      rotAlpha:      0.28,
+      deadzone:      1.2,
+      fps:           30,
+    },
+  },
 
-const DESKTOP_CAM_W = 1280;
-const DESKTOP_CAM_H = 720;
-const DESKTOP_CANVAS_W = 1280;
-const DESKTOP_CANVAS_H = 720;
+  // Tablet is fully wired up — add the JSX layout branch when you want to use it.
+  tablet: {
+    camera: {
+      width: 1280,
+      height: 720,
+      fps: 30,
+      facingMode: "user",
+    },
+    canvas: {
+      getWidth:  () => window.innerWidth,
+      getHeight: () => window.innerHeight,
+    },
+    mediapipe: {
+      refineLandmarks:        true,
+      minDetectionConfidence: 0.45,
+      minTrackingConfidence:  0.40,
+    },
+    render: {
+      eyeMultiplier: 1.9,
+      emaAlpha:      0.52,
+      rotAlpha:      0.35,
+      deadzone:      0.8,
+      fps:           30,
+    },
+  },
 
+  desktop: {
+    camera: {
+      width: 1280,
+      height: 720,
+      fps: 60,
+      facingMode: "user",
+    },
+    canvas: {
+      // Fixed logical resolution — matched to typical 16:9 HD webcam output.
+      // getWidth / getHeight are not used for desktop; container size wins instead.
+      width:  1280,
+      height: 720,
+    },
+    mediapipe: {
+      refineLandmarks:        true,
+      minDetectionConfidence: 0.50,
+      minTrackingConfidence:  0.50,
+    },
+    render: {
+      eyeMultiplier: 2.2,
+      emaAlpha:      0.50,
+      rotAlpha:      0.40,
+      deadzone:      0,
+      fps:           60,
+    },
+  },
+};
+
+// ============================================================
+// DEVICE DETECTION HELPERS
+// ============================================================
+
+/**
+ * Returns "mobile" | "tablet" | "desktop" based on viewport width
+ * and user-agent touch hints.  Single call-site — easy to extend.
+ */
+const getDeviceType = () => {
+  if (typeof window === "undefined") return "desktop";
+
+  const vw           = window.innerWidth;
+  const isTouchAgent = /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+
+  if (vw < BREAKPOINTS.mobile || (isTouchAgent && vw < BREAKPOINTS.tablet)) return "mobile";
+  if (vw < BREAKPOINTS.tablet || isTouchAgent)                               return "tablet";
+  return "desktop";
+};
+
+/** Convenience boolean — kept so every existing `isMobile` reference still works. */
+const isMobileType = (deviceType) => deviceType === "mobile";
+
+// ============================================================
+// SIZING UTILITIES
+// ============================================================
+
+/**
+ * computeCanvasDimensions
+ * Returns { width, height } for the canvas element.
+ *
+ * Mobile / Tablet → viewport-relative (dynamic).
+ * Desktop         → try to read the container DOM size first;
+ *                   fall back to the fixed config constants.
+ */
+const computeCanvasDimensions = (deviceType, containerEl = null) => {
+  const cfg = DEVICE_CONFIG[deviceType].canvas;
+
+  if (deviceType === "mobile" || deviceType === "tablet") {
+    return {
+      width:  cfg.getWidth(),
+      height: cfg.getHeight(),
+    };
+  }
+
+  // Desktop: honour the actual rendered container so the canvas fills the panel.
+  if (containerEl) {
+    const rect = containerEl.getBoundingClientRect();
+    if (rect.width > 0 && rect.height > 0) {
+      return {
+        width:  Math.round(rect.width),
+        height: Math.round(rect.height),
+      };
+    }
+  }
+
+  // Hard fallback to the fixed desktop constants.
+  return { width: cfg.width, height: cfg.height };
+};
+
+/**
+ * buildCameraConstraints
+ * Converts DEVICE_CONFIG camera block into a getUserMedia constraints object.
+ * Keeps camera setup DRY — change the config, every call updates automatically.
+ */
+const buildCameraConstraints = (deviceType) => {
+  const cam = DEVICE_CONFIG[deviceType].camera;
+  return {
+    video: {
+      facingMode:  cam.facingMode,
+      width:       { ideal: cam.width  },
+      height:      { ideal: cam.height },
+      frameRate:   { ideal: cam.fps    },
+    },
+    audio: false,
+  };
+};
+
+/**
+ * buildFrameInterval
+ * Returns the millisecond gap between rendered frames for the given device.
+ * Used for throttling the draw loop on battery-constrained devices.
+ */
+const buildFrameInterval = (deviceType) =>
+  1000 / DEVICE_CONFIG[deviceType].render.fps;
+
+// ============================================================
+// BEAUTY FILTER (desktop only — untouched from original)
+// ============================================================
 const BEAUTY_B = 100;
 const BEAUTY_C = 100;
 const BEAUTY_S = 100;
 
+// ============================================================
+// MEDIAPIPE LANDMARK INDICES
+// ============================================================
 const LANDMARKS = {
-  LEFT_IRIS_CENTER: 468,
-  RIGHT_IRIS_CENTER: 473,
-  LEFT_EYE_OUTER: 33,
-  RIGHT_EYE_OUTER: 263,
-  LEFT_EYE_INNER: 133,
-  RIGHT_EYE_INNER: 362,
-  LEFT_EYEBROW_LOWER: [70, 63, 105, 66, 107],
-  RIGHT_EYEBROW_LOWER: [300, 293, 334, 296, 336],
-  NOSE_BRIDGE_TOP: 6,
-  LEFT_FACE_EDGE: 234,
-  RIGHT_FACE_EDGE: 454,
+  LEFT_IRIS_CENTER:   468,
+  RIGHT_IRIS_CENTER:  473,
+  LEFT_EYE_OUTER:     33,
+  RIGHT_EYE_OUTER:    263,
+  LEFT_EYE_INNER:     133,
+  RIGHT_EYE_INNER:    362,
+  LEFT_EYEBROW_LOWER:  [70,  63,  105,  66,  107],
+  RIGHT_EYEBROW_LOWER: [300, 293,  334, 296,  336],
+  NOSE_BRIDGE_TOP:    6,
+  LEFT_FACE_EDGE:     234,
+  RIGHT_FACE_EDGE:    454,
   LEFT_EYE_UPPER_LID: 159,
   LEFT_EYE_LOWER_LID: 145,
   RIGHT_EYE_UPPER_LID: 386,
   RIGHT_EYE_LOWER_LID: 374,
 };
 
+// ============================================================
+// LANDMARK SMOOTHER  (unchanged)
+// ============================================================
 const STABLE_THRESHOLD = 8;
-const STABLE_LIMIT = 20;
+const STABLE_LIMIT     = 20;
 
 class LandmarkSmoother {
   constructor(posAlpha = 0.45, rotAlpha = 0.35) {
-    this.posAlpha = posAlpha;
-    this.rotAlpha = rotAlpha;
-    this.prev = null;
+    this.posAlpha   = posAlpha;
+    this.rotAlpha   = rotAlpha;
+    this.prev       = null;
     this.stableCount = 0;
-    this.lastStable = null;
+    this.lastStable  = null;
   }
+
   smooth(current, deadzone = 0) {
     if (!this.prev) {
-      this.prev = { ...current };
+      this.prev       = { ...current };
       this.lastStable = { ...current };
       return { ...current };
     }
+
     const result = {};
     for (const key of Object.keys(current)) {
       const alpha = key === "angle" ? this.rotAlpha : this.posAlpha;
@@ -4176,8 +4358,9 @@ class LandmarkSmoother {
 
     const movement = Math.hypot(
       (result.cx ?? 0) - (this.lastStable?.cx ?? result.cx ?? 0),
-      (result.cy ?? 0) - (this.lastStable?.cy ?? result.cy ?? 0)
+      (result.cy ?? 0) - (this.lastStable?.cy ?? result.cy ?? 0),
     );
+
     if (movement < STABLE_THRESHOLD) {
       this.stableCount++;
       if (this.stableCount > STABLE_LIMIT && this.lastStable) {
@@ -4186,22 +4369,25 @@ class LandmarkSmoother {
       }
     } else {
       this.stableCount = 0;
-      this.lastStable = { ...result };
+      this.lastStable  = { ...result };
     }
 
     this.prev = { ...result };
     return result;
   }
+
   reset() {
-    this.prev = null;
+    this.prev        = null;
     this.stableCount = 0;
-    this.lastStable = null;
+    this.lastStable  = null;
   }
 }
 
+// ============================================================
+// FACE GEOMETRY EXTRACTION  (unchanged)
+// ============================================================
 function extractFaceGeometry(lm, W, H, useIris = true, neutralFaceWidthRef = null) {
-  const px = (idx) => ({ x: lm[idx].x * W, y: lm[idx].y * H, z: lm[idx].z ?? 0 });
-
+  const px    = (idx) => ({ x: lm[idx].x * W, y: lm[idx].y * H, z: lm[idx].z ?? 0 });
   const avgPx = (indices) => {
     const pts = indices.map((i) => px(i));
     return {
@@ -4209,29 +4395,29 @@ function extractFaceGeometry(lm, W, H, useIris = true, neutralFaceWidthRef = nul
       y: pts.reduce((s, p) => s + p.y, 0) / pts.length,
     };
   };
-  const dist = (a, b) => Math.hypot(a.x - b.x, a.y - b.y);
+  const dist  = (a, b) => Math.hypot(a.x - b.x, a.y - b.y);
 
-  const leftEyeOut = px(LANDMARKS.LEFT_EYE_OUTER);
-  const rightEyeOut = px(LANDMARKS.RIGHT_EYE_OUTER);
+  const leftEyeOut    = px(LANDMARKS.LEFT_EYE_OUTER);
+  const rightEyeOut   = px(LANDMARKS.RIGHT_EYE_OUTER);
   const leftBrowLower = avgPx(LANDMARKS.LEFT_EYEBROW_LOWER);
-  const rightBrowLower = avgPx(LANDMARKS.RIGHT_EYEBROW_LOWER);
+  const rightBrowLower= avgPx(LANDMARKS.RIGHT_EYEBROW_LOWER);
   const noseBridgeTop = px(LANDMARKS.NOSE_BRIDGE_TOP);
-  const leftEdge = px(LANDMARKS.LEFT_FACE_EDGE);
-  const rightEdge = px(LANDMARKS.RIGHT_FACE_EDGE);
+  const leftEdge      = px(LANDMARKS.LEFT_FACE_EDGE);
+  const rightEdge     = px(LANDMARKS.RIGHT_FACE_EDGE);
 
   let leftIris, rightIris;
   if (useIris && lm.length > 473) {
-    leftIris = px(LANDMARKS.LEFT_IRIS_CENTER);
+    leftIris  = px(LANDMARKS.LEFT_IRIS_CENTER);
     rightIris = px(LANDMARKS.RIGHT_IRIS_CENTER);
   } else {
-    const leftInner = px(LANDMARKS.LEFT_EYE_INNER);
+    const leftInner  = px(LANDMARKS.LEFT_EYE_INNER);
     const rightInner = px(LANDMARKS.RIGHT_EYE_INNER);
-    leftIris = { x: (leftEyeOut.x + leftInner.x) / 2, y: (leftEyeOut.y + leftInner.y) / 2, z: 0 };
+    leftIris  = { x: (leftEyeOut.x + leftInner.x)  / 2, y: (leftEyeOut.y  + leftInner.y)  / 2, z: 0 };
     rightIris = { x: (rightEyeOut.x + rightInner.x) / 2, y: (rightEyeOut.y + rightInner.y) / 2, z: 0 };
   }
 
   const leftEyeCenter = {
-    x: (leftEyeOut.x + px(LANDMARKS.LEFT_EYE_INNER).x) / 2,
+    x: (leftEyeOut.x + px(LANDMARKS.LEFT_EYE_INNER).x)  / 2,
     y: (px(LANDMARKS.LEFT_EYE_UPPER_LID).y + px(LANDMARKS.LEFT_EYE_LOWER_LID).y) / 2,
   };
   const rightEyeCenter = {
@@ -4244,62 +4430,60 @@ function extractFaceGeometry(lm, W, H, useIris = true, neutralFaceWidthRef = nul
     y: (leftBrowLower.y + rightBrowLower.y) / 2,
   };
 
-  const eyeSpan = dist(leftEyeOut, rightEyeOut);
+  const eyeSpan          = dist(leftEyeOut, rightEyeOut);
+  const angleIris        = Math.atan2(rightIris.y - leftIris.y, rightIris.x - leftIris.x);
+  const angleEyeCorners  = Math.atan2(rightEyeOut.y - leftEyeOut.y, rightEyeOut.x - leftEyeOut.x);
+  const angleBrow        = Math.atan2(rightBrowLower.y - leftBrowLower.y, rightBrowLower.x - leftBrowLower.x);
+  const angle            = angleEyeCorners * 0.6 + angleBrow * 0.3 + angleIris * 0.1;
 
-  const angleIris = Math.atan2(rightIris.y - leftIris.y, rightIris.x - leftIris.x);
-  const angleEyeCorners = Math.atan2(rightEyeOut.y - leftEyeOut.y, rightEyeOut.x - leftEyeOut.x);
-  const angleBrow = Math.atan2(rightBrowLower.y - leftBrowLower.y, rightBrowLower.x - leftBrowLower.x);
-  const angle = angleEyeCorners * 0.6 + angleBrow * 0.3 + angleIris * 0.1;
-
-  const eyeMidY = (leftEyeCenter.y + rightEyeCenter.y) / 2;
-  const centerX = (leftEyeCenter.x + rightEyeCenter.x) / 2;
-  const centerY = browMidLower.y * 0.25 + noseBridgeTop.y * 0.55 + eyeMidY * 0.2;
+  const eyeMidY  = (leftEyeCenter.y + rightEyeCenter.y) / 2;
+  const centerX  = (leftEyeCenter.x + rightEyeCenter.x) / 2;
+  const centerY  = browMidLower.y * 0.25 + noseBridgeTop.y * 0.55 + eyeMidY * 0.2;
 
   let yawCompensation = 1.0;
   if (neutralFaceWidthRef) {
     const currentFaceWidth = dist(leftEdge, rightEdge);
-    if (!neutralFaceWidthRef.current) {
-      neutralFaceWidthRef.current = currentFaceWidth;
-    }
-    const yawRatio = currentFaceWidth / neutralFaceWidthRef.current;
-    yawCompensation = 1.0 / Math.max(0.55, yawRatio);
+    if (!neutralFaceWidthRef.current) neutralFaceWidthRef.current = currentFaceWidth;
+    const yawRatio   = currentFaceWidth / neutralFaceWidthRef.current;
+    yawCompensation  = 1.0 / Math.max(0.55, yawRatio);
   }
 
-  const spanMult = useIris ? 1.0 : 1.05;
+  const spanMult    = useIris ? 1.0 : 1.05;
   const normEyeSpan = eyeSpan * spanMult;
-
-  const avgZ = (leftIris.z + rightIris.z + (noseBridgeTop.z ?? 0)) / 3;
-  const depthScale = Math.max(0.92, Math.min(1.08, 1 + -avgZ * 0.6));
-
-  const faceWidth = dist(leftEdge, rightEdge);
+  const avgZ        = (leftIris.z + rightIris.z + (noseBridgeTop.z ?? 0)) / 3;
+  const depthScale  = Math.max(0.92, Math.min(1.08, 1 + -avgZ * 0.6));
+  const faceWidth   = dist(leftEdge, rightEdge);
 
   return { centerX, centerY, angle, depthScale, normEyeSpan, yawCompensation, faceWidth };
 }
 
+// ============================================================
+// THEME TOKENS  (unchanged)
+// ============================================================
 const C = {
-  primary: "#E87F24",
-  accent: "#73A5CA",
-  bg: "#FEFDDF",
-  surface: "#F5F3C7",
-  text: "#1E293B",
-  primary12: "rgba(232,127,36,0.12)",
-  primary20: "rgba(232,127,36,0.20)",
-  primary25: "rgba(232,127,36,0.25)",
-  primary30: "rgba(232,127,36,0.30)",
-  primary40: "rgba(232,127,36,0.40)",
-  accent12: "rgba(115,165,202,0.12)",
-  accent20: "rgba(115,165,202,0.20)",
-  accent28: "rgba(115,165,202,0.28)",
-  text55: "rgba(30,41,59,0.55)",
-  text30: "rgba(30,41,59,0.30)",
-  text12: "rgba(30,41,59,0.12)",
-  text06: "rgba(30,41,59,0.06)",
-  glassBg: "rgba(254,253,223,0.65)",
-  glassBorder: "rgba(255,255,255,0.70)",
+  primary:       "#E87F24",
+  accent:        "#73A5CA",
+  bg:            "#FEFDDF",
+  surface:       "#F5F3C7",
+  text:          "#1E293B",
+  primary12:     "rgba(232,127,36,0.12)",
+  primary20:     "rgba(232,127,36,0.20)",
+  primary25:     "rgba(232,127,36,0.25)",
+  primary30:     "rgba(232,127,36,0.30)",
+  primary40:     "rgba(232,127,36,0.40)",
+  accent12:      "rgba(115,165,202,0.12)",
+  accent20:      "rgba(115,165,202,0.20)",
+  accent28:      "rgba(115,165,202,0.28)",
+  text55:        "rgba(30,41,59,0.55)",
+  text30:        "rgba(30,41,59,0.30)",
+  text12:        "rgba(30,41,59,0.12)",
+  text06:        "rgba(30,41,59,0.06)",
+  glassBg:       "rgba(254,253,223,0.65)",
+  glassBorder:   "rgba(255,255,255,0.70)",
   surfaceBorder: "rgba(255,255,255,0.85)",
-  white15: "rgba(255,255,255,0.15)",
-  white08: "rgba(255,255,255,0.08)",
-  gradPrimary: "linear-gradient(135deg, #E87F24, #F5A623)",
+  white15:       "rgba(255,255,255,0.15)",
+  white08:       "rgba(255,255,255,0.08)",
+  gradPrimary:     "linear-gradient(135deg, #E87F24, #F5A623)",
   gradPrimaryText: "linear-gradient(135deg, #F5A623, #E87F24)",
   gradBg: `
     radial-gradient(ellipse 60% 50% at 80% 10%, rgba(232,127,36,0.13) 0%, transparent 60%),
@@ -4309,69 +4493,42 @@ const C = {
 };
 
 const glassPill = {
-  borderRadius: 100,
-  backdropFilter: "blur(14px)",
+  borderRadius:         100,
+  backdropFilter:       "blur(14px)",
   WebkitBackdropFilter: "blur(14px)",
 };
 
+// ============================================================
+// UI SUB-COMPONENTS  (unchanged)
+// ============================================================
 const Section = ({ title, icon, defaultOpen = false, children }) => {
   const [open, setOpen] = useState(defaultOpen);
   return (
-    <div
-      style={{
-        borderRadius: 16,
-        border: `1px solid ${C.glassBorder}`,
-        overflow: "hidden",
-        background: C.glassBg,
-        backdropFilter: "blur(12px)",
-        WebkitBackdropFilter: "blur(12px)",
-        boxShadow: `0 2px 8px ${C.text06}`,
-      }}
-    >
+    <div style={{
+      borderRadius: 16,
+      border: `1px solid ${C.glassBorder}`,
+      overflow: "hidden",
+      background: C.glassBg,
+      backdropFilter: "blur(12px)",
+      WebkitBackdropFilter: "blur(12px)",
+      boxShadow: `0 2px 8px ${C.text06}`,
+    }}>
       <button
         onClick={() => setOpen((o) => !o)}
         aria-expanded={open}
         aria-label={`${open ? "Collapse" : "Expand"} ${title}`}
         style={{
-          width: "100%",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          padding: "13px 16px",
-          background: "rgba(254,253,223,0.50)",
-          border: "none",
-          cursor: "pointer",
+          width: "100%", display: "flex", alignItems: "center",
+          justifyContent: "space-between", padding: "13px 16px",
+          background: "rgba(254,253,223,0.50)", border: "none", cursor: "pointer",
           borderBottom: open ? `1px solid ${C.glassBorder}` : "none",
         }}
       >
-        <span
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: 8,
-            fontSize: 10,
-            fontWeight: 700,
-            letterSpacing: "2px",
-            color: C.primary,
-          }}
-        >
-          <span style={{ fontSize: 13 }} aria-hidden="true">
-            {icon}
-          </span>
+        <span style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 10, fontWeight: 700, letterSpacing: "2px", color: C.primary }}>
+          <span style={{ fontSize: 13 }} aria-hidden="true">{icon}</span>
           {title}
         </span>
-        <span
-          aria-hidden="true"
-          style={{
-            fontSize: 9,
-            color: C.text55,
-            transform: open ? "rotate(180deg)" : "rotate(0)",
-            transition: "transform 0.22s ease",
-            display: "inline-block",
-          }}
-        >
-          ▼
-        </span>
+        <span aria-hidden="true" style={{ fontSize: 9, color: C.text55, transform: open ? "rotate(180deg)" : "rotate(0)", transition: "transform 0.22s ease", display: "inline-block" }}>▼</span>
       </button>
       {open && <div style={{ padding: "16px", background: "rgba(245,243,199,0.40)" }}>{children}</div>}
     </div>
@@ -4382,101 +4539,100 @@ const SliderRow = ({ label, value, min, max, step, onChange, fmt }) => (
   <div style={{ marginBottom: 18 }}>
     <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 7 }}>
       <label style={{ fontSize: 10, color: C.text55, fontWeight: 600, letterSpacing: "1px" }}>{label}</label>
-      <span
-        style={{
-          fontSize: 11,
-          fontWeight: 700,
-          background: C.gradPrimaryText,
-          WebkitBackgroundClip: "text",
-          WebkitTextFillColor: "transparent",
-        }}
-      >
-        {fmt(value)}
-      </span>
+      <span style={{ fontSize: 11, fontWeight: 700, background: C.gradPrimaryText, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>{fmt(value)}</span>
     </div>
     <input
-      type="range"
-      min={min}
-      max={max}
-      step={step}
-      value={value}
-      aria-label={label}
+      type="range" min={min} max={max} step={step} value={value} aria-label={label}
       onChange={(e) => onChange(Number(e.target.value))}
-      style={{
-        width: "100%",
-        height: 3,
-        background: C.primary20,
-        borderRadius: 4,
-        appearance: "none",
-        WebkitAppearance: "none",
-        cursor: "pointer",
-      }}
+      style={{ width: "100%", height: 3, background: C.primary20, borderRadius: 4, appearance: "none", WebkitAppearance: "none", cursor: "pointer" }}
     />
   </div>
 );
 
+// ============================================================
+// MAIN COMPONENT
+// ============================================================
 const TryOn = () => {
-  const videoRef = useRef(null);
-  const canvasRef = useRef(null);
-  const imgRef = useRef(new Image());
-  const trackRef = useRef({ hasLandmarks: false });
-  const rafIdRef = useRef(null);
-  const lastFrameRef = useRef(0);
-  const touchStartX = useRef(null);
-  const touchStartY = useRef(null);
-  const cameraRdyRef = useRef(false);
-  const glassesRef = useRef("/glass1.png");
-  const adjRef = useRef({});
-  const pendingResultRef = useRef(null);
-  const camStreamRef = useRef(null);
-  const camInstanceRef = useRef(null);
+  const videoRef          = useRef(null);
+  const canvasRef         = useRef(null);
+  const imgRef            = useRef(new Image());
+  const trackRef          = useRef({ hasLandmarks: false });
+  const rafIdRef          = useRef(null);
+  const lastFrameRef      = useRef(0);
+  const touchStartX       = useRef(null);
+  const touchStartY       = useRef(null);
+  const cameraRdyRef      = useRef(false);
+  const glassesRef        = useRef("/glass1.png");
+  const adjRef            = useRef({});
+  const pendingResultRef  = useRef(null);
+  const camStreamRef      = useRef(null);
+  const camInstanceRef    = useRef(null);
   const cachedGlassObjRef = useRef(null);
-  const ctxRef = useRef(null);
-  const resultVersionRef = useRef(0);
-  const lastDrawnVersionRef = useRef(-1);
-  const neutralFaceWidthRef = useRef(null);
+  const ctxRef            = useRef(null);
+  const resultVersionRef  = useRef(0);
+  const lastDrawnVersionRef   = useRef(-1);
+  const neutralFaceWidthRef   = useRef(null);
   const depthScaleSmoothedRef = useRef(1.0);
-  const DS_ALPHA = 0.12;
+  const DS_ALPHA              = 0.12;
   const scrollerRef = useRef(null);
-  const [scrollerH, setScrollerH] = useState(160);
-  const [isMobile, setIsMobile] = useState(() => getIsMobile());
+
+  // ----------------------------------------------------------
+  // DEVICE TYPE STATE — replaces getIsMobile() + getMobileSizes()
+  // ----------------------------------------------------------
+  const [deviceType, setDeviceType] = useState(() => getDeviceType());
+  const deviceTypeRef = useRef(deviceType);
+
+  // Backward-compat boolean so every JSX `isMobile` check still works untouched.
+  const isMobile    = isMobileType(deviceType);
   const isMobileRef = useRef(isMobile);
-  const [mobileSizes, setMobileSizes] = useState(() => getMobileSizes());
-  const [glasses, setGlasses] = useState("/glass1.png");
-  const [cameraReady, setCameraReady] = useState(false);
-  const [brightness, setBrightness] = useState(100);
-  const [contrast, setContrast] = useState(100);
-  const [saturate, setSaturate] = useState(100);
-  const [mpError, setMpError] = useState(null);
+
+  // ----------------------------------------------------------
+  // CANVAS DIMENSIONS STATE
+  // Replaces the old `mobileSizes` state.
+  // Mobile/tablet: viewport-relative (re-computed on resize).
+  // Desktop:       computed from the container element in useEffect.
+  // ----------------------------------------------------------
+  const [canvasDimensions, setCanvasDimensions] = useState(() =>
+    computeCanvasDimensions(getDeviceType()),
+  );
+
+  const [scrollerH, setScrollerH] = useState(160);
+
+  // ----------------------------------------------------------
+  // FEATURE STATE
+  // ----------------------------------------------------------
+  const [glasses,      setGlasses]      = useState("/glass1.png");
+  const [cameraReady,  setCameraReady]  = useState(false);
+  const [brightness,   setBrightness]   = useState(100);
+  const [contrast,     setContrast]     = useState(100);
+  const [saturate,     setSaturate]     = useState(100);
+  const [mpError,      setMpError]      = useState(null);
 
   const brightnessRef = useRef(100);
-  const contrastRef = useRef(100);
-  const saturateRef = useRef(100);
+  const contrastRef   = useRef(100);
+  const saturateRef   = useRef(100);
 
-  useEffect(() => {
-    brightnessRef.current = brightness;
-  }, [brightness]);
-  useEffect(() => {
-    contrastRef.current = contrast;
-  }, [contrast]);
-  useEffect(() => {
-    saturateRef.current = saturate;
-  }, [saturate]);
+  useEffect(() => { brightnessRef.current = brightness; }, [brightness]);
+  useEffect(() => { contrastRef.current   = contrast;   }, [contrast]);
+  useEffect(() => { saturateRef.current   = saturate;   }, [saturate]);
 
+  // ----------------------------------------------------------
+  // ADJUSTMENTS
+  // ----------------------------------------------------------
   const adjustmentsRef = useRef(
     Object.fromEntries(
       GLASS_OPTIONS.map((g) => {
         if (g.id === "/glass2.png") return [g.id, { ...AVIATOR_ADJ }];
-        if (g.id === "/glass4.png") return [g.id, { ...ROUND_ADJ }];
+        if (g.id === "/glass4.png") return [g.id, { ...ROUND_ADJ   }];
         return [g.id, { ...DEFAULT_ADJ }];
-      })
-    )
+      }),
+    ),
   );
   const [adjUIState, setAdjUIState] = useState(() => adjustmentsRef.current["/glass1.png"]);
 
   useEffect(() => {
-    glassesRef.current = glasses;
-    adjRef.current = adjustmentsRef.current;
+    glassesRef.current        = glasses;
+    adjRef.current            = adjustmentsRef.current;
     cachedGlassObjRef.current = GLASS_OPTIONS.find((g) => g.id === glasses) || null;
     setAdjUIState({ ...(adjustmentsRef.current[glasses] || DEFAULT_ADJ) });
   }, [glasses]);
@@ -4494,38 +4650,45 @@ const TryOn = () => {
   const resetAdj = useCallback(() => {
     const id = glassesRef.current;
     const defaults =
-      id === "/glass2.png"
-        ? { ...AVIATOR_ADJ }
-        : id === "/glass4.png"
-        ? { ...ROUND_ADJ }
-        : { ...DEFAULT_ADJ };
+      id === "/glass2.png" ? { ...AVIATOR_ADJ }
+      : id === "/glass4.png" ? { ...ROUND_ADJ }
+      : { ...DEFAULT_ADJ };
     adjustmentsRef.current = { ...adjustmentsRef.current, [id]: defaults };
-    adjRef.current = adjustmentsRef.current;
+    adjRef.current         = adjustmentsRef.current;
     setAdjUIState({ ...defaults });
   }, []);
 
+  // Preload glasses image on selection change.
   useEffect(() => {
     const img = new Image();
     img.crossOrigin = "anonymous";
-    img.src = glasses;
-    imgRef.current = img;
+    img.src         = glasses;
+    imgRef.current  = img;
   }, [glasses]);
 
+  // ----------------------------------------------------------
+  // LANDMARK SMOOTHER — initialised from DEVICE_CONFIG
+  // ----------------------------------------------------------
   const smootherRef = useRef(null);
   if (!smootherRef.current) {
-    smootherRef.current = new LandmarkSmoother(
-      isMobile ? MOBILE_EMA_ALPHA : DESKTOP_EMA_ALPHA,
-      isMobile ? 0.28 : 0.4
-    );
+    const { emaAlpha, rotAlpha } = DEVICE_CONFIG[deviceType].render;
+    smootherRef.current = new LandmarkSmoother(emaAlpha, rotAlpha);
   }
 
+  // ----------------------------------------------------------
+  // DRAW LOOP — reads device config via ref to stay up-to-date
+  // after a hot resize without restarting MediaPipe.
+  // ----------------------------------------------------------
   const drawLoop = useCallback(() => {
     rafIdRef.current = requestAnimationFrame(drawLoop);
 
-    const mobile = isMobileRef.current;
+    const dt  = deviceTypeRef.current;
+    const cfg = DEVICE_CONFIG[dt].render;
     const now = performance.now();
 
-    if (mobile && now - lastFrameRef.current < MOBILE_FRAME_INT) return;
+    // Throttle to per-device FPS cap.
+    const frameInterval = buildFrameInterval(dt);
+    if (now - lastFrameRef.current < frameInterval) return;
     lastFrameRef.current = now;
 
     const canvas = canvasRef.current;
@@ -4542,19 +4705,22 @@ const TryOn = () => {
 
     const W = canvas.width;
     const H = canvas.height;
+    const isMob = isMobileType(dt);
 
-    if (mobile) {
+    // Beauty filter — desktop only.
+    if (isMob) {
       ctx.filter = "none";
     } else {
-      const userB = brightnessRef.current;
-      const userC = contrastRef.current;
-      const userS = saturateRef.current;
-      const needsFilter = userB !== 100 || userC !== 100 || userS !== 100;
-      ctx.filter = needsFilter
-        ? `brightness(${BEAUTY_B}%) contrast(${BEAUTY_C}%) saturate(${BEAUTY_S}%) brightness(${userB}%) contrast(${userC}%) saturate(${userS}%)`
-        : "none";
+      const uB = brightnessRef.current;
+      const uC = contrastRef.current;
+      const uS = saturateRef.current;
+      ctx.filter =
+        uB !== 100 || uC !== 100 || uS !== 100
+          ? `brightness(${BEAUTY_B}%) contrast(${BEAUTY_C}%) saturate(${BEAUTY_S}%) brightness(${uB}%) contrast(${uC}%) saturate(${uS}%)`
+          : "none";
     }
 
+    // Flip horizontally to give a mirror feel.
     ctx.save();
     ctx.translate(W, 0);
     ctx.scale(-1, 1);
@@ -4564,36 +4730,31 @@ const TryOn = () => {
 
     if (!result.multiFaceLandmarks?.length) {
       smootherRef.current.reset();
-      neutralFaceWidthRef.current = null;
-      trackRef.current.hasLandmarks = false;
-      lastDrawnVersionRef.current = resultVersionRef.current;
+      neutralFaceWidthRef.current    = null;
+      trackRef.current.hasLandmarks  = false;
+      lastDrawnVersionRef.current    = resultVersionRef.current;
       return;
     }
 
-    const lm = result.multiFaceLandmarks[0];
-    const geo = extractFaceGeometry(lm, W, H, !mobile, neutralFaceWidthRef);
+    const lm  = result.multiFaceLandmarks[0];
+    const geo = extractFaceGeometry(lm, W, H, !isMob, neutralFaceWidthRef);
     const mirroredCx = W - geo.centerX;
 
-    const glassObj = cachedGlassObjRef.current;
+    const glassObj    = cachedGlassObjRef.current;
     const aspectRatio = glassObj?.aspectRatio ?? 0.5;
-    const EYE_MULT = mobile ? 1.6 : 2.2;
 
-    const rawGw = geo.normEyeSpan * EYE_MULT * (mobile ? 1.0 : geo.yawCompensation);
-    const gwFromSpan = mobile ? rawGw : Math.min(rawGw, geo.faceWidth * 0.9);
-    const ghFromAR = gwFromSpan * aspectRatio;
+    // Eye multiplier comes from per-device config — no inline ternary needed.
+    const rawGw       = geo.normEyeSpan * cfg.eyeMultiplier * (isMob ? 1.0 : geo.yawCompensation);
+    const gwFromSpan  = isMob ? rawGw : Math.min(rawGw, geo.faceWidth * 0.9);
+    const ghFromAR    = gwFromSpan * aspectRatio;
 
     depthScaleSmoothedRef.current =
       depthScaleSmoothedRef.current * (1 - DS_ALPHA) + geo.depthScale * DS_ALPHA;
 
+    // Smooth the overlay position using per-device EMA and deadzone.
     const sm = smootherRef.current.smooth(
-      {
-        cx: mirroredCx,
-        cy: geo.centerY,
-        gw: gwFromSpan,
-        gh: ghFromAR,
-        angle: geo.angle,
-      },
-      mobile ? MOBILE_DEADZONE : 0
+      { cx: mirroredCx, cy: geo.centerY, gw: gwFromSpan, gh: ghFromAR, angle: geo.angle },
+      cfg.deadzone,
     );
 
     trackRef.current.hasLandmarks = true;
@@ -4604,17 +4765,14 @@ const TryOn = () => {
       return;
     }
 
-    const adj = adjRef.current[glassesRef.current] || DEFAULT_ADJ;
-    const smoothedDs = depthScaleSmoothedRef.current;
-
-    let w = mobile ? sm.gw * adj.scaleW : sm.gw * adj.scaleW * smoothedDs;
-    let h = mobile ? sm.gh * adj.scaleH : sm.gh * adj.scaleH * smoothedDs;
-
-    const mirroredAngle = -sm.angle;
+    const adj         = adjRef.current[glassesRef.current] || DEFAULT_ADJ;
+    const smoothedDs  = depthScaleSmoothedRef.current;
+    const w = isMob ? sm.gw * adj.scaleW : sm.gw * adj.scaleW * smoothedDs;
+    const h = isMob ? sm.gh * adj.scaleH : sm.gh * adj.scaleH * smoothedDs;
 
     ctx.save();
     ctx.translate(sm.cx + adj.offsetX, sm.cy + adj.offsetY);
-    ctx.rotate(mirroredAngle + adj.rotate * (Math.PI / 180));
+    ctx.rotate(-sm.angle + adj.rotate * (Math.PI / 180));
     ctx.drawImage(img, -w / 2, -h / 2, w, h);
     ctx.restore();
 
@@ -4626,87 +4784,64 @@ const TryOn = () => {
     resultVersionRef.current++;
   }, []);
 
+  // ----------------------------------------------------------
+  // CAMERA + MEDIAPIPE SETUP
+  // Uses DEVICE_CONFIG exclusively — no inline magic numbers.
+  // ----------------------------------------------------------
   useEffect(() => {
     if (!window.FaceMesh) {
       setMpError("MediaPipe FaceMesh not found. Add the MediaPipe <script> tag to index.html.");
       return;
     }
 
-    const mobile = isMobileRef.current;
-    let camW, camH;
+    const dt      = deviceTypeRef.current;
+    const mpCfg   = DEVICE_CONFIG[dt].mediapipe;
 
-    if (mobile) {
-      const sizes = mobileSizes;
-      camW = sizes.camW;
-      camH = sizes.camH;
-      if (canvasRef.current) {
-        canvasRef.current.width = sizes.canvasW;
-        canvasRef.current.height = sizes.canvasH;
-        ctxRef.current = null;
-      }
-    } else {
-      camW = DESKTOP_CAM_W;
-      camH = DESKTOP_CAM_H;
-      if (canvasRef.current) {
-        const container = canvasRef.current.parentElement;
-        if (container) {
-          const { width, height } = container.getBoundingClientRect();
-          if (width > 0 && height > 0) {
-            canvasRef.current.width = Math.round(width);
-            canvasRef.current.height = Math.round(height);
-            camW = Math.round(width);
-            camH = Math.round(height);
-          } else {
-            canvasRef.current.width = DESKTOP_CANVAS_W;
-            canvasRef.current.height = DESKTOP_CANVAS_H;
-          }
-        } else {
-          canvasRef.current.width = DESKTOP_CANVAS_W;
-          canvasRef.current.height = DESKTOP_CANVAS_H;
-        }
-        ctxRef.current = null;
-      }
+    // ── Canvas dimensions ──────────────────────────────────
+    if (canvasRef.current) {
+      const containerEl = canvasRef.current.parentElement;
+      const dims        = computeCanvasDimensions(dt, containerEl);
+      canvasRef.current.width  = dims.width;
+      canvasRef.current.height = dims.height;
+      ctxRef.current           = null;
+      // Keep state in sync so the mobile layout JSX gets the right initial size.
+      setCanvasDimensions(dims);
     }
 
+    // ── MediaPipe FaceMesh ─────────────────────────────────
     const faceMesh = new window.FaceMesh({
       locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh@0.4/${file}`,
     });
     faceMesh.setOptions({
-      maxNumFaces: 1,
-      refineLandmarks: !mobile,
-      minDetectionConfidence: mobile ? 0.35 : 0.5,
-      minTrackingConfidence: mobile ? 0.3 : 0.5,
+      maxNumFaces:            1,
+      refineLandmarks:        mpCfg.refineLandmarks,
+      minDetectionConfidence: mpCfg.minDetectionConfidence,
+      minTrackingConfidence:  mpCfg.minTrackingConfidence,
     });
     faceMesh.onResults(onResults);
 
     rafIdRef.current = requestAnimationFrame(drawLoop);
 
+    // ── Camera stream ──────────────────────────────────────
     navigator.mediaDevices
-      .getUserMedia({
-        video: {
-          facingMode: "user",
-          width: { ideal: camW },
-          height: { ideal: camH },
-          frameRate: { ideal: mobile ? 30 : 60 },
-        },
-        audio: false,
-      })
+      .getUserMedia(buildCameraConstraints(dt))
       .then((stream) => {
         camStreamRef.current = stream;
         const video = videoRef.current;
         if (!video) return;
 
-        video.srcObject = stream;
+        video.srcObject      = stream;
         video.onloadedmetadata = () => {
-          if (mobile) {
-            const track = stream.getVideoTracks()[0];
+          // On mobile, snap the canvas to the actual track resolution once known.
+          // This corrects for devices that negotiate a different size than requested.
+          if (dt === "mobile" || dt === "tablet") {
+            const track    = stream.getVideoTracks()[0];
             const settings = track.getSettings();
-            const vw = settings.width;
-            const vh = settings.height;
-            if (canvasRef.current && vw && vh) {
-              canvasRef.current.width = vw;
-              canvasRef.current.height = vh;
-              ctxRef.current = null;
+            if (canvasRef.current && settings.width && settings.height) {
+              canvasRef.current.width  = settings.width;
+              canvasRef.current.height = settings.height;
+              ctxRef.current           = null;
+              setCanvasDimensions({ width: settings.width, height: settings.height });
             }
           }
 
@@ -4714,37 +4849,26 @@ const TryOn = () => {
             cameraRdyRef.current = true;
             setCameraReady(true);
 
-            if (mobile) {
-              let lastSendTime = 0;
-              const sendFrame = async (timestamp) => {
-                if (!cameraRdyRef.current) return;
-                if (timestamp - lastSendTime >= MOBILE_SEND_INTERVAL) {
-                  lastSendTime = timestamp;
-                  try {
-                    if (video.readyState >= 2) {
-                      await faceMesh.send({ image: video });
-                    }
-                  } catch (_) {}
-                }
-                if (cameraRdyRef.current) {
-                  camInstanceRef.current = requestAnimationFrame(sendFrame);
-                }
-              };
-              camInstanceRef.current = requestAnimationFrame(sendFrame);
-            } else {
-              const sendFrame = async () => {
-                if (!cameraRdyRef.current) return;
+            // ── Frame-send loop — throttled per device FPS ──
+            const sendInterval = buildFrameInterval(dt);
+            let lastSendTime   = 0;
+
+            const sendFrame = async (timestamp) => {
+              if (!cameraRdyRef.current) return;
+
+              if (timestamp - lastSendTime >= sendInterval) {
+                lastSendTime = timestamp;
                 try {
-                  if (video.readyState >= 2) {
-                    await faceMesh.send({ image: video });
-                  }
-                } catch (_) {}
-                if (cameraRdyRef.current) {
-                  camInstanceRef.current = requestAnimationFrame(sendFrame);
-                }
-              };
-              camInstanceRef.current = requestAnimationFrame(sendFrame);
-            }
+                  if (video.readyState >= 2) await faceMesh.send({ image: video });
+                } catch (_) { /* silent — stale frame */ }
+              }
+
+              if (cameraRdyRef.current) {
+                camInstanceRef.current = requestAnimationFrame(sendFrame);
+              }
+            };
+
+            camInstanceRef.current = requestAnimationFrame(sendFrame);
           });
         };
       })
@@ -4755,41 +4879,64 @@ const TryOn = () => {
 
     return () => {
       cameraRdyRef.current = false;
-      if (rafIdRef.current) cancelAnimationFrame(rafIdRef.current);
+      if (rafIdRef.current)    cancelAnimationFrame(rafIdRef.current);
       if (camInstanceRef.current) cancelAnimationFrame(camInstanceRef.current);
-      if (camStreamRef.current) {
-        camStreamRef.current.getTracks().forEach((t) => t.stop());
-        camStreamRef.current = null;
-      }
+      camStreamRef.current?.getTracks().forEach((t) => t.stop());
+      camStreamRef.current = null;
       if (videoRef.current?.srcObject) {
         videoRef.current.srcObject.getTracks().forEach((t) => t.stop());
         videoRef.current.srcObject = null;
       }
       faceMesh.close();
     };
-  }, [drawLoop, onResults, mobileSizes]);
+  }, [drawLoop, onResults]);
+  // NOTE: `canvasDimensions` is intentionally NOT a dependency here.
+  // Resizing is handled by the resize effect below without restarting MediaPipe.
 
+  // ----------------------------------------------------------
+  // RESIZE HANDLER
+  // Keeps sizing in sync without tearing down and restarting
+  // the camera stream or MediaPipe instance.
+  // ----------------------------------------------------------
   useEffect(() => {
-    window.addEventListener(
-      "resize",
-      () => {
-        const m = getIsMobile();
-        isMobileRef.current = m;
-        setIsMobile(m);
-        ctxRef.current = null;
-        neutralFaceWidthRef.current = null;
-        if (m) setMobileSizes(getMobileSizes());
-      },
-      { passive: true }
-    );
+    const handleResize = () => {
+      const newDeviceType = getDeviceType();
+      const newIsMobile   = isMobileType(newDeviceType);
+
+      // Update refs synchronously so the running drawLoop sees the new values
+      // before the next React render cycle.
+      deviceTypeRef.current = newDeviceType;
+      isMobileRef.current   = newIsMobile;
+
+      // Invalidate the cached canvas context — it will be re-created on the
+      // next drawLoop tick using the new canvas dimensions.
+      ctxRef.current            = null;
+      neutralFaceWidthRef.current = null;
+
+      // Re-compute canvas size for the new viewport.
+      const newDims = computeCanvasDimensions(newDeviceType, canvasRef.current?.parentElement);
+      if (canvasRef.current) {
+        canvasRef.current.width  = newDims.width;
+        canvasRef.current.height = newDims.height;
+      }
+
+      // Update React state so the JSX layout re-evaluates device branch + sizes.
+      setDeviceType(newDeviceType);
+      setCanvasDimensions(newDims);
+    };
+
+    window.addEventListener("resize", handleResize, { passive: true });
+    return () => window.removeEventListener("resize", handleResize);
   }, []);
 
+  // Measure the bottom scroller for mobile overlay positioning.
   useEffect(() => {
-    if (scrollerRef.current) {
-      setScrollerH(scrollerRef.current.offsetHeight);
-    }
+    if (scrollerRef.current) setScrollerH(scrollerRef.current.offsetHeight);
   }, []);
 
+  // ----------------------------------------------------------
+  // STYLES
+  // ----------------------------------------------------------
   const css = `
     @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Space+Grotesk:wght@300;400;500;600&display=swap');
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -4841,42 +4988,33 @@ const TryOn = () => {
       background: #73A5CA;
       box-shadow: 0 0 8px rgba(115,165,202,0.70);
       animation: pulse 2s ease infinite;
-      display: inline-block;
-      margin-right: 6px;
-      flex-shrink: 0;
+      display: inline-block; margin-right: 6px; flex-shrink: 0;
     }
     .frame-card:focus-visible { outline: 2px solid #E87F24; outline-offset: 2px; }
   `;
 
+  // ----------------------------------------------------------
+  // ERROR STATE
+  // ----------------------------------------------------------
   if (mpError) {
     return (
-      <div
-        role="alert"
-        style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          height: "100vh",
-          background: C.bg,
-          color: "#c2410c",
-          fontFamily: "monospace",
-          padding: 24,
-          textAlign: "center",
-          fontSize: 13,
-        }}
-      >
+      <div role="alert" style={{ display: "flex", alignItems: "center", justifyContent: "center", height: "100vh", background: C.bg, color: "#c2410c", fontFamily: "monospace", padding: 24, textAlign: "center", fontSize: 13 }}>
         ⚠️ {mpError}
       </div>
     );
   }
 
   const currentGlass = GLASS_OPTIONS.find((g) => g.id === glasses);
-  const curAdj = adjUIState;
+  const curAdj       = adjUIState;
 
-  // ==================== MOBILE LAYOUT ====================
+  // ============================================================
+  // MOBILE LAYOUT
+  // ============================================================
   if (isMobile) {
     const idx = GLASS_OPTIONS.findIndex((g) => g.id === glasses);
-    const { canvasW, canvasH } = mobileSizes;
+
+    // Canvas dimensions come from state — computed via DEVICE_CONFIG.
+    const { width: canvasW, height: canvasH } = canvasDimensions;
 
     const onTouchStart = (e) => {
       touchStartX.current = e.touches[0].clientX;
@@ -4889,325 +5027,80 @@ const TryOn = () => {
       if (Math.abs(dx) > 50 && Math.abs(dx) > dy) {
         const cur = GLASS_OPTIONS.findIndex((g) => g.id === glassesRef.current);
         if (dx < 0 && cur < GLASS_OPTIONS.length - 1) setGlasses(GLASS_OPTIONS[cur + 1].id);
-        if (dx > 0 && cur > 0) setGlasses(GLASS_OPTIONS[cur - 1].id);
+        if (dx > 0 && cur > 0)                        setGlasses(GLASS_OPTIONS[cur - 1].id);
       }
       touchStartX.current = null;
       touchStartY.current = null;
     };
 
     const DOTS_VISIBLE = 7;
-    const half = Math.floor(DOTS_VISIBLE / 2);
-    const start = Math.max(0, Math.min(idx - half, GLASS_OPTIONS.length - DOTS_VISIBLE));
-    const end = Math.min(GLASS_OPTIONS.length, start + DOTS_VISIBLE);
-    const visibleDots = GLASS_OPTIONS.slice(start, end);
+    const half         = Math.floor(DOTS_VISIBLE / 2);
+    const start        = Math.max(0, Math.min(idx - half, GLASS_OPTIONS.length - DOTS_VISIBLE));
+    const end          = Math.min(GLASS_OPTIONS.length, start + DOTS_VISIBLE);
+    const visibleDots  = GLASS_OPTIONS.slice(start, end);
 
     return (
       <div
-        style={{
-          position: "fixed",
-          inset: 0,
-          background: "#000",
-          fontFamily: "'Space Grotesk',sans-serif",
-          color: "#fff",
-          overflow: "hidden",
-          touchAction: "pan-y",
-        }}
+        style={{ position: "fixed", inset: 0, background: "#000", fontFamily: "'Space Grotesk',sans-serif", color: "#fff", overflow: "hidden", touchAction: "pan-y" }}
         onTouchStart={onTouchStart}
         onTouchEnd={onTouchEnd}
       >
         <style>{css}</style>
 
-        <video
-          ref={videoRef}
-          style={{
-            position: "absolute",
-            visibility: "hidden",
-            width: 0,
-            height: 0,
-            overflow: "hidden",
-            pointerEvents: "none",
-          }}
-          autoPlay
-          playsInline
-          muted
-        />
+        <video ref={videoRef} style={{ position: "absolute", visibility: "hidden", width: 0, height: 0, overflow: "hidden", pointerEvents: "none" }} autoPlay playsInline muted />
 
         <canvas
           ref={canvasRef}
           width={canvasW}
           height={canvasH}
-          style={{
-            position: "absolute",
-            inset: 0,
-            width: "100%",
-            height: "100%",
-            objectFit: "contain",
-            display: "block",
-            background: "#000",
-          }}
+          style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "contain", display: "block", background: "#000" }}
           aria-label="AR glasses try-on camera view"
         />
 
-        <div
-          style={{
-            position: "absolute",
-            top: 0,
-            left: 0,
-            right: 0,
-            height: "22%",
-            background: "linear-gradient(to bottom, rgba(0,0,0,0.50), transparent)",
-            pointerEvents: "none",
-          }}
-          aria-hidden="true"
-        />
+        <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: "22%", background: "linear-gradient(to bottom, rgba(0,0,0,0.50), transparent)", pointerEvents: "none" }} aria-hidden="true" />
 
         {cameraReady && (
-          <div
-            role="status"
-            aria-live="polite"
-            style={{
-              position: "absolute",
-              top: 18,
-              left: 16,
-              zIndex: 20,
-              display: "flex",
-              alignItems: "center",
-              background: "rgba(0,0,0,0.42)",
-              ...glassPill,
-              border: `1px solid rgba(115,165,202,0.30)`,
-              padding: "5px 12px",
-              animation: "fadeIn 0.35s ease",
-            }}
-          >
+          <div role="status" aria-live="polite" style={{ position: "absolute", top: 18, left: 16, zIndex: 20, display: "flex", alignItems: "center", background: "rgba(0,0,0,0.42)", ...glassPill, border: `1px solid rgba(115,165,202,0.30)`, padding: "5px 12px", animation: "fadeIn 0.35s ease" }}>
             <span className="ar-dot" aria-hidden="true" />
-            <span
-              style={{
-                fontSize: 10,
-                fontWeight: 600,
-                color: "rgba(255,255,255,0.80)",
-                letterSpacing: "0.5px",
-              }}
-            >
-              Tracking
-            </span>
+            <span style={{ fontSize: 10, fontWeight: 600, color: "rgba(255,255,255,0.80)", letterSpacing: "0.5px" }}>Tracking</span>
           </div>
         )}
 
         {cameraReady && currentGlass && (
-          <div
-            aria-live="polite"
-            style={{
-              position: "absolute",
-              bottom: scrollerH + 16,
-              left: "50%",
-              transform: "translateX(-50%)",
-              zIndex: 20,
-              whiteSpace: "nowrap",
-              background: "rgba(0,0,0,0.48)",
-              ...glassPill,
-              border: `1px solid ${C.primary25}`,
-              padding: "7px 20px",
-              display: "flex",
-              alignItems: "center",
-              gap: 10,
-              animation: "fadeIn 0.3s ease",
-              boxShadow: `0 4px 20px rgba(0,0,0,0.25), 0 0 20px ${C.primary12}`,
-            }}
-          >
-            <span style={{ fontSize: 13, fontWeight: 700, color: "rgba(254,253,223,0.95)" }}>
-              {currentGlass.name}
-            </span>
-            <span
-              aria-hidden="true"
-              style={{
-                width: 1,
-                height: 11,
-                background: C.primary30,
-                display: "inline-block",
-              }}
-            />
-            <span
-              style={{
-                fontSize: 13,
-                fontWeight: 700,
-                background: C.gradPrimary,
-                WebkitBackgroundClip: "text",
-                WebkitTextFillColor: "transparent",
-              }}
-            >
-              {currentGlass.price}
-            </span>
+          <div aria-live="polite" style={{ position: "absolute", bottom: scrollerH + 16, left: "50%", transform: "translateX(-50%)", zIndex: 20, whiteSpace: "nowrap", background: "rgba(0,0,0,0.48)", ...glassPill, border: `1px solid ${C.primary25}`, padding: "7px 20px", display: "flex", alignItems: "center", gap: 10, animation: "fadeIn 0.3s ease", boxShadow: `0 4px 20px rgba(0,0,0,0.25), 0 0 20px ${C.primary12}` }}>
+            <span style={{ fontSize: 13, fontWeight: 700, color: "rgba(254,253,223,0.95)" }}>{currentGlass.name}</span>
+            <span aria-hidden="true" style={{ width: 1, height: 11, background: C.primary30, display: "inline-block" }} />
+            <span style={{ fontSize: 13, fontWeight: 700, background: C.gradPrimary, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>{currentGlass.price}</span>
           </div>
         )}
 
         {cameraReady && (
-          <div
-            aria-hidden="true"
-            style={{
-              position: "absolute",
-              bottom: scrollerH + 2,
-              left: "50%",
-              transform: "translateX(-50%)",
-              display: "flex",
-              gap: 4,
-              zIndex: 20,
-              alignItems: "center",
-            }}
-          >
-            {start > 0 && (
-              <div
-                style={{
-                  width: 3,
-                  height: 3,
-                  borderRadius: "50%",
-                  background: C.white15,
-                }}
-              />
-            )}
+          <div aria-hidden="true" style={{ position: "absolute", bottom: scrollerH + 2, left: "50%", transform: "translateX(-50%)", display: "flex", gap: 4, zIndex: 20, alignItems: "center" }}>
+            {start > 0 && <div style={{ width: 3, height: 3, borderRadius: "50%", background: C.white15 }} />}
             {visibleDots.map((g, i) => {
-              const isA = glasses === g.id;
-              const isEdge =
-                (i === 0 && start > 0) || (i === visibleDots.length - 1 && end < GLASS_OPTIONS.length);
+              const isA    = glasses === g.id;
+              const isEdge = (i === 0 && start > 0) || (i === visibleDots.length - 1 && end < GLASS_OPTIONS.length);
               return (
-                <div
-                  key={g.id}
-                  style={{
-                    width: isA ? 14 : isEdge ? 3 : 4,
-                    height: isA ? 4 : isEdge ? 3 : 4,
-                    borderRadius: isA ? 3 : "50%",
-                    background: isA ? C.primary : C.white15,
-                    transition: "all 0.25s ease",
-                  }}
-                />
+                <div key={g.id} style={{ width: isA ? 14 : isEdge ? 3 : 4, height: isA ? 4 : isEdge ? 3 : 4, borderRadius: isA ? 3 : "50%", background: isA ? C.primary : C.white15, transition: "all 0.25s ease" }} />
               );
             })}
-            {end < GLASS_OPTIONS.length && (
-              <div
-                style={{
-                  width: 3,
-                  height: 3,
-                  borderRadius: "50%",
-                  background: C.white15,
-                }}
-              />
-            )}
+            {end < GLASS_OPTIONS.length && <div style={{ width: 3, height: 3, borderRadius: "50%", background: C.white15 }} />}
           </div>
         )}
 
-        <div
-          ref={scrollerRef}
-          style={{
-            position: "absolute",
-            bottom: 0,
-            left: 0,
-            right: 0,
-            zIndex: 20,
-            paddingBottom: "env(safe-area-inset-bottom, 12px)",
-            background: "linear-gradient(to top, rgba(10,5,2,0.96) 55%, transparent 100%)",
-          }}
-        >
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              padding: "8px 18px 4px",
-            }}
-          >
-            <span
-              style={{
-                fontSize: 9,
-                fontWeight: 700,
-                letterSpacing: "2px",
-                color: "rgba(254,253,223,0.35)",
-                textTransform: "uppercase",
-              }}
-            >
-              Frames
-            </span>
-            <span style={{ fontSize: 9, color: "rgba(254,253,223,0.30)" }} aria-live="polite">
-              {idx + 1} / {GLASS_OPTIONS.length}
-            </span>
+        <div ref={scrollerRef} style={{ position: "absolute", bottom: 0, left: 0, right: 0, zIndex: 20, paddingBottom: "env(safe-area-inset-bottom, 12px)", background: "linear-gradient(to top, rgba(10,5,2,0.96) 55%, transparent 100%)" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", padding: "8px 18px 4px" }}>
+            <span style={{ fontSize: 9, fontWeight: 700, letterSpacing: "2px", color: "rgba(254,253,223,0.35)", textTransform: "uppercase" }}>Frames</span>
+            <span style={{ fontSize: 9, color: "rgba(254,253,223,0.30)" }} aria-live="polite">{idx + 1} / {GLASS_OPTIONS.length}</span>
           </div>
 
-          <div
-            className="frame-scroller"
-            role="listbox"
-            aria-label="Select glasses frame"
-            onTouchStart={(e) => e.stopPropagation()}
-            onTouchEnd={(e) => e.stopPropagation()}
-            style={{
-              display: "flex",
-              gap: 10,
-              padding: "4px 14px 14px",
-              overflowX: "auto",
-              scrollSnapType: "x mandatory",
-              touchAction: "pan-x",
-            }}
-          >
+          <div className="frame-scroller" role="listbox" aria-label="Select glasses frame" onTouchStart={(e) => e.stopPropagation()} onTouchEnd={(e) => e.stopPropagation()} style={{ display: "flex", gap: 10, padding: "4px 14px 14px", overflowX: "auto", scrollSnapType: "x mandatory", touchAction: "pan-x" }}>
             {GLASS_OPTIONS.map((g) => {
               const isA = glasses === g.id;
               return (
-                <div
-                  key={g.id}
-                  className="frame-card"
-                  role="option"
-                  aria-selected={isA}
-                  tabIndex={0}
-                  onClick={() => setGlasses(g.id)}
-                  onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && setGlasses(g.id)}
-                  style={{
-                    flexShrink: 0,
-                    scrollSnapAlign: "start",
-                    width: 64,
-                    height: 64,
-                    borderRadius: 16,
-                    background: isA ? "rgba(232,127,36,0.18)" : "rgba(30,20,10,0.70)",
-                    border: `1.5px solid ${isA ? C.primary : "rgba(255,255,255,0.12)"}`,
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    cursor: "pointer",
-                    overflow: "hidden",
-                    padding: 6,
-                    transform: isA ? "scale(1.08)" : "scale(1)",
-                    backdropFilter: "blur(10px)",
-                    WebkitBackdropFilter: "blur(10px)",
-                    boxShadow: isA
-                      ? `0 0 20px rgba(232,127,36,0.50), 0 0 36px rgba(245,166,35,0.15)`
-                      : "none",
-                    position: "relative",
-                  }}
-                >
-                  {isA && (
-                    <div
-                      aria-hidden="true"
-                      style={{
-                        position: "absolute",
-                        bottom: 4,
-                        left: "50%",
-                        transform: "translateX(-50%)",
-                        width: 5,
-                        height: 5,
-                        borderRadius: "50%",
-                        background: C.primary,
-                        boxShadow: `0 0 6px ${C.primary}`,
-                      }}
-                    />
-                  )}
-                  <img
-                    src={g.id}
-                    alt={g.name}
-                    loading="lazy"
-                    style={{
-                      width: "100%",
-                      height: "80%",
-                      objectFit: "contain",
-                      filter: isA
-                        ? `drop-shadow(0 0 5px rgba(232,127,36,0.70))`
-                        : "brightness(0.55) saturate(0.6)",
-                      transition: "filter 0.2s ease",
-                    }}
-                  />
+                <div key={g.id} className="frame-card" role="option" aria-selected={isA} tabIndex={0} onClick={() => setGlasses(g.id)} onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && setGlasses(g.id)} style={{ flexShrink: 0, scrollSnapAlign: "start", width: 64, height: 64, borderRadius: 16, background: isA ? "rgba(232,127,36,0.18)" : "rgba(30,20,10,0.70)", border: `1.5px solid ${isA ? C.primary : "rgba(255,255,255,0.12)"}`, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", overflow: "hidden", padding: 6, transform: isA ? "scale(1.08)" : "scale(1)", backdropFilter: "blur(10px)", WebkitBackdropFilter: "blur(10px)", boxShadow: isA ? `0 0 20px rgba(232,127,36,0.50), 0 0 36px rgba(245,166,35,0.15)` : "none", position: "relative" }}>
+                  {isA && <div aria-hidden="true" style={{ position: "absolute", bottom: 4, left: "50%", transform: "translateX(-50%)", width: 5, height: 5, borderRadius: "50%", background: C.primary, boxShadow: `0 0 6px ${C.primary}` }} />}
+                  <img src={g.id} alt={g.name} loading="lazy" style={{ width: "100%", height: "80%", objectFit: "contain", filter: isA ? `drop-shadow(0 0 5px rgba(232,127,36,0.70))` : "brightness(0.55) saturate(0.6)", transition: "filter 0.2s ease" }} />
                 </div>
               );
             })}
@@ -5215,282 +5108,70 @@ const TryOn = () => {
         </div>
 
         {!cameraReady && (
-          <div
-            role="status"
-            aria-label="Initializing camera"
-            style={{
-              position: "absolute",
-              inset: 0,
-              zIndex: 50,
-              background: `radial-gradient(ellipse 120% 80% at 55% 30%, rgba(232,127,36,0.08) 0%, rgba(10,5,2,0.99) 60%)`,
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              justifyContent: "center",
-              gap: 24,
-            }}
-          >
-            <div style={{ position: "relative", width: 44, height: 44 }}>
-              <div className="spinner" />
-              <div className="spinner-inner" />
-            </div>
+          <div role="status" aria-label="Initializing camera" style={{ position: "absolute", inset: 0, zIndex: 50, background: `radial-gradient(ellipse 120% 80% at 55% 30%, rgba(232,127,36,0.08) 0%, rgba(10,5,2,0.99) 60%)`, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 24 }}>
+            <div style={{ position: "relative", width: 44, height: 44 }}><div className="spinner" /><div className="spinner-inner" /></div>
             <div style={{ textAlign: "center" }}>
-              <div
-                style={{
-                  fontFamily: "'Outfit',sans-serif",
-                  fontSize: 22,
-                  fontWeight: 800,
-                  marginBottom: 6,
-                  background: C.gradPrimary,
-                  WebkitBackgroundClip: "text",
-                  WebkitTextFillColor: "transparent",
-                }}
-              >
-                VR.OPTICS
-              </div>
-              <div
-                style={{
-                  fontSize: 9,
-                  fontWeight: 700,
-                  letterSpacing: "3px",
-                  color: C.primary,
-                  marginBottom: 8,
-                }}
-              >
-                INITIALIZING
-              </div>
-              <div style={{ fontSize: 10, color: "rgba(254,253,223,0.40)" }}>
-                Allow camera access to continue
-              </div>
+              <div style={{ fontFamily: "'Outfit',sans-serif", fontSize: 22, fontWeight: 800, marginBottom: 6, background: C.gradPrimary, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>VR.OPTICS</div>
+              <div style={{ fontSize: 9, fontWeight: 700, letterSpacing: "3px", color: C.primary, marginBottom: 8 }}>INITIALIZING</div>
+              <div style={{ fontSize: 10, color: "rgba(254,253,223,0.40)" }}>Allow camera access to continue</div>
             </div>
-            <div
-              style={{
-                fontSize: 9,
-                color: "rgba(254,253,223,0.22)",
-                border: `0.5px solid rgba(255,255,255,0.10)`,
-                borderRadius: 100,
-                padding: "4px 14px",
-              }}
-            >
-              ← Swipe to browse frames →
-            </div>
+            <div style={{ fontSize: 9, color: "rgba(254,253,223,0.22)", border: `0.5px solid rgba(255,255,255,0.10)`, borderRadius: 100, padding: "4px 14px" }}>← Swipe to browse frames →</div>
           </div>
         )}
       </div>
     );
   }
 
-  // ==================== DESKTOP LAYOUT ====================
+  // ============================================================
+  // DESKTOP LAYOUT  (tablet falls through here until you add its branch)
+  // ============================================================
+  const desktopCfg = DEVICE_CONFIG.desktop.canvas;
+
   return (
-    <div
-      style={{
-        fontFamily: "'Space Grotesk', sans-serif",
-        background: C.gradBg,
-        color: C.text,
-        height: "100vh",
-        display: "flex",
-        overflow: "hidden",
-      }}
-    >
+    <div style={{ fontFamily: "'Space Grotesk', sans-serif", background: C.gradBg, color: C.text, height: "100vh", display: "flex", overflow: "hidden" }}>
       <style>{css}</style>
 
-      <div
-        aria-hidden="true"
-        style={{ position: "fixed", inset: 0, pointerEvents: "none", zIndex: 0 }}
-      >
-        <div
-          style={{
-            position: "absolute",
-            top: "-15%",
-            right: "-8%",
-            width: "52vw",
-            height: "52vw",
-            borderRadius: "50%",
-            background: `radial-gradient(circle, rgba(232,127,36,0.14) 0%, rgba(232,127,36,0.04) 45%, transparent 70%)`,
-          }}
-        />
-        <div
-          style={{
-            position: "absolute",
-            bottom: "-20%",
-            left: "-12%",
-            width: "48vw",
-            height: "48vw",
-            borderRadius: "50%",
-            background: `radial-gradient(circle, rgba(115,165,202,0.12) 0%, rgba(115,165,202,0.03) 45%, transparent 70%)`,
-          }}
-        />
+      <div aria-hidden="true" style={{ position: "fixed", inset: 0, pointerEvents: "none", zIndex: 0 }}>
+        <div style={{ position: "absolute", top: "-15%", right: "-8%", width: "52vw", height: "52vw", borderRadius: "50%", background: `radial-gradient(circle, rgba(232,127,36,0.14) 0%, rgba(232,127,36,0.04) 45%, transparent 70%)` }} />
+        <div style={{ position: "absolute", bottom: "-20%", left: "-12%", width: "48vw", height: "48vw", borderRadius: "50%", background: `radial-gradient(circle, rgba(115,165,202,0.12) 0%, rgba(115,165,202,0.03) 45%, transparent 70%)` }} />
       </div>
 
-      <div
-        style={{
-          position: "relative",
-          zIndex: 1,
-          flex: "0 0 75%",
-          maxWidth: "75%",
-          padding: 20,
-          display: "flex",
-          flexDirection: "column",
-        }}
-      >
-        <div
-          style={{
-            flex: 1,
-            position: "relative",
-            borderRadius: 22,
-            overflow: "hidden",
-            border: `1px solid ${C.glassBorder}`,
-            background: "#000",
-            boxShadow: `inset 0 0 60px rgba(0,0,0,0.40), 0 0 0 1px rgba(232,127,36,0.08), 0 8px 40px rgba(30,41,59,0.12)`,
-          }}
-        >
+      {/* ── LEFT: Camera panel (75%) ── */}
+      <div style={{ position: "relative", zIndex: 1, flex: "0 0 75%", maxWidth: "75%", padding: 20, display: "flex", flexDirection: "column" }}>
+        <div style={{ flex: 1, position: "relative", borderRadius: 22, overflow: "hidden", border: `1px solid ${C.glassBorder}`, background: "#000", boxShadow: `inset 0 0 60px rgba(0,0,0,0.40), 0 0 0 1px rgba(232,127,36,0.08), 0 8px 40px rgba(30,41,59,0.12)` }}>
+
           {cameraReady && (
-            <div
-              role="status"
-              aria-live="polite"
-              style={{
-                position: "absolute",
-                top: 16,
-                right: 16,
-                zIndex: 5,
-                display: "flex",
-                alignItems: "center",
-                background: "rgba(0,0,0,0.42)",
-                ...glassPill,
-                border: `1px solid rgba(115,165,202,0.28)`,
-                padding: "5px 14px",
-                animation: "fadeIn 0.3s ease",
-              }}
-            >
+            <div role="status" aria-live="polite" style={{ position: "absolute", top: 16, right: 16, zIndex: 5, display: "flex", alignItems: "center", background: "rgba(0,0,0,0.42)", ...glassPill, border: `1px solid rgba(115,165,202,0.28)`, padding: "5px 14px", animation: "fadeIn 0.3s ease" }}>
               <span className="ar-dot" aria-hidden="true" />
-              <span
-                style={{
-                  fontSize: 10,
-                  fontWeight: 600,
-                  color: "rgba(255,255,255,0.80)",
-                  letterSpacing: "0.5px",
-                }}
-              >
-                Face Tracking Active
-              </span>
+              <span style={{ fontSize: 10, fontWeight: 600, color: "rgba(255,255,255,0.80)", letterSpacing: "0.5px" }}>Face Tracking Active</span>
             </div>
           )}
 
           <div style={{ position: "absolute", bottom: 16, left: 16, zIndex: 5 }}>
-            <div
-              aria-live="polite"
-              style={{
-                background: "rgba(0,0,0,0.52)",
-                ...glassPill,
-                border: `0.5px solid ${C.primary25}`,
-                padding: "8px 20px",
-                boxShadow: `0 4px 20px rgba(0,0,0,0.25), 0 0 16px ${C.primary12}`,
-                display: "flex",
-                alignItems: "center",
-                gap: 12,
-              }}
-            >
-              <span
-                style={{
-                  fontSize: 9,
-                  fontWeight: 700,
-                  color: "rgba(254,253,223,0.50)",
-                  letterSpacing: "1.5px",
-                }}
-              >
-                SELECTED
-              </span>
-              <span
-                aria-hidden="true"
-                style={{
-                  width: 1,
-                  height: 11,
-                  background: C.primary30,
-                  display: "inline-block",
-                }}
-              />
-              <span
-                style={{
-                  fontSize: 13,
-                  fontWeight: 700,
-                  color: "rgba(254,253,223,0.95)",
-                }}
-              >
-                {currentGlass?.name}
-              </span>
-              <span
-                style={{
-                  fontSize: 13,
-                  fontWeight: 700,
-                  background: C.gradPrimary,
-                  WebkitBackgroundClip: "text",
-                  WebkitTextFillColor: "transparent",
-                }}
-              >
-                {currentGlass?.price}
-              </span>
+            <div aria-live="polite" style={{ background: "rgba(0,0,0,0.52)", ...glassPill, border: `0.5px solid ${C.primary25}`, padding: "8px 20px", boxShadow: `0 4px 20px rgba(0,0,0,0.25), 0 0 16px ${C.primary12}`, display: "flex", alignItems: "center", gap: 12 }}>
+              <span style={{ fontSize: 9, fontWeight: 700, color: "rgba(254,253,223,0.50)", letterSpacing: "1.5px" }}>SELECTED</span>
+              <span aria-hidden="true" style={{ width: 1, height: 11, background: C.primary30, display: "inline-block" }} />
+              <span style={{ fontSize: 13, fontWeight: 700, color: "rgba(254,253,223,0.95)" }}>{currentGlass?.name}</span>
+              <span style={{ fontSize: 13, fontWeight: 700, background: C.gradPrimary, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>{currentGlass?.price}</span>
             </div>
           </div>
 
-          <video
-            ref={videoRef}
-            style={{
-              position: "absolute",
-              visibility: "hidden",
-              width: 0,
-              height: 0,
-              overflow: "hidden",
-              pointerEvents: "none",
-            }}
-            autoPlay
-            playsInline
-            muted
-          />
+          <video ref={videoRef} style={{ position: "absolute", visibility: "hidden", width: 0, height: 0, overflow: "hidden", pointerEvents: "none" }} autoPlay playsInline muted />
 
+          {/* Canvas initial size from DEVICE_CONFIG — overwritten by container measurement in useEffect */}
           <canvas
             ref={canvasRef}
-            width={DESKTOP_CANVAS_W}
-            height={DESKTOP_CANVAS_H}
+            width={desktopCfg.width}
+            height={desktopCfg.height}
             aria-label="AR glasses try-on camera view"
             style={{ display: "block", width: "100%", height: "100%", objectFit: "contain" }}
           />
 
           {!cameraReady && (
-            <div
-              role="status"
-              aria-label="Initializing camera"
-              style={{
-                position: "absolute",
-                inset: 0,
-                borderRadius: 22,
-                zIndex: 30,
-                background: `radial-gradient(ellipse 100% 60% at 55% 30%, rgba(232,127,36,0.08) 0%, rgba(254,253,223,0.97) 55%)`,
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                justifyContent: "center",
-                gap: 28,
-              }}
-            >
-              <div style={{ position: "relative", width: 50, height: 50 }}>
-                <div className="spinner" />
-                <div className="spinner-inner" />
-              </div>
+            <div role="status" aria-label="Initializing camera" style={{ position: "absolute", inset: 0, borderRadius: 22, zIndex: 30, background: `radial-gradient(ellipse 100% 60% at 55% 30%, rgba(232,127,36,0.08) 0%, rgba(254,253,223,0.97) 55%)`, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 28 }}>
+              <div style={{ position: "relative", width: 50, height: 50 }}><div className="spinner" /><div className="spinner-inner" /></div>
               <div style={{ textAlign: "center" }}>
-                <div
-                  style={{
-                    fontFamily: "'Outfit',sans-serif",
-                    fontSize: 11,
-                    fontWeight: 700,
-                    letterSpacing: "3px",
-                    background: C.gradPrimary,
-                    WebkitBackgroundClip: "text",
-                    WebkitTextFillColor: "transparent",
-                    marginBottom: 8,
-                  }}
-                >
-                  INITIALIZING CAMERA
-                </div>
+                <div style={{ fontFamily: "'Outfit',sans-serif", fontSize: 11, fontWeight: 700, letterSpacing: "3px", background: C.gradPrimary, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", marginBottom: 8 }}>INITIALIZING CAMERA</div>
                 <div style={{ fontSize: 12, color: C.text55 }}>Please allow camera access to continue</div>
               </div>
             </div>
@@ -5498,136 +5179,24 @@ const TryOn = () => {
         </div>
       </div>
 
-      <div
-        className="right-panel"
-        role="complementary"
-        aria-label="Frame selection and controls"
-        style={{
-          position: "relative",
-          zIndex: 1,
-          flex: "0 0 25%",
-          maxWidth: "25%",
-          overflowY: "auto",
-          padding: "20px 16px 20px 4px",
-          display: "flex",
-          flexDirection: "column",
-          gap: 12,
-          borderLeft: `1px solid ${C.glassBorder}`,
-          background: `linear-gradient(180deg, rgba(245,243,199,0.60) 0%, rgba(254,253,223,0.80) 100%)`,
-          backdropFilter: "blur(20px)",
-          WebkitBackdropFilter: "blur(20px)",
-        }}
-      >
+      {/* ── RIGHT: Controls panel (25%) ── */}
+      <div className="right-panel" role="complementary" aria-label="Frame selection and controls" style={{ position: "relative", zIndex: 1, flex: "0 0 25%", maxWidth: "25%", overflowY: "auto", padding: "20px 16px 20px 4px", display: "flex", flexDirection: "column", gap: 12, borderLeft: `1px solid ${C.glassBorder}`, background: `linear-gradient(180deg, rgba(245,243,199,0.60) 0%, rgba(254,253,223,0.80) 100%)`, backdropFilter: "blur(20px)", WebkitBackdropFilter: "blur(20px)" }}>
+
         <div style={{ padding: "4px 4px 2px" }}>
-          <div
-            style={{
-              fontFamily: "'Outfit',sans-serif",
-              fontSize: 18,
-              fontWeight: 700,
-              color: C.text,
-              marginBottom: 3,
-            }}
-          >
-            Choose Frame
-          </div>
-          <div
-            style={{
-              fontSize: 10,
-              letterSpacing: "1.5px",
-              color: C.text30,
-              fontWeight: 600,
-              textTransform: "uppercase",
-            }}
-          >
-            {GLASS_OPTIONS.length} styles available
-          </div>
+          <div style={{ fontFamily: "'Outfit',sans-serif", fontSize: 18, fontWeight: 700, color: C.text, marginBottom: 3 }}>Choose Frame</div>
+          <div style={{ fontSize: 10, letterSpacing: "1.5px", color: C.text30, fontWeight: 600, textTransform: "uppercase" }}>{GLASS_OPTIONS.length} styles available</div>
         </div>
 
-        <div
-          role="listbox"
-          aria-label="Select glasses frame"
-          style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 8 }}
-        >
+        <div role="listbox" aria-label="Select glasses frame" style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 8 }}>
           {GLASS_OPTIONS.map((g) => {
             const isA = glasses === g.id;
             return (
-              <div
-                key={g.id}
-                className="frame-card"
-                role="option"
-                aria-selected={isA}
-                tabIndex={0}
-                onClick={() => setGlasses(g.id)}
-                onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && setGlasses(g.id)}
-                style={{
-                  borderRadius: 14,
-                  background: isA ? C.primary12 : "rgba(254,253,223,0.55)",
-                  border: `1px solid ${isA ? C.primary : C.surfaceBorder}`,
-                  padding: "10px 6px",
-                  display: "flex",
-                  flexDirection: "column",
-                  alignItems: "center",
-                  gap: 5,
-                  cursor: "pointer",
-                  boxShadow: isA
-                    ? `0 0 20px rgba(232,127,36,0.20), 0 4px 12px rgba(30,41,59,0.08)`
-                    : `0 1px 4px ${C.text06}`,
-                  transition: "all 0.22s cubic-bezier(0.22,1,0.36,1)",
-                  backdropFilter: "blur(8px)",
-                  WebkitBackdropFilter: "blur(8px)",
-                }}
-              >
-                <div
-                  style={{
-                    width: "100%",
-                    height: 48,
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    borderRadius: 10,
-                    overflow: "hidden",
-                    background: isA ? C.primary12 : C.text06,
-                  }}
-                >
-                  <img
-                    src={g.id}
-                    alt={g.name}
-                    loading="lazy"
-                    crossOrigin="anonymous"
-                    style={{
-                      width: "90%",
-                      height: "90%",
-                      objectFit: "contain",
-                      filter: isA
-                        ? `drop-shadow(0 0 5px rgba(232,127,36,0.55))`
-                        : "brightness(0.80) saturate(0.75)",
-                      transition: "filter 0.2s ease",
-                    }}
-                  />
+              <div key={g.id} className="frame-card" role="option" aria-selected={isA} tabIndex={0} onClick={() => setGlasses(g.id)} onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && setGlasses(g.id)} style={{ borderRadius: 14, background: isA ? C.primary12 : "rgba(254,253,223,0.55)", border: `1px solid ${isA ? C.primary : C.surfaceBorder}`, padding: "10px 6px", display: "flex", flexDirection: "column", alignItems: "center", gap: 5, cursor: "pointer", boxShadow: isA ? `0 0 20px rgba(232,127,36,0.20), 0 4px 12px rgba(30,41,59,0.08)` : `0 1px 4px ${C.text06}`, transition: "all 0.22s cubic-bezier(0.22,1,0.36,1)", backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)" }}>
+                <div style={{ width: "100%", height: 48, display: "flex", alignItems: "center", justifyContent: "center", borderRadius: 10, overflow: "hidden", background: isA ? C.primary12 : C.text06 }}>
+                  <img src={g.id} alt={g.name} loading="lazy" crossOrigin="anonymous" style={{ width: "90%", height: "90%", objectFit: "contain", filter: isA ? `drop-shadow(0 0 5px rgba(232,127,36,0.55))` : "brightness(0.80) saturate(0.75)", transition: "filter 0.2s ease" }} />
                 </div>
-                <div
-                  style={{
-                    fontSize: 9,
-                    fontWeight: 700,
-                    textAlign: "center",
-                    lineHeight: 1.2,
-                    color: isA ? C.text : C.text55,
-                  }}
-                >
-                  {g.name}
-                </div>
-                <div
-                  style={{
-                    fontSize: 8,
-                    fontWeight: 700,
-                    background: isA ? C.gradPrimary : "none",
-                    WebkitBackgroundClip: isA ? "text" : "unset",
-                    WebkitTextFillColor: isA ? "transparent" : C.primary,
-                    color: isA ? "transparent" : C.primary,
-                  }}
-                >
-                  {g.price}
-                </div>
+                <div style={{ fontSize: 9, fontWeight: 700, textAlign: "center", lineHeight: 1.2, color: isA ? C.text : C.text55 }}>{g.name}</div>
+                <div style={{ fontSize: 8, fontWeight: 700, background: isA ? C.gradPrimary : "none", WebkitBackgroundClip: isA ? "text" : "unset", WebkitTextFillColor: isA ? "transparent" : C.primary, color: isA ? "transparent" : C.primary }}>{g.price}</div>
               </div>
             );
           })}
@@ -5635,100 +5204,19 @@ const TryOn = () => {
 
         <Section title="FRAME CALIBRATION" icon="⚙️">
           <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 14 }}>
-            <button
-              onClick={resetAdj}
-              aria-label="Reset frame calibration to defaults"
-              style={{
-                fontSize: 9,
-                fontWeight: 700,
-                color: C.primary,
-                background: C.primary12,
-                border: `0.5px solid ${C.primary25}`,
-                padding: "5px 14px",
-                borderRadius: 100,
-                cursor: "pointer",
-                letterSpacing: "0.5px",
-                transition: "background 0.15s",
-              }}
-            >
-              Reset
-            </button>
+            <button onClick={resetAdj} aria-label="Reset frame calibration to defaults" style={{ fontSize: 9, fontWeight: 700, color: C.primary, background: C.primary12, border: `0.5px solid ${C.primary25}`, padding: "5px 14px", borderRadius: 100, cursor: "pointer", letterSpacing: "0.5px", transition: "background 0.15s" }}>Reset</button>
           </div>
-          <SliderRow
-            label="WIDTH"
-            value={curAdj.scaleW}
-            min={0.3}
-            max={3}
-            step={0.05}
-            onChange={(v) => setAdj("scaleW", v)}
-            fmt={(v) => `${v.toFixed(2)}×`}
-          />
-          <SliderRow
-            label="HEIGHT"
-            value={curAdj.scaleH}
-            min={0.3}
-            max={3}
-            step={0.05}
-            onChange={(v) => setAdj("scaleH", v)}
-            fmt={(v) => `${v.toFixed(2)}×`}
-          />
-          <SliderRow
-            label="MOVE L/R"
-            value={curAdj.offsetX}
-            min={-150}
-            max={150}
-            step={1}
-            onChange={(v) => setAdj("offsetX", v)}
-            fmt={(v) => `${v > 0 ? "+" : ""}${v}px`}
-          />
-          <SliderRow
-            label="MOVE U/D"
-            value={curAdj.offsetY}
-            min={-150}
-            max={150}
-            step={1}
-            onChange={(v) => setAdj("offsetY", v)}
-            fmt={(v) => `${v > 0 ? "+" : ""}${v}px`}
-          />
-          <SliderRow
-            label="ROTATION"
-            value={curAdj.rotate}
-            min={-30}
-            max={30}
-            step={0.5}
-            onChange={(v) => setAdj("rotate", v)}
-            fmt={(v) => `${v > 0 ? "+" : ""}${v.toFixed(1)}°`}
-          />
+          <SliderRow label="WIDTH"    value={curAdj.scaleW}  min={0.3}  max={3}   step={0.05} onChange={(v) => setAdj("scaleW",  v)} fmt={(v) => `${v.toFixed(2)}×`} />
+          <SliderRow label="HEIGHT"   value={curAdj.scaleH}  min={0.3}  max={3}   step={0.05} onChange={(v) => setAdj("scaleH",  v)} fmt={(v) => `${v.toFixed(2)}×`} />
+          <SliderRow label="MOVE L/R" value={curAdj.offsetX} min={-150} max={150} step={1}    onChange={(v) => setAdj("offsetX", v)} fmt={(v) => `${v > 0 ? "+" : ""}${v}px`} />
+          <SliderRow label="MOVE U/D" value={curAdj.offsetY} min={-150} max={150} step={1}    onChange={(v) => setAdj("offsetY", v)} fmt={(v) => `${v > 0 ? "+" : ""}${v}px`} />
+          <SliderRow label="ROTATION" value={curAdj.rotate}  min={-30}  max={30}  step={0.5}  onChange={(v) => setAdj("rotate",  v)} fmt={(v) => `${v > 0 ? "+" : ""}${v.toFixed(1)}°`} />
         </Section>
 
         <Section title="SCENE FILTERS" icon="🎨">
-          <SliderRow
-            label="BRIGHTNESS"
-            value={brightness}
-            min={50}
-            max={160}
-            step={1}
-            onChange={setBrightness}
-            fmt={(v) => `${v}%`}
-          />
-          <SliderRow
-            label="CONTRAST"
-            value={contrast}
-            min={60}
-            max={160}
-            step={1}
-            onChange={setContrast}
-            fmt={(v) => `${v}%`}
-          />
-          <SliderRow
-            label="SATURATION"
-            value={saturate}
-            min={50}
-            max={160}
-            step={1}
-            onChange={setSaturate}
-            fmt={(v) => `${v}%`}
-          />
+          <SliderRow label="BRIGHTNESS" value={brightness} min={50}  max={160} step={1} onChange={setBrightness} fmt={(v) => `${v}%`} />
+          <SliderRow label="CONTRAST"   value={contrast}   min={60}  max={160} step={1} onChange={setContrast}   fmt={(v) => `${v}%`} />
+          <SliderRow label="SATURATION" value={saturate}   min={50}  max={160} step={1} onChange={setSaturate}   fmt={(v) => `${v}%`} />
         </Section>
       </div>
     </div>

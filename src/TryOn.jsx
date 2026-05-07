@@ -6303,7 +6303,7 @@ const TryOn = () => {
                   WebkitTextFillColor: isA ? "transparent" : C.primary,
                   color: isA ? "transparent" : C.primary,
                 }}>
-                  {g.price}
+                    b {g.price}
                 </div>
               </div>
             );

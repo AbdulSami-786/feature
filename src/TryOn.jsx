@@ -4052,16 +4052,12 @@
 
 
 
-
 import React, { useRef, useEffect, useState, useCallback } from "react";
 
 const DEFAULT_ADJ = { scaleW: 1,   scaleH: 1,    offsetX: 0, offsetY: 8,  rotate: 0 };
 const AVIATOR_ADJ = { scaleW: 1,   scaleH: 1.18, offsetX: 0, offsetY: 18, rotate: 0 };
 const ROUND_ADJ   = { scaleW: 1,   scaleH: 0.85, offsetX: 0, offsetY: 6,  rotate: 0 };
 
-// BUG 2 FIX: Added aspectRatio field to each glasses object
-// sizes/mobileScale removed — eyeSpan-based sizing is face-proportional by design;
-// use adj.scaleW / adj.scaleH sliders for per-frame fine-tuning instead.
 const GLASS_OPTIONS = [
   { id: "/glass1.png",  name: "Classic",      price: "PKR 4,500", emoji: "👓", aspectRatio: 0.50 },
   { id: "/glass2.png",  name: "Aviator",      price: "PKR 5,200", emoji: "🕶️", aspectRatio: 0.45 },
@@ -4074,7 +4070,7 @@ const GLASS_OPTIONS = [
   { id: "/glass9.png",  name: "Shield",       price: "PKR 4,900", emoji: "🛡️", aspectRatio: 0.35 },
   { id: "/glass10.png", name: "Oval",         price: "PKR 4,900", emoji: "🥚", aspectRatio: 0.50 },
   { id: "/glass11.png", name: "Square",       price: "PKR 4,900", emoji: "⬛", aspectRatio: 0.55 },
-  { id: "/glass12.png", name: "Hexagonal",    price: "PKR 4,900", emoji: "⬡", aspectRatio: 0.50 },
+  { id: "/glass12.png", name: "Hexagonal",    price: "PKR 4,900", emoji: "⚡", aspectRatio: 0.50 },
   { id: "/glass13.png", name: "Geometric",    price: "PKR 4,900", emoji: "🔷", aspectRatio: 0.50 },
   { id: "/glass14.png", name: "Steampunk",    price: "PKR 4,900", emoji: "⚙️", aspectRatio: 0.50 },
   { id: "/glass15.png", name: "Sports Pro",   price: "PKR 4,900", emoji: "🏃", aspectRatio: 0.50 },
@@ -4118,19 +4114,23 @@ const getIsMobile = () =>
   typeof window !== "undefined" &&
   (window.innerWidth < 768 || /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent));
 
-// BUG 1 FIX: Use exact device screen dimensions so canvas matches display size exactly
-const getMobileSizes = () => {
-  const canvasW = window.innerWidth;
-  const canvasH = window.innerHeight;
-  return { camW: canvasW, camH: canvasH, canvasW, canvasH };
-};
-
+// BUG M3 FIX: Use screen.width/height instead of window.innerWidth/Height
+// so browser chrome show/hide doesn't resize the canvas mid-session.
+const getMobileSizes = () => ({
+  camW:    screen.width,
+  camH:    screen.height,
+  canvasW: screen.width,
+  canvasH: screen.height,
+});
 
 const MOBILE_EMA_ALPHA   = 0.55;
 const DESKTOP_EMA_ALPHA  = 0.50;
 const MOBILE_DEADZONE    = 1.2;
 const MOBILE_FPS         = 24;
 const MOBILE_FRAME_INT   = 1000 / MOBILE_FPS;
+
+// BUG M1 FIX: Throttle interval for MediaPipe sends on mobile
+const MOBILE_SEND_INTERVAL = 1000 / MOBILE_FPS; // ~41ms
 
 const DESKTOP_CAM_W      = 1280;
 const DESKTOP_CAM_H      = 720;
@@ -4153,16 +4153,14 @@ const LANDMARKS = {
   NOSE_BRIDGE_TOP:     6,
   LEFT_FACE_EDGE:      234,
   RIGHT_FACE_EDGE:     454,
-  // BUG 5 FIX: eyelid landmark indices for accurate vertical eye center
   LEFT_EYE_UPPER_LID:  159,
   LEFT_EYE_LOWER_LID:  145,
   RIGHT_EYE_UPPER_LID: 386,
   RIGHT_EYE_LOWER_LID: 374,
 };
 
-// BUG 4 FIX: Increased thresholds and replaced hard lock with soft blend
-const STABLE_THRESHOLD = 8;   // was 3
-const STABLE_LIMIT     = 20;  // was 5
+const STABLE_THRESHOLD = 8;
+const STABLE_LIMIT     = 20;
 
 class LandmarkSmoother {
   constructor(posAlpha = 0.45, rotAlpha = 0.35) {
@@ -4187,7 +4185,6 @@ class LandmarkSmoother {
         : this.prev[key] + alpha * delta;
     }
 
-    // BUG 4 FIX: Soft blend instead of hard lock; never freeze gw/gh/angle
     const movement = Math.hypot(
       (result.cx ?? 0) - (this.lastStable?.cx ?? result.cx ?? 0),
       (result.cy ?? 0) - (this.lastStable?.cy ?? result.cy ?? 0)
@@ -4197,7 +4194,6 @@ class LandmarkSmoother {
       if (this.stableCount > STABLE_LIMIT && this.lastStable) {
         result.cx = result.cx * 0.3 + this.lastStable.cx * 0.7;
         result.cy = result.cy * 0.3 + this.lastStable.cy * 0.7;
-        // gw, gh, angle deliberately NOT blended — must always follow face
       }
     } else {
       this.stableCount = 0;
@@ -4245,7 +4241,6 @@ function extractFaceGeometry(lm, W, H, useIris = true, neutralFaceWidthRef = nul
     rightIris = { x: (rightEyeOut.x + rightInner.x) / 2, y: (rightEyeOut.y + rightInner.y) / 2, z: 0 };
   }
 
-  // BUG 5 FIX: Use upper + lower eyelid landmarks for accurate vertical eye center
   const leftEyeCenter = {
     x: (leftEyeOut.x + px(LANDMARKS.LEFT_EYE_INNER).x) / 2,
     y: (px(LANDMARKS.LEFT_EYE_UPPER_LID).y + px(LANDMARKS.LEFT_EYE_LOWER_LID).y) / 2,
@@ -4267,13 +4262,10 @@ function extractFaceGeometry(lm, W, H, useIris = true, neutralFaceWidthRef = nul
   const angleBrow       = Math.atan2(rightBrowLower.y - leftBrowLower.y, rightBrowLower.x - leftBrowLower.x);
   const angle = angleEyeCorners * 0.6 + angleBrow * 0.3 + angleIris * 0.1;
 
-  // BUG 5 FIX: Use eyelid-based eye centers for centerX/Y instead of raw iris
   const eyeMidY  = (leftEyeCenter.y + rightEyeCenter.y) / 2;
   const centerX  = (leftEyeCenter.x + rightEyeCenter.x) / 2;
   const centerY  = browMidLower.y * 0.25 + noseBridgeTop.y * 0.55 + eyeMidY * 0.20;
 
-  // BUG 2 FIX: Stable eyeSpan multiplier instead of unstable faceWidth ratio
-  // BUG 3 FIX: Yaw compensation using face edge landmarks
   let yawCompensation = 1.0;
   if (neutralFaceWidthRef) {
     const currentFaceWidth = dist(leftEdge, rightEdge);
@@ -4284,22 +4276,21 @@ function extractFaceGeometry(lm, W, H, useIris = true, neutralFaceWidthRef = nul
     yawCompensation = 1.0 / Math.max(0.55, yawRatio);
   }
 
-  // spanMult: mobile has no iris refinement so eye-corner span reads slightly narrow.
-  // Keep correction modest (1.05) — over-correcting was causing frames to be too large.
   const spanMult = useIris ? 1.0 : 1.05;
-
-  // Normalised eye span in canvas pixels, corrected for landmark precision
   const normEyeSpan = eyeSpan * spanMult;
 
   const avgZ       = (leftIris.z + rightIris.z + (noseBridgeTop.z ?? 0)) / 3;
   const depthScale = Math.max(0.92, Math.min(1.08, 1 + (-avgZ * 0.6)));
 
+  // BUG D3 FIX: Expose faceWidth so drawLoop can cap glasses width
+  const faceWidth = dist(leftEdge, rightEdge);
+
   return {
     centerX, centerY, angle,
     depthScale,
-    // Return raw normEyeSpan so drawLoop can compute gw/gh with per-frame aspectRatio
     normEyeSpan,
     yawCompensation,
+    faceWidth,
   };
 }
 
@@ -4409,9 +4400,15 @@ const TryOn = () => {
   const ctxRef            = useRef(null);
   const resultVersionRef  = useRef(0);
   const lastDrawnVersionRef = useRef(-1);
-
-  // BUG 3 FIX: Ref to store neutral face width for yaw compensation
   const neutralFaceWidthRef = useRef(null);
+
+  // BUG D2 FIX: Independent slow EMA for depthScale to prevent pulsing
+  const depthScaleSmoothedRef = useRef(1.0);
+  const DS_ALPHA = 0.12;
+
+  // BUG M5 FIX: Ref to measure scroller height for dynamic chip positioning
+  const scrollerRef = useRef(null);
+  const [scrollerH, setScrollerH] = useState(160);
 
   const [isMobile, setIsMobile] = useState(() => getIsMobile());
   const isMobileRef = useRef(isMobile);
@@ -4423,12 +4420,18 @@ const TryOn = () => {
       isMobileRef.current = m;
       setIsMobile(m);
       ctxRef.current = null;
-      // BUG 3 FIX: Reset neutral face width on resize so it recalibrates
       neutralFaceWidthRef.current = null;
       if (m) setMobileSizes(getMobileSizes());
     };
     window.addEventListener("resize", onResize, { passive: true });
     return () => window.removeEventListener("resize", onResize);
+  }, []);
+
+  // BUG M5 FIX: Measure scroller height after mount
+  useEffect(() => {
+    if (scrollerRef.current) {
+      setScrollerH(scrollerRef.current.offsetHeight);
+    }
   }, []);
 
   const smootherRef = useRef(null);
@@ -4521,7 +4524,6 @@ const TryOn = () => {
 
     const W = canvas.width, H = canvas.height;
 
-    // Draw mirrored camera frame
     if (mobile) {
       ctx.filter = "none";
     } else {
@@ -4544,7 +4546,6 @@ const TryOn = () => {
 
     if (!result.multiFaceLandmarks?.length) {
       smootherRef.current.reset();
-      // BUG 3 FIX: Reset neutral face width when face is lost so it recalibrates on redetection
       neutralFaceWidthRef.current = null;
       trackRef.current.hasLandmarks = false;
       lastDrawnVersionRef.current   = resultVersionRef.current;
@@ -4553,27 +4554,31 @@ const TryOn = () => {
 
     const lm = result.multiFaceLandmarks[0];
 
-    // useIris=true on desktop (refineLandmarks=true → indices 468/473 exist)
-    // useIris=false on mobile (refineLandmarks=false → use eye-corner midpoint fallback)
-    // BUG 3 FIX: Pass neutralFaceWidthRef for yaw compensation on mobile
+    // BUG D4 FIX: Pass neutralFaceWidthRef on both mobile and desktop
     const geo = extractFaceGeometry(
       lm, W, H,
       !mobile,
-      mobile ? neutralFaceWidthRef : null
+      neutralFaceWidthRef
     );
 
     const mirroredCx = W - geo.centerX;
 
-    // Compute glasses width from normalised eye span
-    // Mobile uses 1.6x (tighter fit), desktop uses 2.2x (wider FOV, face fills less of frame)
-    // yawCompensation disabled on mobile — neutralFaceWidth is unreliable on mobile and
-    // causes size to inflate. Yaw makes the face narrower which already reduces eyeSpan naturally.
     const glassObj    = cachedGlassObjRef.current;
     const aspectRatio = glassObj?.aspectRatio ?? 0.50;
     const EYE_MULT    = mobile ? 1.6 : 2.2;
-    const gwFromSpan  = geo.normEyeSpan * EYE_MULT * (mobile ? 1.0 : geo.yawCompensation);
-    const ghFromAR    = gwFromSpan * aspectRatio;
 
+    // BUG D3 FIX: Cap glasses width at 90% of face width on desktop
+    const rawGw = geo.normEyeSpan * EYE_MULT * (mobile ? 1.0 : geo.yawCompensation);
+    const gwFromSpan = mobile
+      ? rawGw
+      : Math.min(rawGw, geo.faceWidth * 0.90);
+    const ghFromAR = gwFromSpan * aspectRatio;
+
+    // BUG D2 FIX: Smooth depthScale independently with a very slow EMA
+    depthScaleSmoothedRef.current =
+      depthScaleSmoothedRef.current * (1 - DS_ALPHA) + geo.depthScale * DS_ALPHA;
+
+    // Remove ds from main smoother — use depthScaleSmoothedRef instead
     const sm = smootherRef.current.smooth(
       {
         cx:    mirroredCx,
@@ -4581,7 +4586,6 @@ const TryOn = () => {
         gw:    gwFromSpan,
         gh:    ghFromAR,
         angle: geo.angle,
-        ds:    geo.depthScale,
       },
       mobile ? MOBILE_DEADZONE : 0
     );
@@ -4595,12 +4599,11 @@ const TryOn = () => {
     }
 
     const adj = adjRef.current[glassesRef.current] || DEFAULT_ADJ;
+    const smoothedDs = depthScaleSmoothedRef.current;
 
-    // Apply per-frame depth scale only on desktop (stable z data)
-    // Note: sSc (mobileScale/scale) intentionally removed — eyeSpan-driven sizing
-    // is already proportional to the face; per-frame adj.scaleW/H handles fine-tuning.
-    let w = mobile ? sm.gw * adj.scaleW : sm.gw * adj.scaleW * sm.ds;
-    let h = mobile ? sm.gh * adj.scaleH : sm.gh * adj.scaleH * sm.ds;
+    // BUG D2 FIX: Use smoothedDs instead of noisy per-frame sm.ds
+    let w = mobile ? sm.gw * adj.scaleW : sm.gw * adj.scaleW * smoothedDs;
+    let h = mobile ? sm.gh * adj.scaleH : sm.gh * adj.scaleH * smoothedDs;
 
     const mirroredAngle = -sm.angle;
 
@@ -4626,25 +4629,42 @@ const TryOn = () => {
     }
 
     const mobile = isMobileRef.current;
-    let camW, camH, canvasW, canvasH;
+    let camW, camH;
 
     if (mobile) {
       const sizes = mobileSizes;
-      camW    = sizes.camW;
-      camH    = sizes.camH;
-      canvasW = sizes.canvasW;
-      canvasH = sizes.canvasH;
+      camW = sizes.camW;
+      camH = sizes.camH;
+      // Canvas dimensions will be overridden by actual video track dimensions (BUG M2 FIX)
+      if (canvasRef.current) {
+        canvasRef.current.width  = sizes.canvasW;
+        canvasRef.current.height = sizes.canvasH;
+        ctxRef.current = null;
+      }
     } else {
-      camW    = DESKTOP_CAM_W;
-      camH    = DESKTOP_CAM_H;
-      canvasW = DESKTOP_CANVAS_W;
-      canvasH = DESKTOP_CANVAS_H;
-    }
+      camW = DESKTOP_CAM_W;
+      camH = DESKTOP_CAM_H;
 
-    if (canvasRef.current) {
-      canvasRef.current.width  = canvasW;
-      canvasRef.current.height = canvasH;
-      ctxRef.current = null;
+      // BUG D1 FIX: Size desktop canvas to match its actual container
+      if (canvasRef.current) {
+        const container = canvasRef.current.parentElement;
+        if (container) {
+          const { width, height } = container.getBoundingClientRect();
+          if (width > 0 && height > 0) {
+            canvasRef.current.width  = Math.round(width);
+            canvasRef.current.height = Math.round(height);
+            camW = Math.round(width);
+            camH = Math.round(height);
+          } else {
+            canvasRef.current.width  = DESKTOP_CANVAS_W;
+            canvasRef.current.height = DESKTOP_CANVAS_H;
+          }
+        } else {
+          canvasRef.current.width  = DESKTOP_CANVAS_W;
+          canvasRef.current.height = DESKTOP_CANVAS_H;
+        }
+        ctxRef.current = null;
+      }
     }
 
     const faceMesh = new window.FaceMesh({
@@ -4663,7 +4683,6 @@ const TryOn = () => {
     navigator.mediaDevices.getUserMedia({
       video: {
         facingMode: "user",
-        // BUG 1 FIX: Request video at exact screen resolution
         width:      { ideal: camW },
         height:     { ideal: camH },
         frameRate:  { ideal: mobile ? 30 : 60 },
@@ -4677,22 +4696,56 @@ const TryOn = () => {
 
       video.srcObject = stream;
       video.onloadedmetadata = () => {
+        // BUG M2 FIX: Read actual video track dimensions and resize canvas to match
+        if (mobile) {
+          const track = stream.getVideoTracks()[0];
+          const settings = track.getSettings();
+          const vw = settings.width;
+          const vh = settings.height;
+          if (canvasRef.current && vw && vh) {
+            canvasRef.current.width  = vw;
+            canvasRef.current.height = vh;
+            ctxRef.current = null;
+          }
+        }
+
         video.play().then(() => {
           cameraRdyRef.current = true;
           setCameraReady(true);
 
-          const sendFrame = async () => {
-            if (!cameraRdyRef.current) return;
-            try {
-              if (video.readyState >= 2) {
-                await faceMesh.send({ image: video });
+          if (mobile) {
+            // BUG M1 FIX: Throttle MediaPipe sends to MOBILE_FPS on mobile
+            let lastSendTime = 0;
+            const sendFrame = async (timestamp) => {
+              if (!cameraRdyRef.current) return;
+              if (timestamp - lastSendTime >= MOBILE_SEND_INTERVAL) {
+                lastSendTime = timestamp;
+                try {
+                  if (video.readyState >= 2) {
+                    await faceMesh.send({ image: video });
+                  }
+                } catch (_) { /* ignore send errors on cleanup */ }
               }
-            } catch (_) { /* ignore send errors on cleanup */ }
-            if (cameraRdyRef.current) {
-              camInstanceRef.current = requestAnimationFrame(sendFrame);
-            }
-          };
-          camInstanceRef.current = requestAnimationFrame(sendFrame);
+              if (cameraRdyRef.current) {
+                camInstanceRef.current = requestAnimationFrame(sendFrame);
+              }
+            };
+            camInstanceRef.current = requestAnimationFrame(sendFrame);
+          } else {
+            // Desktop: send frames at full RAF rate
+            const sendFrame = async () => {
+              if (!cameraRdyRef.current) return;
+              try {
+                if (video.readyState >= 2) {
+                  await faceMesh.send({ image: video });
+                }
+              } catch (_) { /* ignore send errors on cleanup */ }
+              if (cameraRdyRef.current) {
+                camInstanceRef.current = requestAnimationFrame(sendFrame);
+              }
+            };
+            camInstanceRef.current = requestAnimationFrame(sendFrame);
+          }
         }).catch(err => {
           console.error("Video play failed:", err);
           setMpError("Could not start video playback. Please reload and allow camera access.");
@@ -4817,6 +4870,13 @@ const TryOn = () => {
       touchStartY.current = null;
     };
 
+    // BUG M4 FIX: Sliding window of max 7 dots
+    const DOTS_VISIBLE = 7;
+    const half = Math.floor(DOTS_VISIBLE / 2);
+    const start = Math.max(0, Math.min(idx - half, GLASS_OPTIONS.length - DOTS_VISIBLE));
+    const end   = Math.min(GLASS_OPTIONS.length, start + DOTS_VISIBLE);
+    const visibleDots = GLASS_OPTIONS.slice(start, end);
+
     return (
       <div
         style={{ position:"fixed", inset:0, background:"#000", fontFamily:"'Space Grotesk',sans-serif", color:"#fff", overflow:"hidden", touchAction:"pan-y" }}
@@ -4824,15 +4884,16 @@ const TryOn = () => {
         onTouchEnd={onTouchEnd}
       >
         <style>{css}</style>
+
+        {/* BUG M7 FIX: Hide video with visibility:hidden + zero size instead of off-screen positioning */}
         <video
           ref={videoRef}
           style={{
-            position: "absolute",
-            left: "-100%",
-            top: "-100%",
-            width: "1px",
-            height: "1px",
-            opacity: 0,
+            position:      "absolute",
+            visibility:    "hidden",
+            width:         0,
+            height:        0,
+            overflow:      "hidden",
             pointerEvents: "none",
           }}
           autoPlay
@@ -4840,7 +4901,7 @@ const TryOn = () => {
           muted
         />
 
-        {/* BUG 1 FIX: Removed objectFit:"cover" — canvas now matches screen exactly */}
+        {/* BUG M2 FIX: objectFit:"fill" is correct — canvas dimensions now match video track exactly */}
         <canvas
           ref={canvasRef}
           width={canvasW}
@@ -4848,7 +4909,7 @@ const TryOn = () => {
           style={{
             position: "absolute", inset: 0,
             width: "100%", height: "100%",
-            objectFit: "fill",   // fill (not cover) so landmarks and display coords match
+            objectFit: "fill",
             display: "block",
           }}
           aria-label="AR glasses try-on camera view"
@@ -4875,10 +4936,10 @@ const TryOn = () => {
           </div>
         )}
 
-        {/* Frame name + price chip */}
+        {/* BUG M5 FIX: Position chip dynamically above scroller */}
         {cameraReady && currentGlass && (
           <div aria-live="polite" style={{
-            position:"absolute", bottom:176, left:"50%", transform:"translateX(-50%)",
+            position:"absolute", bottom: scrollerH + 16, left:"50%", transform:"translateX(-50%)",
             zIndex:20, whiteSpace:"nowrap",
             background:"rgba(0,0,0,0.48)", ...glassPill,
             border:`1px solid ${C.primary25}`,
@@ -4895,28 +4956,45 @@ const TryOn = () => {
           </div>
         )}
 
-        {/* Progress dots */}
+        {/* BUG M4 FIX: Sliding window dots indicator */}
         {cameraReady && (
           <div aria-hidden="true" style={{
-            position:"absolute", bottom:158, left:"50%", transform:"translateX(-50%)",
-            display:"flex", gap:4, zIndex:20,
+            position:"absolute", bottom: scrollerH + 2, left:"50%", transform:"translateX(-50%)",
+            display:"flex", gap:4, zIndex:20, alignItems:"center",
           }}>
-            {GLASS_OPTIONS.map((g, i) => (
-              <div key={g.id} style={{
-                width: i === idx ? 14 : 4, height:4, borderRadius:3,
-                background: i === idx ? C.primary : C.white15,
-                transition:"all 0.25s ease",
-              }} />
-            ))}
+            {/* Left hint dot when more items exist before window */}
+            {start > 0 && (
+              <div style={{ width:3, height:3, borderRadius:"50%", background:C.white15 }} />
+            )}
+            {visibleDots.map((g, i) => {
+              const isA = glasses === g.id;
+              const isEdge = (i === 0 && start > 0) || (i === visibleDots.length - 1 && end < GLASS_OPTIONS.length);
+              return (
+                <div key={g.id} style={{
+                  width: isA ? 14 : (isEdge ? 3 : 4), height: isA ? 4 : (isEdge ? 3 : 4),
+                  borderRadius: isA ? 3 : "50%",
+                  background: isA ? C.primary : C.white15,
+                  transition:"all 0.25s ease",
+                }} />
+              );
+            })}
+            {/* Right hint dot when more items exist after window */}
+            {end < GLASS_OPTIONS.length && (
+              <div style={{ width:3, height:3, borderRadius:"50%", background:C.white15 }} />
+            )}
           </div>
         )}
 
         {/* Bottom frame scroller */}
-        <div style={{
-          position:"absolute", bottom:0, left:0, right:0, zIndex:20,
-          paddingBottom:"env(safe-area-inset-bottom, 12px)",
-          background:"linear-gradient(to top, rgba(10,5,2,0.96) 55%, transparent 100%)",
-        }}>
+        {/* BUG M5 FIX: attach scrollerRef; BUG M6 FIX: stopPropagation + touchAction pan-x */}
+        <div
+          ref={scrollerRef}
+          style={{
+            position:"absolute", bottom:0, left:0, right:0, zIndex:20,
+            paddingBottom:"env(safe-area-inset-bottom, 12px)",
+            background:"linear-gradient(to top, rgba(10,5,2,0.96) 55%, transparent 100%)",
+          }}
+        >
           <div style={{ display:"flex", justifyContent:"space-between", padding:"8px 18px 4px" }}>
             <span style={{ fontSize:9, fontWeight:700, letterSpacing:"2px", color:"rgba(254,253,223,0.35)", textTransform:"uppercase" }}>Frames</span>
             <span style={{ fontSize:9, color:"rgba(254,253,223,0.30)" }} aria-live="polite">{idx + 1} / {GLASS_OPTIONS.length}</span>
@@ -4926,9 +5004,13 @@ const TryOn = () => {
             className="frame-scroller"
             role="listbox"
             aria-label="Select glasses frame"
+            // BUG M6 FIX: Stop touch events from bubbling to outer swipe handler
+            onTouchStart={(e) => e.stopPropagation()}
+            onTouchEnd={(e) => e.stopPropagation()}
             style={{
               display:"flex", gap:10, padding:"4px 14px 14px",
               overflowX:"auto", scrollSnapType:"x mandatory",
+              touchAction:"pan-x",
             }}
           >
             {GLASS_OPTIONS.map(g => {
@@ -5005,7 +5087,7 @@ const TryOn = () => {
   }
 
   // ══════════════════════════════════════════════════════════════
-  // DESKTOP LAYOUT  (unchanged)
+  // DESKTOP LAYOUT
   // ══════════════════════════════════════════════════════════════
   return (
     <div style={{
@@ -5063,27 +5145,31 @@ const TryOn = () => {
             </div>
           </div>
 
+          {/* BUG D5/M7 FIX: Hide video with visibility:hidden + zero size */}
           <video
             ref={videoRef}
             style={{
-              position: "absolute",
-              left: "-100%",
-              top: "-100%",
-              width: "1px",
-              height: "1px",
-              opacity: 0,
+              position:      "absolute",
+              visibility:    "hidden",
+              width:         0,
+              height:        0,
+              overflow:      "hidden",
               pointerEvents: "none",
             }}
             autoPlay
             playsInline
             muted
           />
+
+          {/* BUG D1 FIX: Use objectFit:"contain" so canvas is never cropped.
+              Canvas dimensions are now set to the container's actual pixel size,
+              so landmarks and display coordinates are perfectly aligned. */}
           <canvas
             ref={canvasRef}
             width={DESKTOP_CANVAS_W}
             height={DESKTOP_CANVAS_H}
             aria-label="AR glasses try-on camera view"
-            style={{ display:"block", width:"100%", height:"100%", objectFit:"cover" }}
+            style={{ display:"block", width:"100%", height:"100%", objectFit:"contain" }}
           />
 
           {!cameraReady && (

@@ -8709,60 +8709,60 @@
 import React, { useRef, useEffect, useState, useCallback } from "react";
 
 // ─── Per-frame defaults ────────────────────────────────────────────────────────
-const DEFAULT_ADJ = { scaleW: 1,   scaleH: 1,    offsetX: 0, offsetY: 0,  rotate: 0 };
-const AVIATOR_ADJ = { scaleW: 1,   scaleH: 1.18, offsetX: 0, offsetY: 10, rotate: 0 };
-const ROUND_ADJ   = { scaleW: 1,   scaleH: 0.85, offsetX: 0, offsetY: 4,  rotate: 0 };
+const DEFAULT_ADJ = { scaleW: 1, scaleH: 1, offsetX: 0, offsetY: 0, rotate: 0 };
+const AVIATOR_ADJ = { scaleW: 1, scaleH: 1.18, offsetX: 0, offsetY: 10, rotate: 0 };
+const ROUND_ADJ = { scaleW: 1, scaleH: 0.85, offsetX: 0, offsetY: 4, rotate: 0 };
 
 const GLASS_OPTIONS = [
-  { id: "/glass1.png",  name: "Classic",      price: "PKR 4,500", emoji: "👓", sizes: [{ label:"XL", scale:1.10, mobileScale:0.65 }] },
-  { id: "/glass2.png",  name: "Aviator",      price: "PKR 5,200", emoji: "🕶️", sizes: [{ label:"L",  scale:1.15, mobileScale:1.00 }] },
-  { id: "/glass3.png",  name: "Sport",        price: "PKR 3,800", emoji: "🥽", sizes: [{ label:"L",  scale:1.15, mobileScale:1.00 }] },
-  { id: "/glass4.png",  name: "Round",        price: "PKR 4,900", emoji: "⭕", sizes: [{ label:"L",  scale:1.15, mobileScale:0.95 }] },
-  { id: "/glass5.png",  name: "Wayfarer",     price: "PKR 4,900", emoji: "🕶️", sizes: [{ label:"L",  scale:1.25, mobileScale:0.98 }] },
-  { id: "/glass6.png",  name: "Vintage",      price: "PKR 4,900", emoji: "🪩", sizes: [{ label:"L",  scale:1.15, mobileScale:0.95 }] },
-  { id: "/glass7.png",  name: "Clubmaster",   price: "PKR 4,900", emoji: "🔲", sizes: [{ label:"XL", scale:1.30, mobileScale:1.10 }] },
-  { id: "/glass8.png",  name: "Cat Eye",      price: "PKR 4,900", emoji: "😼", sizes: [{ label:"XL", scale:1.30, mobileScale:1.10 }] },
-  { id: "/glass9.png",  name: "Shield",       price: "PKR 4,900", emoji: "🛡️", sizes: [{ label:"M",  scale:1.00, mobileScale:0.75 }] },
-  { id: "/glass10.png", name: "Oval",         price: "PKR 4,900", emoji: "🥚", sizes: [{ label:"L",  scale:1.15, mobileScale:0.95 }] },
-  { id: "/glass11.png", name: "Square",       price: "PKR 4,900", emoji: "⬛", sizes: [{ label:"S",  scale:0.75, mobileScale:0.50 }] },
-  { id: "/glass12.png", name: "Hexagonal",    price: "PKR 4,900", emoji: "⬡", sizes: [{ label:"L",  scale:1.15, mobileScale:0.95 }] },
-  { id: "/glass13.png", name: "Geometric",    price: "PKR 4,900", emoji: "🔷", sizes: [{ label:"M",  scale:1.00, mobileScale:0.75 }] },
-  { id: "/glass14.png", name: "Steampunk",    price: "PKR 4,900", emoji: "⚙️", sizes: [{ label:"S",  scale:0.95, mobileScale:0.50 }] },
-  { id: "/glass15.png", name: "Sports Pro",   price: "PKR 4,900", emoji: "🏃", sizes: [{ label:"L",  scale:1.15, mobileScale:0.95 }] },
-  { id: "/glass16.png", name: "Retro",        price: "PKR 4,900", emoji: "🎞️", sizes: [{ label:"L",  scale:1.15, mobileScale:0.95 }] },
-  { id: "/glass17.png", name: "Modern",       price: "PKR 4,900", emoji: "✨", sizes: [{ label:"L",  scale:1.15, mobileScale:0.95 }] },
-  { id: "/glass18.png", name: "Luxury",       price: "PKR 4,900", emoji: "💎", sizes: [{ label:"L",  scale:1.15, mobileScale:0.95 }] },
-  { id: "/glass19.png", name: "Designer",     price: "PKR 4,900", emoji: "🎨", sizes: [{ label:"L",  scale:1.15, mobileScale:0.95 }] },
-  { id: "/glass20.png", name: "Classic II",   price: "PKR 4,900", emoji: "👓", sizes: [{ label:"L",  scale:1.15, mobileScale:0.95 }] },
-  { id: "/glass21.png", name: "Classic III",  price: "PKR 4,900", emoji: "👓", sizes: [{ label:"M",  scale:1.00, mobileScale:0.75 }] },
-  { id: "/glass22.png", name: "Classic IV",   price: "PKR 4,900", emoji: "👓", sizes: [{ label:"L",  scale:1.05, mobileScale:0.95 }] },
-  { id: "/glass23.png", name: "Classic V",    price: "PKR 4,900", emoji: "👓", sizes: [{ label:"L",  scale:1.15, mobileScale:0.95 }] },
-  { id: "/glass24.png", name: "Classic VI",   price: "PKR 4,900", emoji: "👓", sizes: [{ label:"S",  scale:0.85, mobileScale:0.50 }] },
-  { id: "/glass25.png", name: "Classic VII",  price: "PKR 4,900", emoji: "👓", sizes: [{ label:"L",  scale:1.15, mobileScale:0.95 }] },
-  { id: "/glass26.png", name: "Classic VIII", price: "PKR 4,900", emoji: "👓", sizes: [{ label:"L",  scale:1.15, mobileScale:0.95 }] },
-  { id: "/glass27.png", name: "Classic IX",   price: "PKR 4,900", emoji: "👓", sizes: [{ label:"L",  scale:1.15, mobileScale:0.95 }] },
-  { id: "/glass28.png", name: "Classic X",    price: "PKR 4,900", emoji: "👓", sizes: [{ label:"M",  scale:1.00, mobileScale:0.75 }] },
-  { id: "/glass29.png", name: "Classic XI",   price: "PKR 4,900", emoji: "👓", sizes: [{ label:"L",  scale:1.25, mobileScale:0.95 }] },
-  { id: "/glass30.png", name: "Classic XII",  price: "PKR 4,900", emoji: "👓", sizes: [{ label:"L",  scale:1.15, mobileScale:0.95 }] },
-  { id: "/glass31.png", name: "Classic 31",   price: "PKR 4,900", emoji: "👓", sizes: [{ label:"L",  scale:1.15, mobileScale:0.95 }] },
-  { id: "/glass32.png", name: "Classic 32",   price: "PKR 4,900", emoji: "👓", sizes: [{ label:"L",  scale:1.15, mobileScale:0.95 }] },
-  { id: "/glass33.png", name: "Classic 33",   price: "PKR 4,900", emoji: "👓", sizes: [{ label:"L",  scale:1.15, mobileScale:0.95 }] },
-  { id: "/glass34.png", name: "Classic 34",   price: "PKR 4,900", emoji: "👓", sizes: [{ label:"L",  scale:1.15, mobileScale:0.95 }] },
-  { id: "/glass35.png", name: "Classic 35",   price: "PKR 4,900", emoji: "👓", sizes: [{ label:"M",  scale:1.10, mobileScale:0.75 }] },
-  { id: "/glass36.png", name: "Classic 36",   price: "PKR 4,900", emoji: "👓", sizes: [{ label:"L",  scale:1.15, mobileScale:0.95 }] },
-  { id: "/glass37.png", name: "Classic 37",   price: "PKR 4,900", emoji: "👓", sizes: [{ label:"L",  scale:1.15, mobileScale:0.95 }] },
-  { id: "/glass38.png", name: "Classic 38",   price: "PKR 4,900", emoji: "👓", sizes: [{ label:"XL", scale:1.30, mobileScale:1.10 }] },
-  { id: "/glass39.png", name: "Classic 39",   price: "PKR 4,900", emoji: "👓", sizes: [{ label:"L",  scale:1.15, mobileScale:0.95 }] },
-  { id: "/glass40.png", name: "Classic 40",   price: "PKR 4,900", emoji: "👓", sizes: [{ label:"M",  scale:1.00, mobileScale:0.75 }] },
-  { id: "/glass41.png", name: "Classic 41",   price: "PKR 4,900", emoji: "👓", sizes: [{ label:"L",  scale:1.15, mobileScale:0.95 }] },
-  { id: "/glass42.png", name: "Classic 42",   price: "PKR 4,900", emoji: "👓", sizes: [{ label:"S",  scale:0.95, mobileScale:0.50 }] },
-  { id: "/glass43.png", name: "Classic 43",   price: "PKR 4,900", emoji: "👓", sizes: [{ label:"L",  scale:1.15, mobileScale:0.95 }] },
-  { id: "/glass44.png", name: "Classic 44",   price: "PKR 4,900", emoji: "👓", sizes: [{ label:"L",  scale:1.15, mobileScale:0.95 }] },
-  { id: "/glass45.png", name: "Classic 45",   price: "PKR 4,900", emoji: "👓", sizes: [{ label:"XL", scale:1.30, mobileScale:1.10 }] },
-  { id: "/glass46.png", name: "Classic 46",   price: "PKR 4,900", emoji: "👓", sizes: [{ label:"XL", scale:1.40, mobileScale:1.10 }] },
-  { id: "/glass47.png", name: "Classic 47",   price: "PKR 4,900", emoji: "👓", sizes: [{ label:"XL", scale:1.20, mobileScale:1.10 }] },
-  { id: "/glass48.png", name: "Classic 48",   price: "PKR 4,900", emoji: "👓", sizes: [{ label:"M",  scale:1.00, mobileScale:0.75 }] },
-  { id: "/glass49.png", name: "Classic 49",   price: "PKR 4,900", emoji: "👓", sizes: [{ label:"L",  scale:1.15, mobileScale:0.95 }] },
+  { id: "/glass1.png", name: "Classic", price: "PKR 4,500", emoji: "👓", sizes: [{ label: "XL", scale: 1.10, mobileScale: 0.65 }] },
+  { id: "/glass2.png", name: "Aviator", price: "PKR 5,200", emoji: "🕶️", sizes: [{ label: "L", scale: 1.15, mobileScale: 1.00 }] },
+  { id: "/glass3.png", name: "Sport", price: "PKR 3,800", emoji: "🥽", sizes: [{ label: "L", scale: 1.15, mobileScale: 1.00 }] },
+  { id: "/glass4.png", name: "Round", price: "PKR 4,900", emoji: "⭕", sizes: [{ label: "L", scale: 1.15, mobileScale: 0.95 }] },
+  { id: "/glass5.png", name: "Wayfarer", price: "PKR 4,900", emoji: "🕶️", sizes: [{ label: "L", scale: 1.25, mobileScale: 0.98 }] },
+  { id: "/glass6.png", name: "Vintage", price: "PKR 4,900", emoji: "🪩", sizes: [{ label: "L", scale: 1.15, mobileScale: 0.95 }] },
+  { id: "/glass7.png", name: "Clubmaster", price: "PKR 4,900", emoji: "🔲", sizes: [{ label: "XL", scale: 1.30, mobileScale: 1.10 }] },
+  { id: "/glass8.png", name: "Cat Eye", price: "PKR 4,900", emoji: "😼", sizes: [{ label: "XL", scale: 1.30, mobileScale: 1.10 }] },
+  { id: "/glass9.png", name: "Shield", price: "PKR 4,900", emoji: "🛡️", sizes: [{ label: "M", scale: 1.00, mobileScale: 0.75 }] },
+  { id: "/glass10.png", name: "Oval", price: "PKR 4,900", emoji: "🥚", sizes: [{ label: "L", scale: 1.15, mobileScale: 0.95 }] },
+  { id: "/glass11.png", name: "Square", price: "PKR 4,900", emoji: "⬛", sizes: [{ label: "S", scale: 0.75, mobileScale: 0.50 }] },
+  { id: "/glass12.png", name: "Hexagonal", price: "PKR 4,900", emoji: "⬡", sizes: [{ label: "L", scale: 1.15, mobileScale: 0.95 }] },
+  { id: "/glass13.png", name: "Geometric", price: "PKR 4,900", emoji: "🔷", sizes: [{ label: "M", scale: 1.00, mobileScale: 0.75 }] },
+  { id: "/glass14.png", name: "Steampunk", price: "PKR 4,900", emoji: "⚙️", sizes: [{ label: "S", scale: 0.95, mobileScale: 0.50 }] },
+  { id: "/glass15.png", name: "Sports Pro", price: "PKR 4,900", emoji: "🏃", sizes: [{ label: "L", scale: 1.15, mobileScale: 0.95 }] },
+  { id: "/glass16.png", name: "Retro", price: "PKR 4,900", emoji: "🎞️", sizes: [{ label: "L", scale: 1.15, mobileScale: 0.95 }] },
+  { id: "/glass17.png", name: "Modern", price: "PKR 4,900", emoji: "✨", sizes: [{ label: "L", scale: 1.15, mobileScale: 0.95 }] },
+  { id: "/glass18.png", name: "Luxury", price: "PKR 4,900", emoji: "💎", sizes: [{ label: "L", scale: 1.15, mobileScale: 0.95 }] },
+  { id: "/glass19.png", name: "Designer", price: "PKR 4,900", emoji: "🎨", sizes: [{ label: "L", scale: 1.15, mobileScale: 0.95 }] },
+  { id: "/glass20.png", name: "Classic II", price: "PKR 4,900", emoji: "👓", sizes: [{ label: "L", scale: 1.15, mobileScale: 0.95 }] },
+  { id: "/glass21.png", name: "Classic III", price: "PKR 4,900", emoji: "👓", sizes: [{ label: "M", scale: 1.00, mobileScale: 0.75 }] },
+  { id: "/glass22.png", name: "Classic IV", price: "PKR 4,900", emoji: "👓", sizes: [{ label: "L", scale: 1.05, mobileScale: 0.95 }] },
+  { id: "/glass23.png", name: "Classic V", price: "PKR 4,900", emoji: "👓", sizes: [{ label: "L", scale: 1.15, mobileScale: 0.95 }] },
+  { id: "/glass24.png", name: "Classic VI", price: "PKR 4,900", emoji: "👓", sizes: [{ label: "S", scale: 0.85, mobileScale: 0.50 }] },
+  { id: "/glass25.png", name: "Classic VII", price: "PKR 4,900", emoji: "👓", sizes: [{ label: "L", scale: 1.15, mobileScale: 0.95 }] },
+  { id: "/glass26.png", name: "Classic VIII", price: "PKR 4,900", emoji: "👓", sizes: [{ label: "L", scale: 1.15, mobileScale: 0.95 }] },
+  { id: "/glass27.png", name: "Classic IX", price: "PKR 4,900", emoji: "👓", sizes: [{ label: "L", scale: 1.15, mobileScale: 0.95 }] },
+  { id: "/glass28.png", name: "Classic X", price: "PKR 4,900", emoji: "👓", sizes: [{ label: "M", scale: 1.00, mobileScale: 0.75 }] },
+  { id: "/glass29.png", name: "Classic XI", price: "PKR 4,900", emoji: "👓", sizes: [{ label: "L", scale: 1.25, mobileScale: 0.95 }] },
+  { id: "/glass30.png", name: "Classic XII", price: "PKR 4,900", emoji: "👓", sizes: [{ label: "L", scale: 1.15, mobileScale: 0.95 }] },
+  { id: "/glass31.png", name: "Classic 31", price: "PKR 4,900", emoji: "👓", sizes: [{ label: "L", scale: 1.15, mobileScale: 0.95 }] },
+  { id: "/glass32.png", name: "Classic 32", price: "PKR 4,900", emoji: "👓", sizes: [{ label: "L", scale: 1.15, mobileScale: 0.95 }] },
+  { id: "/glass33.png", name: "Classic 33", price: "PKR 4,900", emoji: "👓", sizes: [{ label: "L", scale: 1.15, mobileScale: 0.95 }] },
+  { id: "/glass34.png", name: "Classic 34", price: "PKR 4,900", emoji: "👓", sizes: [{ label: "L", scale: 1.15, mobileScale: 0.95 }] },
+  { id: "/glass35.png", name: "Classic 35", price: "PKR 4,900", emoji: "👓", sizes: [{ label: "M", scale: 1.10, mobileScale: 0.75 }] },
+  { id: "/glass36.png", name: "Classic 36", price: "PKR 4,900", emoji: "👓", sizes: [{ label: "L", scale: 1.15, mobileScale: 0.95 }] },
+  { id: "/glass37.png", name: "Classic 37", price: "PKR 4,900", emoji: "👓", sizes: [{ label: "L", scale: 1.15, mobileScale: 0.95 }] },
+  { id: "/glass38.png", name: "Classic 38", price: "PKR 4,900", emoji: "👓", sizes: [{ label: "XL", scale: 1.30, mobileScale: 1.10 }] },
+  { id: "/glass39.png", name: "Classic 39", price: "PKR 4,900", emoji: "👓", sizes: [{ label: "L", scale: 1.15, mobileScale: 0.95 }] },
+  { id: "/glass40.png", name: "Classic 40", price: "PKR 4,900", emoji: "👓", sizes: [{ label: "M", scale: 1.00, mobileScale: 0.75 }] },
+  { id: "/glass41.png", name: "Classic 41", price: "PKR 4,900", emoji: "👓", sizes: [{ label: "L", scale: 1.15, mobileScale: 0.95 }] },
+  { id: "/glass42.png", name: "Classic 42", price: "PKR 4,900", emoji: "👓", sizes: [{ label: "S", scale: 0.95, mobileScale: 0.50 }] },
+  { id: "/glass43.png", name: "Classic 43", price: "PKR 4,900", emoji: "👓", sizes: [{ label: "L", scale: 1.15, mobileScale: 0.95 }] },
+  { id: "/glass44.png", name: "Classic 44", price: "PKR 4,900", emoji: "👓", sizes: [{ label: "L", scale: 1.15, mobileScale: 0.95 }] },
+  { id: "/glass45.png", name: "Classic 45", price: "PKR 4,900", emoji: "👓", sizes: [{ label: "XL", scale: 1.30, mobileScale: 1.10 }] },
+  { id: "/glass46.png", name: "Classic 46", price: "PKR 4,900", emoji: "👓", sizes: [{ label: "XL", scale: 1.40, mobileScale: 1.10 }] },
+  { id: "/glass47.png", name: "Classic 47", price: "PKR 4,900", emoji: "👓", sizes: [{ label: "XL", scale: 1.20, mobileScale: 1.10 }] },
+  { id: "/glass48.png", name: "Classic 48", price: "PKR 4,900", emoji: "👓", sizes: [{ label: "M", scale: 1.00, mobileScale: 0.75 }] },
+  { id: "/glass49.png", name: "Classic 49", price: "PKR 4,900", emoji: "👓", sizes: [{ label: "L", scale: 1.15, mobileScale: 0.95 }] },
 ];
 
 // ─── Device helpers ────────────────────────────────────────────────────────────
@@ -8772,7 +8772,7 @@ const getIsMobile = () =>
 
 const getMobileSizes = () => {
   const landscape = typeof window !== "undefined" && window.innerWidth > window.innerHeight;
-  const isLowEnd  = typeof window !== "undefined" &&
+  const isLowEnd = typeof window !== "undefined" &&
     (window.innerWidth <= 360 || (navigator.deviceMemory ?? 8) <= 2);
   if (isLowEnd) {
     return landscape
@@ -8788,11 +8788,11 @@ const getSizeScale = (sizeObj, mobile) =>
   sizeObj ? (mobile ? (sizeObj.mobileScale ?? sizeObj.scale) : sizeObj.scale) : 1;
 
 // ─── Timing constants ──────────────────────────────────────────────────────────
-const MOBILE_FPS      = 30;
+const MOBILE_FPS = 30;
 const MOBILE_FRAME_INT = 1000 / MOBILE_FPS;
 
-const DESKTOP_CAM_W   = 1280;
-const DESKTOP_CAM_H   = 720;
+const DESKTOP_CAM_W = 1280;
+const DESKTOP_CAM_H = 720;
 const DESKTOP_CANVAS_W = 1280;
 const DESKTOP_CANVAS_H = 720;
 
@@ -8801,29 +8801,29 @@ const BEAUTY_B = 100, BEAUTY_C = 100, BEAUTY_S = 100;
 
 // ─── Landmark indices ─────────────────────────────────────────────────────────
 const LANDMARKS = {
-  LEFT_IRIS_CENTER:    468,
-  RIGHT_IRIS_CENTER:   473,
-  LEFT_EYE_OUTER:       33,
-  RIGHT_EYE_OUTER:     263,
-  LEFT_EYE_INNER:      133,
-  RIGHT_EYE_INNER:     362,
-  LEFT_EYE_TOP:        [159, 160, 161],
-  RIGHT_EYE_TOP:       [386, 387, 388],
-  LEFT_EYEBROW_LOWER:  [70, 63, 105, 66, 107],
+  LEFT_IRIS_CENTER: 468,
+  RIGHT_IRIS_CENTER: 473,
+  LEFT_EYE_OUTER: 33,
+  RIGHT_EYE_OUTER: 263,
+  LEFT_EYE_INNER: 133,
+  RIGHT_EYE_INNER: 362,
+  LEFT_EYE_TOP: [159, 160, 161],
+  RIGHT_EYE_TOP: [386, 387, 388],
+  LEFT_EYEBROW_LOWER: [70, 63, 105, 66, 107],
   RIGHT_EYEBROW_LOWER: [300, 293, 334, 296, 336],
-  NOSE_BRIDGE_TOP:     6,
-  LEFT_FACE_EDGE:      234,
-  RIGHT_FACE_EDGE:     454,
+  NOSE_BRIDGE_TOP: 6,
+  LEFT_FACE_EDGE: 234,
+  RIGHT_FACE_EDGE: 454,
 };
 
 class FaceGeoSmoother {
   constructor({ posAlpha, scaleAlpha, rotAlpha, maxPosDelta = 60, maxScaleDelta = 0.15 }) {
-    this.posAlpha     = posAlpha;
-    this.scaleAlpha   = scaleAlpha;
-    this.rotAlpha     = rotAlpha;
-    this.maxPosDelta  = maxPosDelta;
+    this.posAlpha = posAlpha;
+    this.scaleAlpha = scaleAlpha;
+    this.rotAlpha = rotAlpha;
+    this.maxPosDelta = maxPosDelta;
     this.maxScaleDelta = maxScaleDelta;
-    this.prev         = null;
+    this.prev = null;
   }
 
   _step(prev, cur, alpha, maxDelta, deadzone = 0) {
@@ -8837,12 +8837,12 @@ class FaceGeoSmoother {
     if (!this.prev) { this.prev = { ...cur }; return { ...cur }; }
     const p = this.prev;
     const r = {
-      cx:    this._step(p.cx,    cur.cx,    this.posAlpha,   this.maxPosDelta,   deadzone),
-      cy:    this._step(p.cy,    cur.cy,    this.posAlpha,   this.maxPosDelta,   deadzone),
-      gw:    this._step(p.gw,    cur.gw,    this.scaleAlpha, this.maxPosDelta,   0),
-      gh:    this._step(p.gh,    cur.gh,    this.scaleAlpha, this.maxPosDelta,   0),
-      angle: this._step(p.angle, cur.angle, this.rotAlpha,   0.18,               0),
-      ds:    this._step(p.ds,    cur.ds,    this.scaleAlpha, this.maxScaleDelta, 0),
+      cx: this._step(p.cx, cur.cx, this.posAlpha, this.maxPosDelta, deadzone),
+      cy: this._step(p.cy, cur.cy, this.posAlpha, this.maxPosDelta, deadzone),
+      gw: this._step(p.gw, cur.gw, this.scaleAlpha, this.maxPosDelta, 0),
+      gh: this._step(p.gh, cur.gh, this.scaleAlpha, this.maxPosDelta, 0),
+      angle: this._step(p.angle, cur.angle, this.rotAlpha, 0.18, 0),
+      ds: this._step(p.ds, cur.ds, this.scaleAlpha, this.maxScaleDelta, 0),
     };
     this.prev = { ...r };
     return r;
@@ -8862,20 +8862,20 @@ function extractFaceGeometry(lm, W, H, useIris = true) {
   };
   const dist = (a, b) => Math.hypot(a.x - b.x, a.y - b.y);
 
-  const leftEyeOut  = px(LANDMARKS.LEFT_EYE_OUTER);
+  const leftEyeOut = px(LANDMARKS.LEFT_EYE_OUTER);
   const rightEyeOut = px(LANDMARKS.RIGHT_EYE_OUTER);
-  const leftEyeIn   = px(LANDMARKS.LEFT_EYE_INNER);
-  const rightEyeIn  = px(LANDMARKS.RIGHT_EYE_INNER);
+  const leftEyeIn = px(LANDMARKS.LEFT_EYE_INNER);
+  const rightEyeIn = px(LANDMARKS.RIGHT_EYE_INNER);
   const noseBridgeTop = px(LANDMARKS.NOSE_BRIDGE_TOP);
-  const leftBrowLower  = avgPx(LANDMARKS.LEFT_EYEBROW_LOWER);
+  const leftBrowLower = avgPx(LANDMARKS.LEFT_EYEBROW_LOWER);
   const rightBrowLower = avgPx(LANDMARKS.RIGHT_EYEBROW_LOWER);
 
   let leftIris, rightIris;
   if (useIris && lm.length > 473) {
-    leftIris  = px(LANDMARKS.LEFT_IRIS_CENTER);
+    leftIris = px(LANDMARKS.LEFT_IRIS_CENTER);
     rightIris = px(LANDMARKS.RIGHT_IRIS_CENTER);
   } else {
-    leftIris  = {
+    leftIris = {
       x: leftEyeOut.x * 0.5 + leftEyeIn.x * 0.5,
       y: leftEyeOut.y * 0.5 + leftEyeIn.y * 0.5,
       z: 0,
@@ -8887,8 +8887,8 @@ function extractFaceGeometry(lm, W, H, useIris = true) {
     };
   }
 
-  const irisY   = (leftIris.y  + rightIris.y)  / 2;
-  const centerX = (leftIris.x  + rightIris.x)  / 2;
+  const irisY = (leftIris.y + rightIris.y) / 2;
+  const centerX = (leftIris.x + rightIris.x) / 2;
   const browMidY = (leftBrowLower.y + rightBrowLower.y) / 2;
 
   const centerY = irisY * 0.65 + noseBridgeTop.y * 0.30 + browMidY * 0.05;
@@ -8908,40 +8908,47 @@ function extractFaceGeometry(lm, W, H, useIris = true) {
 
   const eyeSpan = dist(leftEyeOut, rightEyeOut);
   const spanMult = useIris ? 1.0 : 1.20;
-  const glassesWidth  = eyeSpan * 1.60 * spanMult;
+  const glassesWidth = eyeSpan * 1.60 * spanMult;
   const glassesHeight = eyeSpan * 0.90 * spanMult;
 
   const avgZ = (leftIris.z + rightIris.z + (noseBridgeTop.z ?? 0)) / 3;
-  const depthScale = Math.max(0.93, Math.min(1.07, 1 + (-avgZ * 0.5)));
 
+  // Strong dynamic scaling
+  const depthScale = Math.max(
+    0.75,   // smaller when far
+    Math.min(
+      1.45, // much bigger when close
+      1 + (-avgZ * 2.2)
+    )
+  );
   return { centerX, centerY, angle, glassesWidth, glassesHeight, depthScale };
 }
 
 // ─── Theme ────────────────────────────────────────────────────────────────────
 const C = {
-  primary:       "#E87F24",
-  accent:        "#73A5CA",
-  bg:            "#FEFDDF",
-  surface:       "#F5F3C7",
-  text:          "#1E293B",
-  primary12:     "rgba(232,127,36,0.12)",
-  primary20:     "rgba(232,127,36,0.20)",
-  primary25:     "rgba(232,127,36,0.25)",
-  primary30:     "rgba(232,127,36,0.30)",
-  primary40:     "rgba(232,127,36,0.40)",
-  accent12:      "rgba(115,165,202,0.12)",
-  accent20:      "rgba(115,165,202,0.20)",
-  accent28:      "rgba(115,165,202,0.28)",
-  text55:        "rgba(30,41,59,0.55)",
-  text30:        "rgba(30,41,59,0.30)",
-  text12:        "rgba(30,41,59,0.12)",
-  text06:        "rgba(30,41,59,0.06)",
-  glassBg:       "rgba(254,253,223,0.65)",
-  glassBorder:   "rgba(255,255,255,0.70)",
+  primary: "#E87F24",
+  accent: "#73A5CA",
+  bg: "#FEFDDF",
+  surface: "#F5F3C7",
+  text: "#1E293B",
+  primary12: "rgba(232,127,36,0.12)",
+  primary20: "rgba(232,127,36,0.20)",
+  primary25: "rgba(232,127,36,0.25)",
+  primary30: "rgba(232,127,36,0.30)",
+  primary40: "rgba(232,127,36,0.40)",
+  accent12: "rgba(115,165,202,0.12)",
+  accent20: "rgba(115,165,202,0.20)",
+  accent28: "rgba(115,165,202,0.28)",
+  text55: "rgba(30,41,59,0.55)",
+  text30: "rgba(30,41,59,0.30)",
+  text12: "rgba(30,41,59,0.12)",
+  text06: "rgba(30,41,59,0.06)",
+  glassBg: "rgba(254,253,223,0.65)",
+  glassBorder: "rgba(255,255,255,0.70)",
   surfaceBorder: "rgba(255,255,255,0.85)",
-  white15:       "rgba(255,255,255,0.15)",
-  white08:       "rgba(255,255,255,0.08)",
-  gradPrimary:   "linear-gradient(135deg, #E87F24, #F5A623)",
+  white15: "rgba(255,255,255,0.15)",
+  white08: "rgba(255,255,255,0.08)",
+  gradPrimary: "linear-gradient(135deg, #E87F24, #F5A623)",
   gradPrimaryTx: "linear-gradient(135deg, #F5A623, #E87F24)",
   gradBg: `
     radial-gradient(ellipse 60% 50% at 80% 10%, rgba(232,127,36,0.13) 0%, transparent 60%),
@@ -8951,9 +8958,9 @@ const C = {
 };
 
 const glassPill = {
-  borderRadius:          100,
-  backdropFilter:        "blur(14px)",
-  WebkitBackdropFilter:  "blur(14px)",
+  borderRadius: 100,
+  backdropFilter: "blur(14px)",
+  WebkitBackdropFilter: "blur(14px)",
 };
 
 // ─── UI sub-components ────────────────────────────────────────────────────────
@@ -9010,23 +9017,23 @@ const SliderRow = ({ label, value, min, max, step, onChange, fmt }) => (
 // Main Component
 // ─────────────────────────────────────────────────────────────────────────────
 const TryOn = () => {
-  const videoRef         = useRef(null);
-  const canvasRef        = useRef(null);
-  const imgRef           = useRef(new Image());
-  const rafIdRef         = useRef(null);
-  const lastFrameRef     = useRef(0);
-  const touchStartX      = useRef(null);
-  const touchStartY      = useRef(null);
-  const cameraRdyRef     = useRef(false);
-  const glassesRef       = useRef("/glass1.png");
-  const adjRef           = useRef({});
+  const videoRef = useRef(null);
+  const canvasRef = useRef(null);
+  const imgRef = useRef(new Image());
+  const rafIdRef = useRef(null);
+  const lastFrameRef = useRef(0);
+  const touchStartX = useRef(null);
+  const touchStartY = useRef(null);
+  const cameraRdyRef = useRef(false);
+  const glassesRef = useRef("/glass1.png");
+  const adjRef = useRef({});
   const pendingResultRef = useRef(null);
-  const camStreamRef     = useRef(null);
-  const camInstanceRef   = useRef(null);
-  const cachedGlassRef   = useRef(null);
-  const ctxRef           = useRef(null);
-  const resultVersionRef     = useRef(0);
-  const lastDrawnVersionRef  = useRef(-1);
+  const camStreamRef = useRef(null);
+  const camInstanceRef = useRef(null);
+  const cachedGlassRef = useRef(null);
+  const ctxRef = useRef(null);
+  const resultVersionRef = useRef(0);
+  const lastDrawnVersionRef = useRef(-1);
 
   const [isMobile, setIsMobile] = useState(() => getIsMobile());
   const isMobileRef = useRef(isMobile);
@@ -9048,34 +9055,34 @@ const TryOn = () => {
   if (!smootherRef.current) {
     smootherRef.current = isMobile
       ? new FaceGeoSmoother({
-          posAlpha:      0.38,
-          scaleAlpha:    0.25,
-          rotAlpha:      0.22,
-          maxPosDelta:   48,
-          maxScaleDelta: 0.12,
-        })
+        posAlpha: 0.38,
+        scaleAlpha: 0.25,
+        rotAlpha: 0.22,
+        maxPosDelta: 48,
+        maxScaleDelta: 0.12,
+      })
       : new FaceGeoSmoother({
-          posAlpha:      0.45,
-          scaleAlpha:    0.32,
-          rotAlpha:      0.30,
-          maxPosDelta:   60,
-          maxScaleDelta: 0.15,
-        });
+        posAlpha: 0.45,
+        scaleAlpha: 0.32,
+        rotAlpha: 0.30,
+        maxPosDelta: 60,
+        maxScaleDelta: 0.15,
+      });
   }
 
-  const [glasses, setGlasses]         = useState("/glass1.png");
+  const [glasses, setGlasses] = useState("/glass1.png");
   const [cameraReady, setCameraReady] = useState(false);
-  const [brightness, setBrightness]   = useState(100);
-  const [contrast,   setContrast]     = useState(100);
-  const [saturate,   setSaturate]     = useState(100);
-  const [mpError,    setMpError]      = useState(null);
+  const [brightness, setBrightness] = useState(100);
+  const [contrast, setContrast] = useState(100);
+  const [saturate, setSaturate] = useState(100);
+  const [mpError, setMpError] = useState(null);
 
   const brightnessRef = useRef(100);
-  const contrastRef   = useRef(100);
-  const saturateRef   = useRef(100);
+  const contrastRef = useRef(100);
+  const saturateRef = useRef(100);
   useEffect(() => { brightnessRef.current = brightness; }, [brightness]);
-  useEffect(() => { contrastRef.current   = contrast;   }, [contrast]);
-  useEffect(() => { saturateRef.current   = saturate;   }, [saturate]);
+  useEffect(() => { contrastRef.current = contrast; }, [contrast]);
+  useEffect(() => { saturateRef.current = saturate; }, [saturate]);
 
   const adjustmentsRef = useRef(
     Object.fromEntries(GLASS_OPTIONS.map(g => {
@@ -9087,8 +9094,8 @@ const TryOn = () => {
   const [adjUIState, setAdjUIState] = useState(() => adjustmentsRef.current["/glass1.png"]);
 
   useEffect(() => {
-    glassesRef.current   = glasses;
-    adjRef.current       = adjustmentsRef.current;
+    glassesRef.current = glasses;
+    adjRef.current = adjustmentsRef.current;
     cachedGlassRef.current = GLASS_OPTIONS.find(g => g.id === glasses) || null;
     setAdjUIState({ ...(adjustmentsRef.current[glasses] || DEFAULT_ADJ) });
   }, [glasses]);
@@ -9107,7 +9114,7 @@ const TryOn = () => {
     const id = glassesRef.current;
     const defaults =
       id === "/glass2.png" ? { ...AVIATOR_ADJ } :
-      id === "/glass4.png" ? { ...ROUND_ADJ }   : { ...DEFAULT_ADJ };
+        id === "/glass4.png" ? { ...ROUND_ADJ } : { ...DEFAULT_ADJ };
     adjustmentsRef.current = { ...adjustmentsRef.current, [id]: defaults };
     adjRef.current = adjustmentsRef.current;
     setAdjUIState({ ...defaults });
@@ -9125,7 +9132,7 @@ const TryOn = () => {
     rafIdRef.current = requestAnimationFrame(drawLoop);
 
     const mobile = isMobileRef.current;
-    const now    = performance.now();
+    const now = performance.now();
     if (mobile && now - lastFrameRef.current < MOBILE_FRAME_INT) return;
     lastFrameRef.current = now;
 
@@ -9167,7 +9174,7 @@ const TryOn = () => {
       return;
     }
 
-    const lm  = result.multiFaceLandmarks[0];
+    const lm = result.multiFaceLandmarks[0];
     const geo = extractFaceGeometry(lm, W, H, !mobile);
 
     const mirroredCx = W - geo.centerX;
@@ -9184,24 +9191,25 @@ const TryOn = () => {
     }
 
     const glassObj = cachedGlassRef.current;
-    const sSc      = glassObj?.sizes?.[0] ? getSizeScale(glassObj.sizes[0], mobile) : 1.0;
-    const adj      = adjRef.current[glassesRef.current] || DEFAULT_ADJ;
+    const sSc = glassObj?.sizes?.[0] ? getSizeScale(glassObj.sizes[0], mobile) : 1.0;
+    const adj = adjRef.current[glassesRef.current] || DEFAULT_ADJ;
 
     let w = sm.gw * adj.scaleW;
     let h = sm.gh * adj.scaleH;
     if (!mobile) {
-      const ds = Math.max(0.95, Math.min(1.05, sm.ds));
-      w *= ds; h *= ds;
+      const ds = sm.ds;
+      w *= ds;
+      h *= ds;
     }
     w *= sSc; h *= sSc;
 
     w = Math.max(20, Math.min(W * 0.95, w));
-    h = Math.max(8,  Math.min(H * 0.60, h));
+    h = Math.max(8, Math.min(H * 0.60, h));
 
     const mirroredAngle = -sm.angle;
 
-    const halfW    = w * 0.5;
-    const halfH    = h * 0.5;
+    const halfW = w * 0.5;
+    const halfH = h * 0.5;
     const clampedX = Math.max(halfW, Math.min(W - halfW, sm.cx + adj.offsetX));
     const clampedY = Math.max(halfH, Math.min(H - halfH, sm.cy + adj.offsetY));
 
@@ -9236,7 +9244,7 @@ const TryOn = () => {
     }
 
     if (canvasRef.current) {
-      canvasRef.current.width  = canvasW;
+      canvasRef.current.width = canvasW;
       canvasRef.current.height = canvasH;
       ctxRef.current = null;
     }
@@ -9245,10 +9253,10 @@ const TryOn = () => {
       locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh@0.4/${file}`,
     });
     faceMesh.setOptions({
-      maxNumFaces:            1,
-      refineLandmarks:        !mobile,
+      maxNumFaces: 1,
+      refineLandmarks: !mobile,
       minDetectionConfidence: mobile ? 0.40 : 0.50,
-      minTrackingConfidence:  mobile ? 0.35 : 0.50,
+      minTrackingConfidence: mobile ? 0.35 : 0.50,
     });
     faceMesh.onResults(onResults);
 
@@ -9257,46 +9265,46 @@ const TryOn = () => {
     navigator.mediaDevices.getUserMedia({
       video: {
         facingMode: "user",
-        width:      { ideal: camW },
-        height:     { ideal: camH },
-        frameRate:  { ideal: mobile ? 30 : 60 },
+        width: { ideal: camW },
+        height: { ideal: camH },
+        frameRate: { ideal: mobile ? 30 : 60 },
       },
       audio: false,
     })
-    .then(stream => {
-      camStreamRef.current = stream;
-      const video = videoRef.current;
-      if (!video) return;
-      video.srcObject = stream;
-      video.onloadedmetadata = () => {
-        video.play().then(() => {
-          cameraRdyRef.current = true;
-          setCameraReady(true);
+      .then(stream => {
+        camStreamRef.current = stream;
+        const video = videoRef.current;
+        if (!video) return;
+        video.srcObject = stream;
+        video.onloadedmetadata = () => {
+          video.play().then(() => {
+            cameraRdyRef.current = true;
+            setCameraReady(true);
 
-          const sendFrame = async () => {
-            if (!cameraRdyRef.current) return;
-            try {
-              if (video.readyState >= 2) await faceMesh.send({ image: video });
-            } catch (_) { /* ignore send errors on cleanup */ }
-            if (cameraRdyRef.current) {
-              camInstanceRef.current = requestAnimationFrame(sendFrame);
-            }
-          };
-          camInstanceRef.current = requestAnimationFrame(sendFrame);
-        }).catch(err => {
-          console.error("Video play failed:", err);
-          setMpError("Could not start video playback. Please reload and allow camera access.");
-        });
-      };
-    })
-    .catch(err => {
-      console.error("Camera failed:", err);
-      setMpError("Camera access denied or not available. Please allow camera permissions and reload.");
-    });
+            const sendFrame = async () => {
+              if (!cameraRdyRef.current) return;
+              try {
+                if (video.readyState >= 2) await faceMesh.send({ image: video });
+              } catch (_) { /* ignore send errors on cleanup */ }
+              if (cameraRdyRef.current) {
+                camInstanceRef.current = requestAnimationFrame(sendFrame);
+              }
+            };
+            camInstanceRef.current = requestAnimationFrame(sendFrame);
+          }).catch(err => {
+            console.error("Video play failed:", err);
+            setMpError("Could not start video playback. Please reload and allow camera access.");
+          });
+        };
+      })
+      .catch(err => {
+        console.error("Camera failed:", err);
+        setMpError("Camera access denied or not available. Please allow camera permissions and reload.");
+      });
 
     return () => {
       cameraRdyRef.current = false;
-      if (rafIdRef.current)       cancelAnimationFrame(rafIdRef.current);
+      if (rafIdRef.current) cancelAnimationFrame(rafIdRef.current);
       if (camInstanceRef.current) cancelAnimationFrame(camInstanceRef.current);
       if (camStreamRef.current) {
         camStreamRef.current.getTracks().forEach(t => t.stop());
@@ -9542,7 +9550,7 @@ const TryOn = () => {
   );
 
   const currentGlass = GLASS_OPTIONS.find(g => g.id === glasses);
-  const curAdj       = adjUIState;
+  const curAdj = adjUIState;
 
   // ══════════════════════════════════════════════════════════════
   // MOBILE LAYOUT
@@ -9551,7 +9559,7 @@ const TryOn = () => {
     const idx = GLASS_OPTIONS.findIndex(g => g.id === glasses);
     const { canvasW, canvasH } = mobileSizes;
 
-    const CIRCLE_SIZE_ACTIVE   = 58;
+    const CIRCLE_SIZE_ACTIVE = 58;
     const CIRCLE_SIZE_INACTIVE = 50;
 
     const onTouchStart = (e) => {
@@ -9565,7 +9573,7 @@ const TryOn = () => {
       if (Math.abs(dx) > 50 && Math.abs(dx) > dy) {
         const cur = GLASS_OPTIONS.findIndex(g => g.id === glassesRef.current);
         if (dx < 0 && cur < GLASS_OPTIONS.length - 1) setGlasses(GLASS_OPTIONS[cur + 1].id);
-        if (dx > 0 && cur > 0)                        setGlasses(GLASS_OPTIONS[cur - 1].id);
+        if (dx > 0 && cur > 0) setGlasses(GLASS_OPTIONS[cur - 1].id);
       }
       touchStartX.current = null;
       touchStartY.current = null;
@@ -9573,53 +9581,53 @@ const TryOn = () => {
 
     return (
       <div
-        style={{ position:"fixed", inset:0, background:"#000", fontFamily:"'Space Grotesk',sans-serif", color:"#fff", overflow:"hidden", touchAction:"pan-y" }}
+        style={{ position: "fixed", inset: 0, background: "#000", fontFamily: "'Space Grotesk',sans-serif", color: "#fff", overflow: "hidden", touchAction: "pan-y" }}
         onTouchStart={onTouchStart}
         onTouchEnd={onTouchEnd}
       >
         <style>{css}</style>
-        <video ref={videoRef} style={{ position:"absolute", left:"-100%", top:"-100%", width:"1px", height:"1px", opacity:0, pointerEvents:"none" }} autoPlay playsInline muted />
+        <video ref={videoRef} style={{ position: "absolute", left: "-100%", top: "-100%", width: "1px", height: "1px", opacity: 0, pointerEvents: "none" }} autoPlay playsInline muted />
 
         <canvas
           ref={canvasRef}
           width={canvasW}
           height={canvasH}
-          style={{ position:"absolute", inset:0, width:"100%", height:"100%", objectFit:"cover", display:"block" }}
+          style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", display: "block" }}
           aria-label="AR glasses try-on camera view"
         />
 
         {/* Top vignette */}
-        <div style={{ position:"absolute", top:0, left:0, right:0, height:"22%", background:"linear-gradient(to bottom, rgba(0,0,0,0.50), transparent)", pointerEvents:"none" }} aria-hidden="true" />
+        <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: "22%", background: "linear-gradient(to bottom, rgba(0,0,0,0.50), transparent)", pointerEvents: "none" }} aria-hidden="true" />
 
         {/* AR tracking indicator */}
         {cameraReady && (
           <div role="status" aria-live="polite" style={{
-            position:"absolute", top:18, left:16, zIndex:20,
-            display:"flex", alignItems:"center",
-            background:"rgba(0,0,0,0.42)", ...glassPill,
-            border:`1px solid rgba(115,165,202,0.30)`,
-            padding:"5px 12px", animation:"fadeIn 0.35s ease",
+            position: "absolute", top: 18, left: 16, zIndex: 20,
+            display: "flex", alignItems: "center",
+            background: "rgba(0,0,0,0.42)", ...glassPill,
+            border: `1px solid rgba(115,165,202,0.30)`,
+            padding: "5px 12px", animation: "fadeIn 0.35s ease",
           }}>
             <span className="ar-dot" aria-hidden="true" />
-            <span style={{ fontSize:10, fontWeight:600, color:"rgba(255,255,255,0.80)", letterSpacing:"0.5px" }}>Tracking</span>
+            <span style={{ fontSize: 10, fontWeight: 600, color: "rgba(255,255,255,0.80)", letterSpacing: "0.5px" }}>Tracking</span>
           </div>
         )}
 
         {/* Frame name + price */}
         {cameraReady && currentGlass && (
           <div aria-live="polite" style={{
-            position:"absolute", bottom:158, left:"50%", transform:"translateX(-50%)",
-            zIndex:20, whiteSpace:"nowrap",
-            background:"rgba(0,0,0,0.48)", ...glassPill,
-            border:`1px solid ${C.primary25}`,
-            padding:"7px 20px",
-            display:"flex", alignItems:"center", gap:10,
-            animation:"fadeIn 0.3s ease",
-            boxShadow:`0 4px 20px rgba(0,0,0,0.25), 0 0 20px ${C.primary12}`,
+            position: "absolute", bottom: 158, left: "50%", transform: "translateX(-50%)",
+            zIndex: 20, whiteSpace: "nowrap",
+            background: "rgba(0,0,0,0.48)", ...glassPill,
+            border: `1px solid ${C.primary25}`,
+            padding: "7px 20px",
+            display: "flex", alignItems: "center", gap: 10,
+            animation: "fadeIn 0.3s ease",
+            boxShadow: `0 4px 20px rgba(0,0,0,0.25), 0 0 20px ${C.primary12}`,
           }}>
-            <span style={{ fontSize:13, fontWeight:700, color:"rgba(254,253,223,0.95)" }}>{currentGlass.name}</span>
-            <span aria-hidden="true" style={{ width:1, height:11, background:C.primary30, display:"inline-block" }} />
-            <span style={{ fontSize:13, fontWeight:700, background:C.gradPrimary, WebkitBackgroundClip:"text", WebkitTextFillColor:"transparent" }}>
+            <span style={{ fontSize: 13, fontWeight: 700, color: "rgba(254,253,223,0.95)" }}>{currentGlass.name}</span>
+            <span aria-hidden="true" style={{ width: 1, height: 11, background: C.primary30, display: "inline-block" }} />
+            <span style={{ fontSize: 13, fontWeight: 700, background: C.gradPrimary, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
               {currentGlass.price}
             </span>
           </div>
@@ -9627,12 +9635,12 @@ const TryOn = () => {
 
         {/* Progress dots */}
         {cameraReady && (
-          <div aria-hidden="true" style={{ position:"absolute", bottom:140, left:"50%", transform:"translateX(-50%)", display:"flex", gap:4, zIndex:20 }}>
+          <div aria-hidden="true" style={{ position: "absolute", bottom: 140, left: "50%", transform: "translateX(-50%)", display: "flex", gap: 4, zIndex: 20 }}>
             {GLASS_OPTIONS.map((g, i) => (
               <div key={g.id} style={{
-                width: i === idx ? 14 : 4, height:4, borderRadius:3,
+                width: i === idx ? 14 : 4, height: 4, borderRadius: 3,
                 background: i === idx ? C.primary : C.white15,
-                transition:"all 0.25s ease",
+                transition: "all 0.25s ease",
               }} />
             ))}
           </div>
@@ -9640,14 +9648,14 @@ const TryOn = () => {
 
         {/* ── Snapchat-style ring carousel ── */}
         <div style={{
-          position:"absolute", bottom:0, left:0, right:0, zIndex:20,
-          paddingBottom:"env(safe-area-inset-bottom, 10px)",
-          background:"linear-gradient(to top, rgba(8,4,1,0.97) 50%, rgba(8,4,1,0.80) 75%, transparent 100%)",
+          position: "absolute", bottom: 0, left: 0, right: 0, zIndex: 20,
+          paddingBottom: "env(safe-area-inset-bottom, 10px)",
+          background: "linear-gradient(to top, rgba(8,4,1,0.97) 50%, rgba(8,4,1,0.80) 75%, transparent 100%)",
         }}>
           {/* Header row */}
-          <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", padding:"8px 20px 2px" }}>
-            <span style={{ fontSize:9, fontWeight:700, letterSpacing:"2px", color:"rgba(254,253,223,0.30)", textTransform:"uppercase" }}>Frames</span>
-            <span style={{ fontSize:9, color:"rgba(254,253,223,0.25)" }} aria-live="polite">{idx + 1} / {GLASS_OPTIONS.length}</span>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "8px 20px 2px" }}>
+            <span style={{ fontSize: 9, fontWeight: 700, letterSpacing: "2px", color: "rgba(254,253,223,0.30)", textTransform: "uppercase" }}>Frames</span>
+            <span style={{ fontSize: 9, color: "rgba(254,253,223,0.25)" }} aria-live="polite">{idx + 1} / {GLASS_OPTIONS.length}</span>
           </div>
 
           {/* Ring carousel */}
@@ -9675,7 +9683,7 @@ const TryOn = () => {
                   <div
                     className="lens-ring__circle"
                     style={{
-                      width:  circleSize,
+                      width: circleSize,
                       height: circleSize,
                       background: isA
                         ? "radial-gradient(circle at 35% 35%, rgba(232,127,36,0.22), rgba(10,5,2,0.90))"
@@ -9707,22 +9715,22 @@ const TryOn = () => {
 
         {!cameraReady && (
           <div role="status" aria-label="Initializing camera" style={{
-            position:"absolute", inset:0, zIndex:50,
-            background:`radial-gradient(ellipse 120% 80% at 55% 30%, rgba(232,127,36,0.08) 0%, rgba(10,5,2,0.99) 60%)`,
-            display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", gap:24,
+            position: "absolute", inset: 0, zIndex: 50,
+            background: `radial-gradient(ellipse 120% 80% at 55% 30%, rgba(232,127,36,0.08) 0%, rgba(10,5,2,0.99) 60%)`,
+            display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 24,
           }}>
-            <div style={{ position:"relative", width:44, height:44 }}>
+            <div style={{ position: "relative", width: 44, height: 44 }}>
               <div className="spinner" />
               <div className="spinner-inner" />
             </div>
-            <div style={{ textAlign:"center" }}>
-              <div style={{ fontFamily:"'Outfit',sans-serif", fontSize:22, fontWeight:800, marginBottom:6, background:C.gradPrimary, WebkitBackgroundClip:"text", WebkitTextFillColor:"transparent" }}>
+            <div style={{ textAlign: "center" }}>
+              <div style={{ fontFamily: "'Outfit',sans-serif", fontSize: 22, fontWeight: 800, marginBottom: 6, background: C.gradPrimary, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
                 VR.OPTICS
               </div>
-              <div style={{ fontSize:9, fontWeight:700, letterSpacing:"3px", color:C.primary, marginBottom:8 }}>INITIALIZING</div>
-              <div style={{ fontSize:10, color:"rgba(254,253,223,0.40)" }}>Allow camera access to continue</div>
+              <div style={{ fontSize: 9, fontWeight: 700, letterSpacing: "3px", color: C.primary, marginBottom: 8 }}>INITIALIZING</div>
+              <div style={{ fontSize: 10, color: "rgba(254,253,223,0.40)" }}>Allow camera access to continue</div>
             </div>
-            <div style={{ fontSize:9, color:"rgba(254,253,223,0.22)", border:`0.5px solid rgba(255,255,255,0.10)`, borderRadius:100, padding:"4px 14px" }}>
+            <div style={{ fontSize: 9, color: "rgba(254,253,223,0.22)", border: `0.5px solid rgba(255,255,255,0.10)`, borderRadius: 100, padding: "4px 14px" }}>
               ← Swipe to browse frames →
             </div>
           </div>
@@ -9735,79 +9743,85 @@ const TryOn = () => {
   // DESKTOP LAYOUT
   // ══════════════════════════════════════════════════════════════
   return (
-    <div style={{ fontFamily:"'Space Grotesk', sans-serif", background:C.gradBg, color:C.text, height:"100vh", display:"flex", overflow:"hidden" }}>
+    <div style={{ fontFamily: "'Space Grotesk', sans-serif", background: C.gradBg, color: C.text, height: "100vh", display: "flex", overflow: "hidden" }}>
       <style>{css}</style>
 
       {/* Ambient glow */}
-      <div aria-hidden="true" style={{ position:"fixed", inset:0, pointerEvents:"none", zIndex:0 }}>
-        <div style={{ position:"absolute", top:"-15%", right:"-8%", width:"52vw", height:"52vw", borderRadius:"50%",
-          background:`radial-gradient(circle, rgba(232,127,36,0.14) 0%, rgba(232,127,36,0.04) 45%, transparent 70%)` }} />
-        <div style={{ position:"absolute", bottom:"-20%", left:"-12%", width:"48vw", height:"48vw", borderRadius:"50%",
-          background:`radial-gradient(circle, rgba(115,165,202,0.12) 0%, rgba(115,165,202,0.03) 45%, transparent 70%)` }} />
+      <div aria-hidden="true" style={{ position: "fixed", inset: 0, pointerEvents: "none", zIndex: 0 }}>
+        <div style={{
+          position: "absolute", top: "-15%", right: "-8%", width: "52vw", height: "52vw", borderRadius: "50%",
+          background: `radial-gradient(circle, rgba(232,127,36,0.14) 0%, rgba(232,127,36,0.04) 45%, transparent 70%)`
+        }} />
+        <div style={{
+          position: "absolute", bottom: "-20%", left: "-12%", width: "48vw", height: "48vw", borderRadius: "50%",
+          background: `radial-gradient(circle, rgba(115,165,202,0.12) 0%, rgba(115,165,202,0.03) 45%, transparent 70%)`
+        }} />
       </div>
 
       {/* ── LEFT: Camera (75%) ── */}
-      <div style={{ position:"relative", zIndex:1, flex:"0 0 75%", maxWidth:"75%", padding:20, display:"flex", flexDirection:"column" }}>
+      <div style={{ position: "relative", zIndex: 1, flex: "0 0 75%", maxWidth: "75%", padding: 20, display: "flex", flexDirection: "column" }}>
         <div style={{
-          flex:1, position:"relative", borderRadius:22, overflow:"hidden",
-          border:`1px solid ${C.glassBorder}`, background:"#000",
-          boxShadow:`inset 0 0 60px rgba(0,0,0,0.40), 0 0 0 1px rgba(232,127,36,0.08), 0 8px 40px rgba(30,41,59,0.12)`,
+          flex: 1, position: "relative", borderRadius: 22, overflow: "hidden",
+          border: `1px solid ${C.glassBorder}`, background: "#000",
+          boxShadow: `inset 0 0 60px rgba(0,0,0,0.40), 0 0 0 1px rgba(232,127,36,0.08), 0 8px 40px rgba(30,41,59,0.12)`,
         }}>
           {cameraReady && (
             <div role="status" aria-live="polite" style={{
-              position:"absolute", top:16, right:16, zIndex:5,
-              display:"flex", alignItems:"center",
-              background:"rgba(0,0,0,0.42)", ...glassPill,
-              border:`1px solid rgba(115,165,202,0.28)`,
-              padding:"5px 14px", animation:"fadeIn 0.3s ease",
+              position: "absolute", top: 16, right: 16, zIndex: 5,
+              display: "flex", alignItems: "center",
+              background: "rgba(0,0,0,0.42)", ...glassPill,
+              border: `1px solid rgba(115,165,202,0.28)`,
+              padding: "5px 14px", animation: "fadeIn 0.3s ease",
             }}>
               <span className="ar-dot" aria-hidden="true" />
-              <span style={{ fontSize:10, fontWeight:600, color:"rgba(255,255,255,0.80)", letterSpacing:"0.5px" }}>Face Tracking Active</span>
+              <span style={{ fontSize: 10, fontWeight: 600, color: "rgba(255,255,255,0.80)", letterSpacing: "0.5px" }}>Face Tracking Active</span>
             </div>
           )}
 
           {/* Selected frame badge */}
-          <div style={{ position:"absolute", bottom:16, left:16, zIndex:5 }}>
+          <div style={{ position: "absolute", bottom: 16, left: 16, zIndex: 5 }}>
             <div aria-live="polite" style={{
-              background:"rgba(0,0,0,0.52)", ...glassPill,
-              border:`0.5px solid ${C.primary25}`, padding:"8px 20px",
-              boxShadow:`0 4px 20px rgba(0,0,0,0.25), 0 0 16px ${C.primary12}`,
-              display:"flex", alignItems:"center", gap:12,
+              background: "rgba(0,0,0,0.52)", ...glassPill,
+              border: `0.5px solid ${C.primary25}`, padding: "8px 20px",
+              boxShadow: `0 4px 20px rgba(0,0,0,0.25), 0 0 16px ${C.primary12}`,
+              display: "flex", alignItems: "center", gap: 12,
             }}>
-              <span style={{ fontSize:9, fontWeight:700, color:"rgba(254,253,223,0.50)", letterSpacing:"1.5px" }}>SELECTED</span>
-              <span aria-hidden="true" style={{ width:1, height:11, background:C.primary30, display:"inline-block" }} />
-              <span style={{ fontSize:13, fontWeight:700, color:"rgba(254,253,223,0.95)" }}>{currentGlass?.name}</span>
-              <span style={{ fontSize:13, fontWeight:700, background:C.gradPrimary, WebkitBackgroundClip:"text", WebkitTextFillColor:"transparent" }}>
+              <span style={{ fontSize: 9, fontWeight: 700, color: "rgba(254,253,223,0.50)", letterSpacing: "1.5px" }}>SELECTED</span>
+              <span aria-hidden="true" style={{ width: 1, height: 11, background: C.primary30, display: "inline-block" }} />
+              <span style={{ fontSize: 13, fontWeight: 700, color: "rgba(254,253,223,0.95)" }}>{currentGlass?.name}</span>
+              <span style={{ fontSize: 13, fontWeight: 700, background: C.gradPrimary, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
                 {currentGlass?.price}
               </span>
             </div>
           </div>
 
-          <video ref={videoRef} style={{ position:"absolute", left:"-100%", top:"-100%", width:"1px", height:"1px", opacity:0, pointerEvents:"none" }} autoPlay playsInline muted />
+          <video ref={videoRef} style={{ position: "absolute", left: "-100%", top: "-100%", width: "1px", height: "1px", opacity: 0, pointerEvents: "none" }} autoPlay playsInline muted />
           <canvas
             ref={canvasRef}
             width={DESKTOP_CANVAS_W}
             height={DESKTOP_CANVAS_H}
             aria-label="AR glasses try-on camera view"
-            style={{ display:"block", width:"100%", height:"100%", objectFit:"cover" }}
+            style={{ display: "block", width: "100%", height: "100%", objectFit: "cover" }}
           />
 
           {!cameraReady && (
             <div role="status" aria-label="Initializing camera" style={{
-              position:"absolute", inset:0, borderRadius:22, zIndex:30,
-              background:`radial-gradient(ellipse 100% 60% at 55% 30%, rgba(232,127,36,0.08) 0%, rgba(254,253,223,0.97) 55%)`,
-              display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", gap:28,
+              position: "absolute", inset: 0, borderRadius: 22, zIndex: 30,
+              background: `radial-gradient(ellipse 100% 60% at 55% 30%, rgba(232,127,36,0.08) 0%, rgba(254,253,223,0.97) 55%)`,
+              display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 28,
             }}>
-              <div style={{ position:"relative", width:50, height:50 }}>
+              <div style={{ position: "relative", width: 50, height: 50 }}>
                 <div className="spinner" />
                 <div className="spinner-inner" />
               </div>
-              <div style={{ textAlign:"center" }}>
-                <div style={{ fontFamily:"'Outfit',sans-serif", fontSize:11, fontWeight:700, letterSpacing:"3px",
-                  background:C.gradPrimary, WebkitBackgroundClip:"text", WebkitTextFillColor:"transparent", marginBottom:8 }}>
+              <div style={{ textAlign: "center" }}>
+                <div style={{
+                  fontFamily: "'Outfit',sans-serif", fontSize: 11, fontWeight: 700, letterSpacing: "3px",
+                  background: C.gradPrimary, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", marginBottom: 8
+                }}>
                   INITIALIZING CAMERA
                 </div>
-                <div style={{ fontSize:12, color:C.text55 }}>Please allow camera access to continue</div>
+                <div style={{ fontSize: 12, color: C.text55 }}>Please allow camera access to continue</div>
               </div>
             </div>
           )}
@@ -9820,26 +9834,26 @@ const TryOn = () => {
         role="complementary"
         aria-label="Frame selection and controls"
         style={{
-          position:"relative", zIndex:1,
-          flex:"0 0 25%", maxWidth:"25%",
-          overflowY:"auto",
-          padding:"20px 16px 20px 4px",
-          display:"flex", flexDirection:"column", gap:12,
-          borderLeft:`1px solid ${C.glassBorder}`,
-          background:`linear-gradient(180deg, rgba(245,243,199,0.60) 0%, rgba(254,253,223,0.80) 100%)`,
-          backdropFilter:"blur(20px)", WebkitBackdropFilter:"blur(20px)",
+          position: "relative", zIndex: 1,
+          flex: "0 0 25%", maxWidth: "25%",
+          overflowY: "auto",
+          padding: "20px 16px 20px 4px",
+          display: "flex", flexDirection: "column", gap: 12,
+          borderLeft: `1px solid ${C.glassBorder}`,
+          background: `linear-gradient(180deg, rgba(245,243,199,0.60) 0%, rgba(254,253,223,0.80) 100%)`,
+          backdropFilter: "blur(20px)", WebkitBackdropFilter: "blur(20px)",
         }}
       >
-        <div style={{ padding:"4px 4px 2px" }}>
-          <div style={{ fontFamily:"'Outfit',sans-serif", fontSize:18, fontWeight:700, color:C.text, marginBottom:3 }}>
+        <div style={{ padding: "4px 4px 2px" }}>
+          <div style={{ fontFamily: "'Outfit',sans-serif", fontSize: 18, fontWeight: 700, color: C.text, marginBottom: 3 }}>
             Choose Frame
           </div>
-          <div style={{ fontSize:10, letterSpacing:"1.5px", color:C.text30, fontWeight:600, textTransform:"uppercase" }}>
+          <div style={{ fontSize: 10, letterSpacing: "1.5px", color: C.text30, fontWeight: 600, textTransform: "uppercase" }}>
             {GLASS_OPTIONS.length} styles available
           </div>
         </div>
 
-        <div role="listbox" aria-label="Select glasses frame" style={{ display:"grid", gridTemplateColumns:"repeat(2, 1fr)", gap:8 }}>
+        <div role="listbox" aria-label="Select glasses frame" style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 8 }}>
           {GLASS_OPTIONS.map(g => {
             const isA = glasses === g.id;
             return (
@@ -9852,21 +9866,21 @@ const TryOn = () => {
                 onClick={() => setGlasses(g.id)}
                 onKeyDown={e => (e.key === "Enter" || e.key === " ") && setGlasses(g.id)}
                 style={{
-                  borderRadius:14,
+                  borderRadius: 14,
                   background: isA ? C.primary12 : "rgba(254,253,223,0.55)",
-                  border:`1px solid ${isA ? C.primary : C.surfaceBorder}`,
-                  padding:"10px 6px",
-                  display:"flex", flexDirection:"column", alignItems:"center", gap:5,
-                  cursor:"pointer",
+                  border: `1px solid ${isA ? C.primary : C.surfaceBorder}`,
+                  padding: "10px 6px",
+                  display: "flex", flexDirection: "column", alignItems: "center", gap: 5,
+                  cursor: "pointer",
                   boxShadow: isA ? `0 0 20px rgba(232,127,36,0.20), 0 4px 12px rgba(30,41,59,0.08)` : `0 1px 4px ${C.text06}`,
-                  transition:"all 0.22s cubic-bezier(0.22,1,0.36,1)",
-                  backdropFilter:"blur(8px)", WebkitBackdropFilter:"blur(8px)",
+                  transition: "all 0.22s cubic-bezier(0.22,1,0.36,1)",
+                  backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)",
                 }}
               >
                 <div style={{
-                  width:"100%", height:48,
-                  display:"flex", alignItems:"center", justifyContent:"center",
-                  borderRadius:10, overflow:"hidden",
+                  width: "100%", height: 48,
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                  borderRadius: 10, overflow: "hidden",
                   background: isA ? C.primary12 : C.text06,
                 }}>
                   <img
@@ -9875,17 +9889,17 @@ const TryOn = () => {
                     loading="lazy"
                     crossOrigin="anonymous"
                     style={{
-                      width:"90%", height:"90%", objectFit:"contain",
+                      width: "90%", height: "90%", objectFit: "contain",
                       filter: isA ? `drop-shadow(0 0 5px rgba(232,127,36,0.55))` : "brightness(0.80) saturate(0.75)",
-                      transition:"filter 0.2s ease",
+                      transition: "filter 0.2s ease",
                     }}
                   />
                 </div>
-                <div style={{ fontSize:9, fontWeight:700, textAlign:"center", lineHeight:1.2, color: isA ? C.text : C.text55 }}>
+                <div style={{ fontSize: 9, fontWeight: 700, textAlign: "center", lineHeight: 1.2, color: isA ? C.text : C.text55 }}>
                   {g.name}
                 </div>
                 <div style={{
-                  fontSize:8, fontWeight:700,
+                  fontSize: 8, fontWeight: 700,
                   background: isA ? C.gradPrimary : "none",
                   WebkitBackgroundClip: isA ? "text" : "unset",
                   WebkitTextFillColor: isA ? "transparent" : C.primary,
@@ -9899,29 +9913,29 @@ const TryOn = () => {
         </div>
 
         <Section title="FRAME CALIBRATION" icon="⚙️">
-          <div style={{ display:"flex", justifyContent:"flex-end", marginBottom:14 }}>
+          <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 14 }}>
             <button
               onClick={resetAdj}
               aria-label="Reset frame calibration to defaults"
               style={{
-                fontSize:9, fontWeight:700, color:C.primary,
-                background:C.primary12, border:`0.5px solid ${C.primary25}`,
-                padding:"5px 14px", borderRadius:100, cursor:"pointer",
-                letterSpacing:"0.5px", transition:"background 0.15s",
+                fontSize: 9, fontWeight: 700, color: C.primary,
+                background: C.primary12, border: `0.5px solid ${C.primary25}`,
+                padding: "5px 14px", borderRadius: 100, cursor: "pointer",
+                letterSpacing: "0.5px", transition: "background 0.15s",
               }}
             >Reset</button>
           </div>
-          <SliderRow label="WIDTH"    value={curAdj.scaleW}  min={0.3}  max={3}   step={0.05} onChange={v => setAdj("scaleW",  v)} fmt={v => `${v.toFixed(2)}×`} />
-          <SliderRow label="HEIGHT"   value={curAdj.scaleH}  min={0.3}  max={3}   step={0.05} onChange={v => setAdj("scaleH",  v)} fmt={v => `${v.toFixed(2)}×`} />
-          <SliderRow label="MOVE L/R" value={curAdj.offsetX} min={-150} max={150} step={1}    onChange={v => setAdj("offsetX", v)} fmt={v => `${v > 0 ? "+" : ""}${v}px`} />
-          <SliderRow label="MOVE U/D" value={curAdj.offsetY} min={-150} max={150} step={1}    onChange={v => setAdj("offsetY", v)} fmt={v => `${v > 0 ? "+" : ""}${v}px`} />
-          <SliderRow label="ROTATION" value={curAdj.rotate}  min={-30}  max={30}  step={0.5}  onChange={v => setAdj("rotate",  v)} fmt={v => `${v > 0 ? "+" : ""}${v.toFixed(1)}°`} />
+          <SliderRow label="WIDTH" value={curAdj.scaleW} min={0.3} max={3} step={0.05} onChange={v => setAdj("scaleW", v)} fmt={v => `${v.toFixed(2)}×`} />
+          <SliderRow label="HEIGHT" value={curAdj.scaleH} min={0.3} max={3} step={0.05} onChange={v => setAdj("scaleH", v)} fmt={v => `${v.toFixed(2)}×`} />
+          <SliderRow label="MOVE L/R" value={curAdj.offsetX} min={-150} max={150} step={1} onChange={v => setAdj("offsetX", v)} fmt={v => `${v > 0 ? "+" : ""}${v}px`} />
+          <SliderRow label="MOVE U/D" value={curAdj.offsetY} min={-150} max={150} step={1} onChange={v => setAdj("offsetY", v)} fmt={v => `${v > 0 ? "+" : ""}${v}px`} />
+          <SliderRow label="ROTATION" value={curAdj.rotate} min={-30} max={30} step={0.5} onChange={v => setAdj("rotate", v)} fmt={v => `${v > 0 ? "+" : ""}${v.toFixed(1)}°`} />
         </Section>
 
         <Section title="SCENE FILTERS" icon="🎨">
-          <SliderRow label="BRIGHTNESS" value={brightness} min={50}  max={160} step={1} onChange={setBrightness} fmt={v => `${v}%`} />
-          <SliderRow label="CONTRAST"   value={contrast}   min={60}  max={160} step={1} onChange={setContrast}   fmt={v => `${v}%`} />
-          <SliderRow label="SATURATION" value={saturate}   min={50}  max={160} step={1} onChange={setSaturate}   fmt={v => `${v}%`} />
+          <SliderRow label="BRIGHTNESS" value={brightness} min={50} max={160} step={1} onChange={setBrightness} fmt={v => `${v}%`} />
+          <SliderRow label="CONTRAST" value={contrast} min={60} max={160} step={1} onChange={setContrast} fmt={v => `${v}%`} />
+          <SliderRow label="SATURATION" value={saturate} min={50} max={160} step={1} onChange={setSaturate} fmt={v => `${v}%`} />
         </Section>
       </div>
     </div>

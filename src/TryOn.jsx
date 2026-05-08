@@ -8908,8 +8908,8 @@ function extractFaceGeometry(lm, W, H, useIris = true) {
 
   const eyeSpan = dist(leftEyeOut, rightEyeOut);
   const spanMult = useIris ? 1.0 : 1.20;
-  const glassesWidth  = eyeSpan * 2.0 * spanMult;
-  const glassesHeight = eyeSpan * 1.0 * spanMult;
+  const glassesWidth  = eyeSpan * 1.80 * spanMult;
+  const glassesHeight = eyeSpan * 0.90 * spanMult;
 
   const avgZ = (leftIris.z + rightIris.z + (noseBridgeTop.z ?? 0)) / 3;
   const depthScale = Math.max(0.93, Math.min(1.07, 1 + (-avgZ * 0.5)));

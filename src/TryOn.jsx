@@ -1,14 +1,6 @@
 
 
-
-
-
-
-
 // // final product
-
-
-
 
 // import React, { useRef, useEffect, useState, useCallback } from "react";
 
@@ -37,36 +29,36 @@
 //   { id: "/glass17.png", name: "Modern", price: "PKR 4,900", emoji: "✨", sizes: [{ label: "L", scale: 1.15, mobileScale: 0.95 }] },
 //   { id: "/glass18.png", name: "Luxury", price: "PKR 4,900", emoji: "💎", sizes: [{ label: "L", scale: 1.15, mobileScale: 0.95 }] },
 //   { id: "/glass19.png", name: "Designer", price: "PKR 4,900", emoji: "🎨", sizes: [{ label: "L", scale: 1.15, mobileScale: 0.95 }] },
-//   { id: "/glass20.png", name: "Classic II", price: "PKR 4,900", emoji: "👓", sizes: [{ label: "L", scale: 1.15, mobileScale: 0.95 }] },
-//   { id: "/glass21.png", name: "Classic III", price: "PKR 4,900", emoji: "👓", sizes: [{ label: "M", scale: 1.00, mobileScale: 0.75 }] },
-//   { id: "/glass22.png", name: "Classic IV", price: "PKR 4,900", emoji: "👓", sizes: [{ label: "L", scale: 1.05, mobileScale: 0.95 }] },
-//   { id: "/glass23.png", name: "Classic V", price: "PKR 4,900", emoji: "👓", sizes: [{ label: "L", scale: 1.15, mobileScale: 0.95 }] },
-//   { id: "/glass24.png", name: "Classic VI", price: "PKR 4,900", emoji: "👓", sizes: [{ label: "S", scale: 0.85, mobileScale: 0.50 }] },
-//   { id: "/glass25.png", name: "Classic VII", price: "PKR 4,900", emoji: "👓", sizes: [{ label: "L", scale: 1.15, mobileScale: 0.95 }] },
-//   { id: "/glass26.png", name: "Classic VIII", price: "PKR 4,900", emoji: "👓", sizes: [{ label: "L", scale: 1.15, mobileScale: 0.95 }] },
-//   { id: "/glass27.png", name: "Classic IX", price: "PKR 4,900", emoji: "👓", sizes: [{ label: "L", scale: 1.15, mobileScale: 0.95 }] },
-//   { id: "/glass28.png", name: "Classic X", price: "PKR 4,900", emoji: "👓", sizes: [{ label: "M", scale: 1.00, mobileScale: 0.75 }] },
-//   { id: "/glass29.png", name: "Classic XI", price: "PKR 4,900", emoji: "👓", sizes: [{ label: "L", scale: 1.25, mobileScale: 0.95 }] },
-//   { id: "/glass30.png", name: "Classic XII", price: "PKR 4,900", emoji: "👓", sizes: [{ label: "L", scale: 1.15, mobileScale: 0.95 }] },
-//   { id: "/glass31.png", name: "Classic 31", price: "PKR 4,900", emoji: "👓", sizes: [{ label: "L", scale: 1.15, mobileScale: 0.95 }] },
-//   { id: "/glass32.png", name: "Classic 32", price: "PKR 4,900", emoji: "👓", sizes: [{ label: "L", scale: 1.15, mobileScale: 0.95 }] },
-//   { id: "/glass33.png", name: "Classic 33", price: "PKR 4,900", emoji: "👓", sizes: [{ label: "L", scale: 1.15, mobileScale: 0.95 }] },
-//   { id: "/glass34.png", name: "Classic 34", price: "PKR 4,900", emoji: "👓", sizes: [{ label: "L", scale: 1.15, mobileScale: 0.95 }] },
-//   { id: "/glass35.png", name: "Classic 35", price: "PKR 4,900", emoji: "👓", sizes: [{ label: "M", scale: 1.10, mobileScale: 0.75 }] },
-//   { id: "/glass36.png", name: "Classic 36", price: "PKR 4,900", emoji: "👓", sizes: [{ label: "L", scale: 1.15, mobileScale: 0.95 }] },
-//   { id: "/glass37.png", name: "Classic 37", price: "PKR 4,900", emoji: "👓", sizes: [{ label: "L", scale: 1.15, mobileScale: 0.95 }] },
-//   { id: "/glass38.png", name: "Classic 38", price: "PKR 4,900", emoji: "👓", sizes: [{ label: "XL", scale: 1.30, mobileScale: 1.10 }] },
-//   { id: "/glass39.png", name: "Classic 39", price: "PKR 4,900", emoji: "👓", sizes: [{ label: "L", scale: 1.15, mobileScale: 0.95 }] },
-//   { id: "/glass40.png", name: "Classic 40", price: "PKR 4,900", emoji: "👓", sizes: [{ label: "M", scale: 1.00, mobileScale: 0.75 }] },
-//   { id: "/glass41.png", name: "Classic 41", price: "PKR 4,900", emoji: "👓", sizes: [{ label: "L", scale: 1.15, mobileScale: 0.95 }] },
-//   { id: "/glass42.png", name: "Classic 42", price: "PKR 4,900", emoji: "👓", sizes: [{ label: "S", scale: 0.95, mobileScale: 0.50 }] },
-//   { id: "/glass43.png", name: "Classic 43", price: "PKR 4,900", emoji: "👓", sizes: [{ label: "L", scale: 1.15, mobileScale: 0.95 }] },
-//   { id: "/glass44.png", name: "Classic 44", price: "PKR 4,900", emoji: "👓", sizes: [{ label: "L", scale: 1.15, mobileScale: 0.95 }] },
-//   { id: "/glass45.png", name: "Classic 45", price: "PKR 4,900", emoji: "👓", sizes: [{ label: "XL", scale: 1.30, mobileScale: 1.10 }] },
-//   { id: "/glass46.png", name: "Classic 46", price: "PKR 4,900", emoji: "👓", sizes: [{ label: "XL", scale: 1.40, mobileScale: 1.10 }] },
-//   { id: "/glass47.png", name: "Classic 47", price: "PKR 4,900", emoji: "👓", sizes: [{ label: "XL", scale: 1.20, mobileScale: 1.10 }] },
-//   { id: "/glass48.png", name: "Classic 48", price: "PKR 4,900", emoji: "👓", sizes: [{ label: "M", scale: 1.00, mobileScale: 0.75 }] },
-//   { id: "/glass49.png", name: "Classic 49", price: "PKR 4,900", emoji: "👓", sizes: [{ label: "L", scale: 1.15, mobileScale: 0.95 }] },
+//   { id: "/glass20.png", name: "Classic II", price: "PKR 4,900", emoji: "Glasses", sizes: [{ label: "L", scale: 1.15, mobileScale: 0.95 }] },
+//   { id: "/glass21.png", name: "Classic III", price: "PKR 4,900", emoji: "Glasses", sizes: [{ label: "M", scale: 1.00, mobileScale: 0.75 }] },
+//   { id: "/glass22.png", name: "Classic IV", price: "PKR 4,900", emoji: "Glasses", sizes: [{ label: "L", scale: 1.05, mobileScale: 0.95 }] },
+//   { id: "/glass23.png", name: "Classic V", price: "PKR 4,900", emoji: "Glasses", sizes: [{ label: "L", scale: 1.15, mobileScale: 0.95 }] },
+//   { id: "/glass24.png", name: "Classic VI", price: "PKR 4,900", emoji: "Glasses", sizes: [{ label: "S", scale: 0.85, mobileScale: 0.50 }] },
+//   { id: "/glass25.png", name: "Classic VII", price: "PKR 4,900", emoji: "Glasses", sizes: [{ label: "L", scale: 1.15, mobileScale: 0.95 }] },
+//   { id: "/glass26.png", name: "Classic VIII", price: "PKR 4,900", emoji: "Glasses", sizes: [{ label: "L", scale: 1.15, mobileScale: 0.95 }] },
+//   { id: "/glass27.png", name: "Classic IX", price: "PKR 4,900", emoji: "Glasses", sizes: [{ label: "L", scale: 1.15, mobileScale: 0.95 }] },
+//   { id: "/glass28.png", name: "Classic X", price: "PKR 4,900", emoji: "Glasses", sizes: [{ label: "M", scale: 1.00, mobileScale: 0.75 }] },
+//   { id: "/glass29.png", name: "Classic XI", price: "PKR 4,900", emoji: "Glasses", sizes: [{ label: "L", scale: 1.25, mobileScale: 0.95 }] },
+//   { id: "/glass30.png", name: "Classic XII", price: "PKR 4,900", emoji: "Glasses", sizes: [{ label: "L", scale: 1.15, mobileScale: 0.95 }] },
+//   { id: "/glass31.png", name: "Classic 31", price: "PKR 4,900", emoji: "Glasses", sizes: [{ label: "L", scale: 1.15, mobileScale: 0.95 }] },
+//   { id: "/glass32.png", name: "Classic 32", price: "PKR 4,900", emoji: "Glasses", sizes: [{ label: "L", scale: 1.15, mobileScale: 0.95 }] },
+//   { id: "/glass33.png", name: "Classic 33", price: "PKR 4,900", emoji: "Glasses", sizes: [{ label: "L", scale: 1.15, mobileScale: 0.95 }] },
+//   { id: "/glass34.png", name: "Classic 34", price: "PKR 4,900", emoji: "Glasses", sizes: [{ label: "L", scale: 1.15, mobileScale: 0.95 }] },
+//   { id: "/glass35.png", name: "Classic 35", price: "PKR 4,900", emoji: "Glasses", sizes: [{ label: "M", scale: 1.10, mobileScale: 0.75 }] },
+//   { id: "/glass36.png", name: "Classic 36", price: "PKR 4,900", emoji: "Glasses", sizes: [{ label: "L", scale: 1.15, mobileScale: 0.95 }] },
+//   { id: "/glass37.png", name: "Classic 37", price: "PKR 4,900", emoji: "Glasses", sizes: [{ label: "L", scale: 1.15, mobileScale: 0.95 }] },
+//   { id: "/glass38.png", name: "Classic 38", price: "PKR 4,900", emoji: "Glasses", sizes: [{ label: "XL", scale: 1.30, mobileScale: 1.10 }] },
+//   { id: "/glass39.png", name: "Classic 39", price: "PKR 4,900", emoji: "Glasses", sizes: [{ label: "L", scale: 1.15, mobileScale: 0.95 }] },
+//   { id: "/glass40.png", name: "Classic 40", price: "PKR 4,900", emoji: "Glasses", sizes: [{ label: "M", scale: 1.00, mobileScale: 0.75 }] },
+//   { id: "/glass41.png", name: "Classic 41", price: "PKR 4,900", emoji: "Glasses", sizes: [{ label: "L", scale: 1.15, mobileScale: 0.95 }] },
+//   { id: "/glass42.png", name: "Classic 42", price: "PKR 4,900", emoji: "Glasses", sizes: [{ label: "S", scale: 0.95, mobileScale: 0.50 }] },
+//   { id: "/glass43.png", name: "Classic 43", price: "PKR 4,900", emoji: "Glasses", sizes: [{ label: "L", scale: 1.15, mobileScale: 0.95 }] },
+//   { id: "/glass44.png", name: "Classic 44", price: "PKR 4,900", emoji: "Glasses", sizes: [{ label: "L", scale: 1.15, mobileScale: 0.95 }] },
+//   { id: "/glass45.png", name: "Classic 45", price: "PKR 4,900", emoji: "Glasses", sizes: [{ label: "XL", scale: 1.30, mobileScale: 1.10 }] },
+//   { id: "/glass46.png", name: "Classic 46", price: "PKR 4,900", emoji: "Glasses", sizes: [{ label: "XL", scale: 1.40, mobileScale: 1.10 }] },
+//   { id: "/glass47.png", name: "Classic 47", price: "PKR 4,900", emoji: "Glasses", sizes: [{ label: "XL", scale: 1.20, mobileScale: 1.10 }] },
+//   { id: "/glass48.png", name: "Classic 48", price: "PKR 4,900", emoji: "Glasses", sizes: [{ label: "M", scale: 1.00, mobileScale: 0.75 }] },
+//   { id: "/glass49.png", name: "Classic 49", price: "PKR 4,900", emoji: "Glasses", sizes: [{ label: "L", scale: 1.15, mobileScale: 0.95 }] },
 // ];
 
 // // ─── Device helpers ────────────────────────────────────────────────────────────
@@ -76,13 +68,9 @@
 
 // const getMobileSizes = () => {
 //   const landscape = typeof window !== "undefined" && window.innerWidth > window.innerHeight;
-//   const isLowEnd = typeof window !== "undefined" &&
-//     (window.innerWidth <= 360 || (navigator.deviceMemory ?? 8) <= 2);
-//   if (isLowEnd) {
-//     return landscape
-//       ? { camW: 480, camH: 360, canvasW: 480, canvasH: 360 }
-//       : { camW: 360, camH: 480, canvasW: 360, canvasH: 480 };
-//   }
+//   // Based on the provided image, the aspect ratio is approximately 3:4.
+//   // We will scale down the resolution while maintaining this ratio for performance,
+//   // especially on lower-end devices. 360x480 or 480x640 is a good balance.
 //   return landscape
 //     ? { camW: 640, camH: 480, canvasW: 640, canvasH: 480 }
 //     : { camW: 480, camH: 640, canvasW: 480, canvasH: 640 };
@@ -894,7 +882,7 @@
 //           ref={canvasRef}
 //           width={canvasW}
 //           height={canvasH}
-//           style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+//           style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "contain", display: "block", background: "black" }}
 //           aria-label="AR glasses try-on camera view"
 //         />
 
@@ -1252,31 +1240,7 @@
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// final product
-
+// TryOn.jsx - Fixed mobile stretching issue
 import React, { useRef, useEffect, useState, useCallback } from "react";
 
 // ─── Per-frame defaults ────────────────────────────────────────────────────────
@@ -1340,16 +1304,6 @@ const GLASS_OPTIONS = [
 const getIsMobile = () =>
   typeof window !== "undefined" &&
   (window.innerWidth < 768 || /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent));
-
-const getMobileSizes = () => {
-  const landscape = typeof window !== "undefined" && window.innerWidth > window.innerHeight;
-  // Based on the provided image, the aspect ratio is approximately 3:4.
-  // We will scale down the resolution while maintaining this ratio for performance,
-  // especially on lower-end devices. 360x480 or 480x640 is a good balance.
-  return landscape
-    ? { camW: 640, camH: 480, canvasW: 640, canvasH: 480 }
-    : { camW: 480, camH: 640, canvasW: 480, canvasH: 640 };
-};
 
 const getSizeScale = (sizeObj, mobile) =>
   sizeObj ? (mobile ? (sizeObj.mobileScale ?? sizeObj.scale) : sizeObj.scale) : 1;
@@ -1480,14 +1434,8 @@ function extractFaceGeometry(lm, W, H, useIris = true) {
 
   const avgZ = (leftIris.z + rightIris.z + (noseBridgeTop.z ?? 0)) / 3;
 
-  // Strong dynamic scaling
-const depthScale = Math.max(
-  0.65,
-  Math.min(
-    1.70,
-    1 + (-avgZ * 3.2)
-  )
-);
+  // Slightly reduced depth scaling for mobile to avoid vertical exaggeration
+  const depthScale = Math.max(0.70, Math.min(1.55, 1 + (-avgZ * 2.5)));
   return { centerX, centerY, angle, glassesWidth, glassesHeight, depthScale };
 }
 
@@ -1604,7 +1552,7 @@ const TryOn = () => {
 
   const [isMobile, setIsMobile] = useState(() => getIsMobile());
   const isMobileRef = useRef(isMobile);
-  const [mobileSizes, setMobileSizes] = useState(() => getMobileSizes());
+  const [videoDims, setVideoDims] = useState(null); // for mobile only
 
   useEffect(() => {
     const onResize = () => {
@@ -1612,7 +1560,21 @@ const TryOn = () => {
       isMobileRef.current = m;
       setIsMobile(m);
       ctxRef.current = null;
-      if (m) setMobileSizes(getMobileSizes());
+      // On mobile, when orientation changes, we need to re-read video dimensions
+      if (m && videoRef.current && videoRef.current.videoWidth) {
+        const vw = videoRef.current.videoWidth;
+        const vh = videoRef.current.videoHeight;
+        if (canvasRef.current && vw && vh) {
+          canvasRef.current.width = vw;
+          canvasRef.current.height = vh;
+          setVideoDims({ w: vw, h: vh });
+          ctxRef.current = null;
+        }
+      } else if (!m && canvasRef.current) {
+        canvasRef.current.width = DESKTOP_CANVAS_W;
+        canvasRef.current.height = DESKTOP_CANVAS_H;
+        ctxRef.current = null;
+      }
     };
     window.addEventListener("resize", onResize, { passive: true });
     return () => window.removeEventListener("resize", onResize);
@@ -1622,19 +1584,19 @@ const TryOn = () => {
   if (!smootherRef.current) {
     smootherRef.current = isMobile
       ? new FaceGeoSmoother({
-        posAlpha: 0.38,
-        scaleAlpha: 1.0,
-        rotAlpha: 0.22,
-        maxPosDelta: 48,
-        maxScaleDelta: 5.0,
-      })
+          posAlpha: 0.38,
+          scaleAlpha: 1.0,
+          rotAlpha: 0.22,
+          maxPosDelta: 48,
+          maxScaleDelta: 5.0,
+        })
       : new FaceGeoSmoother({
-        posAlpha: 0.45,
-        scaleAlpha: 1.0,
-        rotAlpha: 0.30,
-        maxPosDelta: 60,
-        maxScaleDelta: 5.0,
-      });
+          posAlpha: 0.45,
+          scaleAlpha: 1.0,
+          rotAlpha: 0.30,
+          maxPosDelta: 60,
+          maxScaleDelta: 5.0,
+        });
   }
 
   const [glasses, setGlasses] = useState("/glass1.png");
@@ -1681,7 +1643,7 @@ const TryOn = () => {
     const id = glassesRef.current;
     const defaults =
       id === "/glass2.png" ? { ...AVIATOR_ADJ } :
-        id === "/glass4.png" ? { ...ROUND_ADJ } : { ...DEFAULT_ADJ };
+      id === "/glass4.png" ? { ...ROUND_ADJ } : { ...DEFAULT_ADJ };
     adjustmentsRef.current = { ...adjustmentsRef.current, [id]: defaults };
     adjRef.current = adjustmentsRef.current;
     setAdjUIState({ ...defaults });
@@ -1792,7 +1754,7 @@ const TryOn = () => {
     resultVersionRef.current++;
   }, []);
 
-  // ── Camera + FaceMesh init ───────────────────────────────────────────────
+  // ── Camera + FaceMesh init (fixed for mobile) ───────────────────────────────
   useEffect(() => {
     if (!window.FaceMesh) {
       setMpError("MediaPipe FaceMesh not found. Add the MediaPipe <script> tag to index.html.");
@@ -1800,19 +1762,6 @@ const TryOn = () => {
     }
 
     const mobile = isMobileRef.current;
-    let camW, camH, canvasW, canvasH;
-    if (mobile) {
-      ({ camW, camH, canvasW, canvasH } = mobileSizes);
-    } else {
-      camW = DESKTOP_CAM_W; camH = DESKTOP_CAM_H;
-      canvasW = DESKTOP_CANVAS_W; canvasH = DESKTOP_CANVAS_H;
-    }
-
-    if (canvasRef.current) {
-      canvasRef.current.width = canvasW;
-      canvasRef.current.height = canvasH;
-      ctxRef.current = null;
-    }
 
     const faceMesh = new window.FaceMesh({
       locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh@0.4/${file}`,
@@ -1827,11 +1776,12 @@ const TryOn = () => {
 
     rafIdRef.current = requestAnimationFrame(drawLoop);
 
+    // Request camera with minimal constraints; we'll read actual dimensions later
     navigator.mediaDevices.getUserMedia({
       video: {
         facingMode: "user",
-        width: { ideal: camW },
-        height: { ideal: camH },
+        width: mobile ? { ideal: 640 } : { ideal: DESKTOP_CAM_W },
+        height: mobile ? { ideal: 480 } : { ideal: DESKTOP_CAM_H },
         frameRate: { ideal: mobile ? 30 : 60 },
       },
       audio: false,
@@ -1845,6 +1795,24 @@ const TryOn = () => {
           video.play().then(() => {
             cameraRdyRef.current = true;
             setCameraReady(true);
+
+            // --- Set canvas dimensions to actual video source size (critical for mobile) ---
+            if (mobile) {
+              const vw = video.videoWidth;
+              const vh = video.videoHeight;
+              if (canvasRef.current && vw && vh) {
+                canvasRef.current.width = vw;
+                canvasRef.current.height = vh;
+                setVideoDims({ w: vw, h: vh });
+                ctxRef.current = null;
+              }
+            } else {
+              if (canvasRef.current) {
+                canvasRef.current.width = DESKTOP_CANVAS_W;
+                canvasRef.current.height = DESKTOP_CANVAS_H;
+                ctxRef.current = null;
+              }
+            }
 
             const sendFrame = async () => {
               if (!cameraRdyRef.current) return;
@@ -1881,9 +1849,9 @@ const TryOn = () => {
       }
       faceMesh.close();
     };
-  }, [drawLoop, onResults, mobileSizes]);
+  }, [drawLoop, onResults]); // no need to re-run on mobile flag change, it's stable after mount
 
-  // ── CSS ──────────────────────────────────────────────────────────────────
+  // ── CSS (unchanged) ─────────────────────────────────────────────────────────
   const css = `
     @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Space+Grotesk:wght@300;400;500;600&display=swap');
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -1909,8 +1877,6 @@ const TryOn = () => {
     ::-webkit-scrollbar { width: 3px; height: 3px; }
     ::-webkit-scrollbar-track { background: rgba(232,127,36,0.06); border-radius: 4px; }
     ::-webkit-scrollbar-thumb { background: linear-gradient(180deg, #E87F24, #F5A623); border-radius: 4px; }
-
-    /* ───────────────── SNAPCHAT STYLE LENS UI ───────────────── */
 
     .lens-carousel {
       display: flex;
@@ -1968,7 +1934,6 @@ const TryOn = () => {
       transition: filter 0.25s ease;
     }
 
-    /* ── ACTIVE state ── */
     .lens-ring--active .lens-ring__circle {
       transform: scale(1.15);
       box-shadow:
@@ -1983,7 +1948,6 @@ const TryOn = () => {
         brightness(1.05);
     }
 
-    /* ── INACTIVE state ── */
     .lens-ring--inactive .lens-ring__circle {
       transform: scale(0.88);
       opacity: 0.55;
@@ -1995,13 +1959,11 @@ const TryOn = () => {
       filter: brightness(0.55) saturate(0.55);
     }
 
-    /* ── Click feedback ── */
     .lens-ring__circle:active {
       transform: scale(0.82) !important;
       transition: transform 0.10s ease !important;
     }
 
-    /* ── GLOW RING (spinning conic border) ── */
     .lens-ring__glow-ring {
       position: absolute;
       inset: -3px;
@@ -2033,7 +1995,6 @@ const TryOn = () => {
       to   { transform: rotate(360deg); }
     }
 
-    /* ── Label ── */
     .lens-ring__label {
       font-size: 9px;
       font-weight: 700;
@@ -2055,7 +2016,6 @@ const TryOn = () => {
       opacity: 1;
     }
 
-    /* ── Active dot indicator ── */
     .lens-ring__dot {
       width: 4px;
       height: 4px;
@@ -2118,12 +2078,10 @@ const TryOn = () => {
   const curAdj = adjUIState;
 
   // ══════════════════════════════════════════════════════════════
-  // MOBILE LAYOUT
+  // MOBILE LAYOUT – FIXED: canvas uses object-fit: contain
   // ══════════════════════════════════════════════════════════════
   if (isMobile) {
     const idx = GLASS_OPTIONS.findIndex(g => g.id === glasses);
-    const { canvasW, canvasH } = mobileSizes;
-
     const CIRCLE_SIZE_ACTIVE = 58;
     const CIRCLE_SIZE_INACTIVE = 50;
 
@@ -2155,9 +2113,15 @@ const TryOn = () => {
 
         <canvas
           ref={canvasRef}
-          width={canvasW}
-          height={canvasH}
-          style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "contain", display: "block", background: "black" }}
+          style={{
+            position: "absolute",
+            inset: 0,
+            width: "100%",
+            height: "100%",
+            objectFit: "contain",   // ← KEY FIX: no stretching
+            display: "block",
+            background: "black"
+          }}
           aria-label="AR glasses try-on camera view"
         />
 
@@ -2211,19 +2175,17 @@ const TryOn = () => {
           </div>
         )}
 
-        {/* ── Snapchat-style ring carousel ── */}
+        {/* Snapchat-style ring carousel */}
         <div style={{
           position: "absolute", bottom: 0, left: 0, right: 0, zIndex: 20,
           paddingBottom: "env(safe-area-inset-bottom, 10px)",
           background: "linear-gradient(to top, rgba(8,4,1,0.97) 50%, rgba(8,4,1,0.80) 75%, transparent 100%)",
         }}>
-          {/* Header row */}
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "8px 20px 2px" }}>
             <span style={{ fontSize: 9, fontWeight: 700, letterSpacing: "2px", color: "rgba(254,253,223,0.30)", textTransform: "uppercase" }}>Frames</span>
             <span style={{ fontSize: 9, color: "rgba(254,253,223,0.25)" }} aria-live="polite">{idx + 1} / {GLASS_OPTIONS.length}</span>
           </div>
 
-          {/* Ring carousel */}
           <div
             className="lens-carousel"
             role="listbox"
@@ -2244,7 +2206,6 @@ const TryOn = () => {
                   onKeyDown={e => (e.key === "Enter" || e.key === " ") && setGlasses(g.id)}
                   style={{ minWidth: CIRCLE_SIZE_ACTIVE + 2 }}
                 >
-                  {/* Circle */}
                   <div
                     className="lens-ring__circle"
                     style={{
@@ -2255,10 +2216,7 @@ const TryOn = () => {
                         : "radial-gradient(circle at 35% 35%, rgba(255,255,255,0.07), rgba(10,5,2,0.82))",
                     }}
                   >
-                    {/* Spinning conic glow ring */}
                     <div className="lens-ring__glow-ring" aria-hidden="true" />
-
-                    {/* Glasses image */}
                     <img
                       src={g.id}
                       alt={g.name}
@@ -2266,11 +2224,7 @@ const TryOn = () => {
                       className="lens-ring__img"
                     />
                   </div>
-
-                  {/* Label */}
                   <span className="lens-ring__label">{g.name}</span>
-
-                  {/* Active dot */}
                   <div className="lens-ring__dot" aria-hidden="true" />
                 </div>
               );
@@ -2305,7 +2259,7 @@ const TryOn = () => {
   }
 
   // ══════════════════════════════════════════════════════════════
-  // DESKTOP LAYOUT
+  // DESKTOP LAYOUT (unchanged)
   // ══════════════════════════════════════════════════════════════
   return (
     <div style={{ fontFamily: "'Space Grotesk', sans-serif", background: C.gradBg, color: C.text, height: "100vh", display: "flex", overflow: "hidden" }}>
@@ -2508,11 +2462,5 @@ const TryOn = () => {
 };
 
 export default TryOn;
-
-
-
-
-
-
 
 
